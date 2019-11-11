@@ -12,15 +12,33 @@ class simple_transfer_classifier(nn.Module):
         self.pretrain_weight = pretrain_weight
         self.feature_extracting = feature_extracting
 
-        self.pretrained_network = get_pretrained_net(pretrained_model_name,
+        self.pretrained_network, self.feature_dim = get_pretrained_net(pretrained_model_name,
                                                      module_prefix,
                                                      pretrain_weight,
                                                      feature_extracting)
 
+        if num_class == 1:
+            act = nn.Sigmoid()
+        else:
+            act = nn.Softmax()
+        self.simplest_linear_BN_act = nn.Sequential(*[
+                                            nn.Linear(self.feature_dim[1]*self.feature_dim[2]*self.feature_dim[3],
+                                                      num_class),
+                                            nn.BatchNorm1d(num_class),
+                                            act])
+
+
 
 
     def forward(self, input):
-        pass
+        features = self.pretrained_network(input)
+        features_flat = input.flatten(start_dim=1)
+        out = self.simplest_linear_BN_act(features_flat)
+        return out
+
+    # def weight_init(self, use_pretrained_weight):
+
+
 
 
 def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weight=True,
@@ -55,7 +73,10 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         else:
             print("Invalid model name, exiting...")
             exit()
-        return pretrained_net
+
+        test_output = feature_extractor(test_input)
+
+        return feature_extractor, test_output.shape
 
 # def get_only_conv(network):
 #     *list(res50_model.children())
