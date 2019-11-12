@@ -10,11 +10,14 @@ class compose_input_output_transform(object):
         self.with_gt = with_gt
 
     def __call__(self, sample):
-        sample['input'] = self.input_transform(sample['input'])
+        if self.input_transform is not None:
+            sample['input'] = self.input_transform(sample['input'])
         if self.with_gt:
-            sample["output"] = self.output_transform(sample['output'])
+            if self.output_transform is not None:
+                sample["gt"] = self.output_transform(sample['gt'])
 
         return sample
+
 
 
 

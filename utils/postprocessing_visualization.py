@@ -9,6 +9,7 @@ def compare_model(trainers, save_path):
     colors = plt.cm.jet(np.linspace(0, 1, n))
     maxepochs = 0
     plt.clf()
+    print(trainers[0][0])
     metrics = list(trainers[0][0].performance_stat["train"][0].keys())
     epochs = trainers[0][0].total_epochs
     states = ["train", "val", "test"]
@@ -54,8 +55,11 @@ def compare_model(trainers, save_path):
                     ax_temp.plot(**plot_paras)
                     ax_all_states.plot(**plot_paras)
 
+
                     ax_temp.set_title(metric)
                     ax_temp.legend()
+                    ax_temp.set_xlabel("epoch")
+                    ax_temp.set_ylabel(metric)
                     fig_temp.savefig(save_path+"{}_{}thfold_{}_{}.png".format(metric, nth_fold_trainer.model_name,
                                                                            nth_fold, state))
 

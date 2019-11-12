@@ -1,15 +1,17 @@
 from utils.common_library import *
+# from utils import model
+from utils.loss_metrics_evaluation import performance_evaluation
 
 class trainer(object):
     def __init__(self,
                  model,
                  model_name,
                  optimizer,
-                 lr_scheduler_list,
                  n_batches,
-                 loss_function,
-                 performance_metrics,
-                 total_epochs,
+                 lr_scheduler_list=[],
+                 loss_function=nn.BCELoss(),
+                 performance_metrics=performance_evaluation(),
+                 total_epochs=50,
                  use_pretrain_weight=True):
         self.model = model
         self.model_name = model_name
@@ -48,17 +50,22 @@ class trainer(object):
 
         self.loss_stat[running_state][epoch].append(loss)
         if running_state == "train":
+            # print("{} loss:{}".format(running_state, loss))
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
         return loss, predict
 
     def evaluation(self, running_state, epoch):
+        self.prediction_list[running_state][epoch] = torch.cat(self.prediction_list[running_state][epoch], dim=0)
+        self.gt_list[running_state][epoch] = torch.cat(self.gt_list[running_state][epoch], dim=0)
+
         metrics_dict = self.performance_metrics.eval(self.prediction_list[running_state][epoch],
                                           self.gt_list[running_state][epoch])
-        print("# {} epoch performance:".format(epoch))
-        for key, value in metrics_dict:
-            print("{}:{}".format(key, value))
+        print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
+        # print("# {} epoch performance ({}):".format(epoch, running_state))
+        for key, value in metrics_dict.items():
+            print("{}: {}".format(key, value))
         self.performance_stat[running_state].append(metrics_dict)
 
     def inference(self, input):

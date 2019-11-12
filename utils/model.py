@@ -4,8 +4,10 @@ import importlib
 
 
 class simple_transfer_classifier(nn.Module):
-    def __init__(self, pretrained_model_name, num_class, input_size,
-                 module_prefix=None, pretrain_weight=True, feature_extracting=True):
+    def __init__(self, num_classes, input_size,
+                 module_prefix=None, pretrained_model_name="resnet18",
+                 pretrain_weight=True, feature_extracting=True):
+        super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
         # self.modules_employing = modules_employing
         self.module_prefix = module_prefix
@@ -13,18 +15,21 @@ class simple_transfer_classifier(nn.Module):
         self.feature_extracting = feature_extracting
 
         self.pretrained_network, self.feature_dim = get_pretrained_net(pretrained_model_name,
+                                                     input_size,
                                                      module_prefix,
                                                      pretrain_weight,
                                                      feature_extracting)
-
-        if num_class == 1:
+        # print(self.pretrained_network)
+        # self.feature_dim = (0,0,0)
+        # print(self.feature_dim)
+        if num_classes == 1:
             act = nn.Sigmoid()
         else:
             act = nn.Softmax()
         self.simplest_linear_BN_act = nn.Sequential(*[
-                                            nn.Linear(self.feature_dim[1]*self.feature_dim[2]*self.feature_dim[3],
-                                                      num_class),
-                                            nn.BatchNorm1d(num_class),
+                                            nn.Linear(self.feature_dim[1] * self.feature_dim[2] * self.feature_dim[3],
+                                                      num_classes),
+                                            # nn.BatchNorm1d(num_classes),
                                             act])
 
 
@@ -32,7 +37,9 @@ class simple_transfer_classifier(nn.Module):
 
     def forward(self, input):
         features = self.pretrained_network(input)
-        features_flat = input.flatten(start_dim=1)
+        features_flat = features.flatten(start_dim=1)
+        # print(features_flat.shape)
+        # print(self.feature_dim)
         out = self.simplest_linear_BN_act(features_flat)
         return out
 
@@ -55,6 +62,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         set_parameter_requires_grad(pretrained_net, feature_extracting)
         test_input = torch.zeros(1,input_size[0], input_size[1], input_size[2])
         # TODO: get the only layers want from 'modules_employing',
+        print(model_name)
         if "res" in model_name and "fcn" not in model_name:
             # Resnet for classification
             feature_extractor = nn.Sequential(*list(pretrained_net.children())[:-2])
@@ -73,9 +81,9 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         else:
             print("Invalid model name, exiting...")
             exit()
-
+        # print(feature_extractor)
         test_output = feature_extractor(test_input)
-
+        # print(test_output)
         return feature_extractor, test_output.shape
 
 # def get_only_conv(network):
