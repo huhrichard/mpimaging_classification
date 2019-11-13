@@ -8,10 +8,10 @@ class trainer(object):
                  model_name,
                  optimizer,
                  n_batches,
+                 total_epochs,
                  lr_scheduler_list=[],
                  loss_function=nn.BCELoss(),
                  performance_metrics=performance_evaluation(),
-                 total_epochs=50,
                  use_pretrain_weight=True):
         self.model = model
         self.model_name = model_name

@@ -15,7 +15,7 @@ from utils.postprocessing_visualization import compare_model
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for classification')
-parser.add_argument('--epochs', default=2, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=20, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
@@ -45,11 +45,12 @@ def put_parameters_to_trainer(parameters, num_classes, device):
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1])).to(device)
     new_trainer = trainer(model=model,
-                        model_name="pretrained_1Linear",
-                        optimizer=torch.optim.Adam(lr=args.lr, weight_decay=args.wd, params=model.parameters()),
-                        n_batches=args.n_batch,
-                        lr_scheduler_list=[],
-                        loss_function=nn.BCELoss())
+                            model_name="pretrained_1Linear",
+                            optimizer=torch.optim.Adam(lr=args.lr, weight_decay=args.wd, params=model.parameters()),
+                            n_batches=args.n_batch,
+                            total_epochs=args.epochs,
+                            lr_scheduler_list=[],
+                            loss_function=nn.BCELoss())
     return new_trainer
 
 if __name__ == "__main__":

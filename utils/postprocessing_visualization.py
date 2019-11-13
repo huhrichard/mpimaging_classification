@@ -11,17 +11,21 @@ def compare_model(trainers, save_path):
     plt.clf()
     print(trainers[0][0])
     metrics = list(trainers[0][0].performance_stat["train"][0].keys())
+    print(metrics)
     epochs = trainers[0][0].total_epochs
     states = ["train", "val", "test"]
-    linestyle_dict = {"train": "-",
-                      "val": ".",
-                      "test": "o"}
+    linestyle_dict = {"train": "--",
+                      "val": ":",
+                      "test": ":"}
+    mark_style_dict = {"train": ".",
+                      "val": "^",
+                      "test": "D"}
     for metric in metrics:
         fig_all_trainers = plt.figure()
         ax_all_trainers = fig_all_trainers.add_subplot(1,1,1)
         fig_all_trainers_test_only = plt.figure()
         ax_all_trainers_test_only = fig_all_trainers_test_only.add_subplot(1, 1, 1)
-        for idx, trainer in enumerate(trainers):
+        for idx, specific_trainer in enumerate(trainers):
             # plot each fold result 1st
             fig_all_folds = plt.figure()
             ax_all_folds = fig_all_folds.add_subplot(1,1,1)
@@ -32,28 +36,27 @@ def compare_model(trainers, save_path):
                             "val":[],
                             "test":[]
                             }
-            for nth_fold in range(len(trainer)):
-                nth_fold_trainer = trainer[nth_fold]
+            for nth_fold in range(len(specific_trainer)):
+                nth_fold_trainer = specific_trainer[nth_fold]
                 fig_all_states = plt.figure()
                 ax_all_states = fig_all_states.add_subplot(1,1,1)
 
                 for state in states:
                     fig_temp = plt.figure()
                     ax_temp = fig_temp.add_subplot(1,1,1)
-                    metric_scores = [nth_fold_trainer[state][e][metric] for e in epochs]
+                    # print(nth_fold_trainer)
+                    metric_scores = [nth_fold_trainer.performance_stat[state][e][metric] for e in range(epochs)]
 
                     metric_dicts[state].append(metric_scores)
                     # stacked_fold_metrics.append(metric_scores)
 
-                    plot_paras = {"x":range(epochs),
-                                  "y":metric_scores,
-                                  "label":"{}({})".format(state, nth_fold_trainer.model_name),
+                    plot_paras = {"label":"{}({})".format(state, nth_fold_trainer.model_name),
                                   "c":colors[idx],
                                   "linestyle":linestyle_dict[state],
                                   "alpha": 0.7}
 
-                    ax_temp.plot(**plot_paras)
-                    ax_all_states.plot(**plot_paras)
+                    ax_temp.plot(range(epochs), metric_scores,**plot_paras)
+                    ax_all_states.plot(range(epochs), metric_scores, **plot_paras)
 
 
                     ax_temp.set_title(metric)
@@ -62,18 +65,20 @@ def compare_model(trainers, save_path):
                     ax_temp.set_ylabel(metric)
                     fig_temp.savefig(save_path+"{}_{}thfold_{}_{}.png".format(metric, nth_fold_trainer.model_name,
                                                                            nth_fold, state))
+                    fig_temp.clf()
 
                 ax_all_states.set_title(metric)
                 ax_all_states.legend()
                 fig_all_states.savefig(save_path+"{}_{}thfold_{}.png".format(metric, nth_fold_trainer.model_name,
                                                                            nth_fold))
+                fig_all_states.clf()
 
             for state in states:
-                metric_scores[state] = np.array(metric_scores[state])
+                metric_dicts[state] = np.array(metric_dicts[state])
                 plot_paras = {"x": range(epochs),
-                              "y": np.mean(metric_scores[state], axis=0),
-                              "yerr": np.std(metric_scores[state], axis=0),
-                              "label": "{}({})".format(state, trainer[0].model_name),
+                              "y": np.mean(metric_dicts[state], axis=0),
+                              "yerr": np.std(metric_dicts[state], axis=0),
+                              "label": "{}({})".format(state, specific_trainer[0].model_name),
                               "c": colors[idx],
                               "linestyle": linestyle_dict[state],
                               "alpha": 0.7}
@@ -85,19 +90,23 @@ def compare_model(trainers, save_path):
 
             ax_all_folds.set_title(metric)
             ax_all_folds.legend()
-            fig_all_folds.savefig(save_path + "{}_{}.png".format(metric, trainer[0].model_name))
+            fig_all_folds.savefig(save_path + "{}_{}.png".format(metric, specific_trainer[0].model_name))
+            fig_all_folds.clf()
 
             ax_all_folds_test_only.set_title(metric)
             ax_all_folds_test_only.legend()
-            fig_all_folds_test_only.savefig(save_path + "{}_{}_testing.png".format(metric, trainer[0].model_name))
+            fig_all_folds_test_only.savefig(save_path + "{}_{}_testing.png".format(metric, specific_trainer[0].model_name))
+            fig_all_folds_test_only.clf()
 
         ax_all_trainers.set_title(metric)
         ax_all_trainers.legend()
         fig_all_trainers.savefig(save_path + "{}.png".format(metric))
+        fig_all_trainers.clf()
 
         ax_all_trainers_test_only.set_title(metric)
         ax_all_trainers_test_only.legend()
         fig_all_trainers_test_only.savefig(save_path + "{}_testing.png".format(metric))
+        fig_all_trainers_test_only.clf()
 
 
 
