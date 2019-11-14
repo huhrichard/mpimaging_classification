@@ -1,6 +1,7 @@
 from utils.common_library import *
 # from utils import model
 from utils.loss_metrics_evaluation import performance_evaluation
+from torch.utils.tensorboard import SummaryWriter
 
 class trainer(object):
     def __init__(self,
@@ -57,16 +58,18 @@ class trainer(object):
         return loss, predict
 
     def evaluation(self, running_state, epoch):
+        print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
         self.prediction_list[running_state][epoch] = torch.cat(self.prediction_list[running_state][epoch], dim=0)
         self.gt_list[running_state][epoch] = torch.cat(self.gt_list[running_state][epoch], dim=0)
 
         metrics_dict = self.performance_metrics.eval(self.prediction_list[running_state][epoch],
                                           self.gt_list[running_state][epoch])
-        print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
+
         # print("# {} epoch performance ({}):".format(epoch, running_state))
         for key, value in metrics_dict.items():
             print("{}: {}".format(key, value))
         self.performance_stat[running_state].append(metrics_dict)
+        return metrics_dict
 
     def inference(self, input):
         return self.model(input)

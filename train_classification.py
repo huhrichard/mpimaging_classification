@@ -21,7 +21,7 @@ parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of d
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
 parser.add_argument('--lr', '--learning_rate', default=1e-6, type=float, help='learning rate')
 parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, help='weight decay (like regularization)')
-parser.add_argument('--n_batch', default=5, type=int, help='weight decay (like regularization)')
+parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
 
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
@@ -33,7 +33,7 @@ print("Using device: ", device)
 args = parser.parse_args()
 print(args)
 
-input_tensor_size = (350, 350)
+input_tensor_size = (500, 500)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -42,8 +42,11 @@ def model_training_and_evaluate_testing(epochs,
     pass
 
 def put_parameters_to_trainer(parameters, num_classes, device):
+
     model = simple_transfer_classifier(num_classes=num_classes,
-                                       input_size=(3,input_tensor_size[0],input_tensor_size[1])).to(device)
+                                       input_size=(3,input_tensor_size[0],input_tensor_size[1]),
+                                       feature_extracting=True
+                                       ).to(device)
     new_trainer = trainer(model=model,
                             model_name="pretrained_1Linear",
                             optimizer=torch.optim.Adam(lr=args.lr, weight_decay=args.wd, params=model.parameters()),
@@ -53,10 +56,15 @@ def put_parameters_to_trainer(parameters, num_classes, device):
                             loss_function=nn.BCELoss())
     return new_trainer
 
+def parameters_dict_to_model_name(parameters_dict):
+    pass
+
 if __name__ == "__main__":
     img_path = args.img_path
     gt_path = args.gt_path
-    parameters_grid = {"test_attr": [0]}
+    parameters_grid = {"test_attr": [0],
+                       # "feature_extracting": [True, False]
+                       }
     list_parameters = ParameterGrid(parameters_grid)
 
     # create dataset
@@ -121,6 +129,7 @@ if __name__ == "__main__":
                             loss, predict = specific_trainer.running_model(input, gt, epoch=epoch, running_state=running_state)
 
                     specific_trainer.evaluation(running_state=running_state, epoch=epoch)
+
                 time_elapsed = time.time()-epoch_start_time
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
 

@@ -61,7 +61,7 @@ class mpImage_dataset(Dataset):
                     result.append(os.path.join(root, name))
         return result
 
-def cross_validation_and_test_split(len_data, n_folds=2, test_ratio=0.1, random_seed=0):
+def cross_validation_and_test_split(len_data, n_folds=2, test_ratio=0.1, random_seed=None):
     np.random.seed(seed=random_seed)
 
     permuted_np_array = np.random.permutation(len_data)

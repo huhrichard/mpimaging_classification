@@ -27,8 +27,8 @@ def torch_tensor_np(tensor):
 
 def auc(predict, gt):
     np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
-    # print(np_predict)
-    # print(np_gt)
+    print(np_predict)
+    print(np_gt)
     auc = metrics.roc_auc_score(y_score=np_predict, y_true=np_gt)
     return auc
 
@@ -37,8 +37,8 @@ def f_max(predict, gt):
     np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
     recall, precision, threshold = metrics.precision_recall_curve(probas_pred=np_predict,
                                                              y_true=np_gt)
-    # print("recall: ", recall)
-    # print("precision: ", precision)
+    print("recall: ", recall)
+    print("precision: ", precision)
 
     f_score = 2*(recall*precision)/(recall+precision)
     f_max = np.nanmax(f_score)

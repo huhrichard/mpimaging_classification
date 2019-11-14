@@ -53,7 +53,8 @@ def compare_model(trainers, save_path):
                     plot_paras = {"label":"{}({})".format(state, nth_fold_trainer.model_name),
                                   "c":colors[idx],
                                   "linestyle":linestyle_dict[state],
-                                  "alpha": 0.7}
+                                  "alpha": 0.7,
+                                  "marker":mark_style_dict[state]}
 
                     ax_temp.plot(range(epochs), metric_scores,**plot_paras)
                     ax_all_states.plot(range(epochs), metric_scores, **plot_paras)
@@ -81,7 +82,8 @@ def compare_model(trainers, save_path):
                               "label": "{}({})".format(state, specific_trainer[0].model_name),
                               "c": colors[idx],
                               "linestyle": linestyle_dict[state],
-                              "alpha": 0.7}
+                              "alpha": 0.7,
+                              "marker":mark_style_dict[state]}
                 if state == "test":
                     ax_all_folds_test_only.errorbar(**plot_paras)
                     ax_all_trainers_test_only.errorbar(**plot_paras)
