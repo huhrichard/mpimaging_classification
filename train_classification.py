@@ -75,7 +75,7 @@ if __name__ == "__main__":
     train_val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
                                  cvtransforms.RandomHorizontalFlip(),
                                  cvtransforms.RandomVerticalFlip(),
-                                 cvtransforms.RandomRotation(),
+                                 cvtransforms.RandomRotation(90),
                                  cvtransforms.ToTensor(),
                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
