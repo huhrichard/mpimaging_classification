@@ -5,7 +5,7 @@ import pandas
 import os, fnmatch
 
 class mpImage_dataset(Dataset):
-    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None):
+    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None, skip_damaged=True):
         """
 
         :param img_path:
@@ -23,7 +23,7 @@ class mpImage_dataset(Dataset):
         self.img_name = []
         for idx, img_prefix in enumerate(img_prefixes):
             # skip damaged image
-            if notes[idx] == 'damaged':
+            if notes[idx] == 'damaged' and skip_damaged is True:
                 continue
             path_list = self.find("{}*".format(img_prefix), img_dir)
             # print(path_list)
@@ -62,7 +62,7 @@ class mpImage_dataset(Dataset):
                     result.append(os.path.join(root, name))
         return result
 
-def cross_validation_and_test_split(len_data, n_folds=2, test_ratio=0.1, random_seed=None):
+def cross_validation_and_test_split(len_data, n_folds=5, test_ratio=0.1, random_seed=None):
     np.random.seed(seed=random_seed)
 
     permuted_np_array = np.random.permutation(len_data)

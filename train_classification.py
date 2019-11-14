@@ -45,7 +45,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
 
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
-                                       feature_extracting=False
+                                       feature_extracting=True
                                        ).to(device)
     new_trainer = trainer(model=model,
                             model_name="pretrained_1Linear",
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                         for train_split in train_splits:
                             for batch_idx, data in enumerate(cv_data_loaders[train_split]):
                                 input = data['input']
-                                print("input mean and sd: ", input.mean(), input.std())
+                                # print("input mean and sd: ", input.mean(), input.std())
                                 gt = data['gt']
                                 input = Variable(input).float().to(device)
                                 gt = Variable(gt).float().to(device)

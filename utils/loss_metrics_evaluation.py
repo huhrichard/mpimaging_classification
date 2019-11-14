@@ -40,6 +40,9 @@ def f_max(predict, gt):
     print("recall: ", recall)
     print("precision: ", precision)
 
+    recall = np.clip(recall, a_min=eps)
+    precision = np.clip(precision, a_min=eps)
+
     f_score = 2*(recall*precision)/(recall+precision)
     f_max = np.nanmax(f_score)
     max_threshold = threshold[np.nanargmax(f_score)]
