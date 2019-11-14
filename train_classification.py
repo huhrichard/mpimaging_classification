@@ -103,7 +103,6 @@ if __name__ == "__main__":
                 print("{} {}th epoch running: {}".format("="*10, epoch, "="*10))
                 epoch_start_time = time.time()
                 for running_state in running_states:
-
                     if running_state == "train":
                         train_splits = list(range(len(cv_data_samplers)))
                         train_splits.remove(nth_fold)
@@ -111,6 +110,7 @@ if __name__ == "__main__":
                         for train_split in train_splits:
                             for batch_idx, data in enumerate(cv_data_loaders[train_split]):
                                 input = data['input']
+                                print("input mean and sd: ", input.mean(), input.std())
                                 gt = data['gt']
                                 input = Variable(input).float().to(device)
                                 gt = Variable(gt).float().to(device)

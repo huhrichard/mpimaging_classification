@@ -5,7 +5,7 @@ import pandas
 import os, fnmatch
 
 class mpImage_dataset(Dataset):
-    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None):
+    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None, skip):
         """
 
         :param img_path:
@@ -22,8 +22,9 @@ class mpImage_dataset(Dataset):
         notes = self.df["Notes"]
         self.img_name = []
         for idx, img_prefix in enumerate(img_prefixes):
-            # if notes[idx] == 'damaged':
-
+            # skip damaged image
+            if notes[idx] == 'damaged':
+                continue
             path_list = self.find("{}*".format(img_prefix), img_dir)
             # print(path_list)
             self.img_path_list.append(path_list[0])
