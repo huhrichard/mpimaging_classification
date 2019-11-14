@@ -68,28 +68,53 @@ if __name__ == "__main__":
     list_parameters = ParameterGrid(parameters_grid)
 
     # create dataset
-    base_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+    test_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
                                  cvtransforms.ToTensor(),
                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
+    train_val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+                                 cvtransforms.RandomHorizontalFlip(),
+                                 cvtransforms.RandomVerticalFlip(),
+                                 cvtransforms.RandomRotation(),
+                                 cvtransforms.ToTensor(),
+                                 cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+
+    # hflip_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+    #                              cvtransforms.RandomHorizontalFlip(p=1),
+    #                              cvtransforms.ToTensor(),
+    #                              cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+
+
+
     # output_transform =
 
-    transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(base_input_transform_list))]
-    dataset = torch.utils.data.ConcatDataset([
-                mpImage_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in transforms])
+    # CV_data set
+    train_val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_val_input_transform_list)),
+                  ]
 
-    num_classes = dataset[0]["gt"].shape[0]
+    train_val_dataset = torch.utils.data.ConcatDataset([
+                mpImage_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in train_val_transforms])
+
+
+    num_classes = train_val_dataset[0]["gt"].shape[0]
     # Split data into cross-validation_set and test_set
-    cv_split_indices, test_indices = cross_validation_and_test_split(len(dataset))
+    cv_split_indices, test_indices = cross_validation_and_test_split(len(train_val_dataset))
     print(cv_split_indices, test_indices)
 
     cv_data_samplers = [SubsetRandomSampler(cv_split_index) for cv_split_index in cv_split_indices]
-    test_data_sampler = SubsetRandomSampler(test_indices)
 
-    cv_data_loaders = [DataLoader(dataset=dataset, batch_size=args.n_batch, sampler=cv_data_sampler
+    cv_data_loaders = [DataLoader(dataset=train_val_dataset, batch_size=args.n_batch, sampler=cv_data_sampler
                                   ) for cv_data_sampler in cv_data_samplers]
 
-    test_data_loader = DataLoader(dataset=dataset, batch_size=args.n_batch, sampler=test_data_sampler)
+    # test data loader
+    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(test_input_transform_list)),
+                       ]
+    test_dataset = torch.utils.data.ConcatDataset([
+                mpImage_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in test_transforms])
+
+    test_data_sampler = SubsetRandomSampler(test_indices)
+
+    test_data_loader = DataLoader(dataset=test_dataset, batch_size=args.n_batch, sampler=test_data_sampler)
 
     running_states = ["train", "val", "test"]
     # Grid Search
@@ -97,6 +122,7 @@ if __name__ == "__main__":
     for parameters in list_parameters:
         trainer_list = []
         for nth_fold in range(len(cv_data_samplers)):
+            print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
             specific_trainer = put_parameters_to_trainer(parameters, num_classes, device)
             for epoch in range(args.epochs):
                 print("="*30)
