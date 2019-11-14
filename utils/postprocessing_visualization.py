@@ -6,7 +6,7 @@ from torch.utils.tensorboard import SummaryWriter
 def compare_model(trainers, save_path):
 
     n = len(trainers)
-    colors = plt.cm.jet(np.linspace(0, 1, n))
+    colors = plt.cm.jet(np.linspace(0, 1, n*3))
     maxepochs = 0
     plt.clf()
     print(trainers[0][0])
@@ -15,11 +15,14 @@ def compare_model(trainers, save_path):
     epochs = trainers[0][0].total_epochs
     states = ["train", "val", "test"]
     linestyle_dict = {"train": "--",
-                      "val": ":",
-                      "test": ":"}
+                      "val": "--",
+                      "test": "--"}
     mark_style_dict = {"train": ".",
                       "val": "^",
                       "test": "D"}
+    c_style = {"train": 0,
+               "val": 1,
+               "test": 2}
     for metric in metrics:
         fig_all_trainers = plt.figure()
         ax_all_trainers = fig_all_trainers.add_subplot(1,1,1)
@@ -51,11 +54,10 @@ def compare_model(trainers, save_path):
                     # stacked_fold_metrics.append(metric_scores)
 
                     plot_paras = {"label":"{}({})".format(state, nth_fold_trainer.model_name),
-                                  "c":colors[idx],
+                                  "c":colors[idx*3+c_style[state]],
                                   "linestyle":linestyle_dict[state],
-                                  "alpha": 0.7,
+                                  "alpha": 0.5,
                                   "marker":mark_style_dict[state]}
-
                     ax_temp.plot(range(epochs), metric_scores,**plot_paras)
                     ax_all_states.plot(range(epochs), metric_scores, **plot_paras)
 
@@ -80,9 +82,9 @@ def compare_model(trainers, save_path):
                               "y": np.mean(metric_dicts[state], axis=0),
                               "yerr": np.std(metric_dicts[state], axis=0),
                               "label": "{}({})".format(state, specific_trainer[0].model_name),
-                              "c": colors[idx],
+                              "c": colors[idx*3+c_style[state]],
                               "linestyle": linestyle_dict[state],
-                              "alpha": 0.7,
+                              "alpha": 0.5,
                               "marker":mark_style_dict[state]}
                 if state == "test":
                     ax_all_folds_test_only.errorbar(**plot_paras)
