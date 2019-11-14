@@ -93,7 +93,7 @@ if __name__ == "__main__":
                   ]
 
     train_val_dataset = torch.utils.data.ConcatDataset([
-                mpImage_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in train_val_transforms])
+                mpImage_sorted_by_image_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in train_val_transforms])
 
 
     num_classes = train_val_dataset[0]["gt"].shape[0]
@@ -107,10 +107,10 @@ if __name__ == "__main__":
                                   ) for cv_data_sampler in cv_data_samplers]
 
     # test data loader
-    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(test_input_transform_list)),
+    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_val_input_transform_list)),
                        ]
     test_dataset = torch.utils.data.ConcatDataset([
-                mpImage_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in test_transforms])
+                mpImage_sorted_by_image_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in test_transforms])
 
     test_data_sampler = SubsetRandomSampler(test_indices)
 

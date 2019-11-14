@@ -1,12 +1,13 @@
 from utils.common_library import *
 import torchvision.models as models
+from utils.custom_module import _ResBlock
 import importlib
 
 
 class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
-                 pretrain_weight=True, feature_extracting=True):
+                 pretrain_weight=True, feature_extracting=True, multi_label=False):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
         # self.modules_employing = modules_employing
@@ -21,22 +22,26 @@ class simple_transfer_classifier(nn.Module):
                                                      feature_extracting)
         # print(self.pretrained_network)
         # self.feature_dim = (0,0,0)
-        # print(self.feature_dim)
+        print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         if num_classes == 1:
             act = nn.Sigmoid()
         else:
-            act = nn.Softmax()
+            if multi_label:
+                act = nn.Sequential(*[nn.BatchNorm1d(num_classes),
+                                      nn.Sigmoid()])
+            else:
+                act = nn.Sequential(*[nn.BatchNorm1d(num_classes),
+                                      nn.Softmax()])
+        self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.simplest_linear_BN_act = nn.Sequential(*[
                                             nn.Linear(self.feature_dim[1] * self.feature_dim[2] * self.feature_dim[3],
                                                       num_classes),
                                             # nn.BatchNorm1d(num_classes),
                                             act])
 
-
-
-
     def forward(self, input):
         features = self.pretrained_network(input)
+        features = self.resblock1(features)
         features_flat = features.flatten(start_dim=1)
         # print(features_flat.shape)
         # print(self.feature_dim)
@@ -62,7 +67,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         set_parameter_requires_grad(pretrained_net, feature_extracting)
         test_input = torch.zeros(1,input_size[0], input_size[1], input_size[2])
         # TODO: get the only layers want from 'modules_employing',
-        print(model_name)
+        # print(model_name)
         if "res" in model_name and "fcn" not in model_name:
             # Resnet for classification
             feature_extractor = nn.Sequential(*list(pretrained_net.children())[:-2])

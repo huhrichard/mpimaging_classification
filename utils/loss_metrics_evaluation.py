@@ -40,8 +40,8 @@ def f_max(predict, gt):
     print("recall: ", recall)
     print("precision: ", precision)
 
-    recall = np.clip(recall, a_min=eps, a_max=None)
-    precision = np.clip(precision, a_min=eps, a_max=None)
+    recall = np.clip(recall, a_min=eps, a_max=1)
+    precision = np.clip(precision, a_min=eps, a_max=1)
 
     f_score = 2*(recall*precision)/(recall+precision)
     f_max = np.nanmax(f_score)
