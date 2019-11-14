@@ -5,7 +5,7 @@ import pandas
 import os, fnmatch
 
 class mpImage_dataset(Dataset):
-    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None, skip):
+    def __init__(self, img_dir, gt_path, img_suffix=None, transform=None):
         """
 
         :param img_path:
