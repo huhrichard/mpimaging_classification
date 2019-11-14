@@ -45,7 +45,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
 
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
-                                       feature_extracting=True
+                                       feature_extracting=False
                                        ).to(device)
     new_trainer = trainer(model=model,
                             model_name="pretrained_1Linear",
