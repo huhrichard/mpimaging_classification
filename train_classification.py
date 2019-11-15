@@ -21,7 +21,7 @@ parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of d
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
 parser.add_argument('--lr', '--learning_rate', default=1e-8, type=float, help='learning rate')
 parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
-parser.add_argument('--n_batch', default=4, type=int, help='weight decay (like regularization)')
+parser.add_argument('--n_batch', default=3, type=int, help='weight decay (like regularization)')
 
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
@@ -46,6 +46,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
                                        pretrained_model_name="inception_v3",
+                                       pretrain_weight=False,
                                        feature_extracting=False,
                                        ).to(device)
     new_trainer = trainer(model=model,

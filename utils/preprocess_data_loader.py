@@ -92,13 +92,13 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.img_path_list)
+        return len(self.patient_id_list)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        sample = {'input': cv2.imread(self.img_path_list[idx]),
+        sample = {'input': [cv2.imread(patient_img) for patient_img in self.patient_img_list[idx]],
                   'gt': torch.from_numpy(self.gt_list[idx])}
 
         if self.transform:
