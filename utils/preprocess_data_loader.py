@@ -87,32 +87,7 @@ class mpImage_sorted_by_patient_dataset(Dataset):
             img_files = self.img_df[self.img_df["Deidentifier patient number"] == patient_id]["MPM image file per TMA core "]
             for img_file in img_files:
                 path_list = find("{}*".format(img_file), img_dir)
-                # print(path_list)
-                # self.img_path_list.append(path_list[0])
                 self.patient_img_list.append(path_list[0])
-
-        self.img_dir = img_dir
-        img_prefixes = self.df["MPM image file per TMA core "]
-        self.column_list = list(self.multi_label_df.columns)
-        self.img_path_list = []
-        self.gt_list = []
-        scores = self.df['Gleason score for TMA core']
-        notes = self.df["Notes"]
-        self.img_name = []
-        for idx, img_prefix in enumerate(img_prefixes):
-            # skip damaged image
-            if notes[idx] == 'damaged' and skip_damaged is True:
-                continue
-            path_list = find("{}*".format(img_prefix), img_dir)
-            # print(path_list)
-            self.img_path_list.append(path_list[0])
-
-            score = scores[idx]
-            if score == "Normal":
-                gt = np.zeros((1))
-            else:
-                gt = np.ones((1))
-            self.gt_list.append(gt)
 
         self.transform = transform
 
