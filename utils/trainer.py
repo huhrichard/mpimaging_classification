@@ -61,7 +61,7 @@ class trainer(object):
         self.loss_stat[running_state][epoch].append(loss)
         self.prediction_list[running_state][epoch].append(predict)
         self.gt_list[running_state][epoch].append(gt)
-        
+
         return loss, predict
 
     def evaluation(self, running_state, epoch):

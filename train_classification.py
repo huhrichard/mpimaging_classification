@@ -19,8 +19,8 @@ parser.add_argument('--epochs', default=20, type=int, help='number of total epoc
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
-parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
-parser.add_argument('--wd', '--weight-decay', default=1e-4, type=float, help='weight decay (like regularization)')
+parser.add_argument('--lr', '--learning_rate', default=1e-8, type=float, help='learning rate')
+parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
 parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
 
 using_gpu = torch.cuda.is_available()
@@ -33,7 +33,7 @@ print("Using device: ", device)
 args = parser.parse_args()
 print(args)
 
-input_tensor_size = (300, 300)
+input_tensor_size = (500, 500)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -45,6 +45,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
 
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
+                                       pretrained_model_name="resnet152",
                                        feature_extracting=False,
                                        ).to(device)
     new_trainer = trainer(model=model,
