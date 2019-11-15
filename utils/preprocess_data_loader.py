@@ -63,18 +63,30 @@ class mpImage_sorted_by_image_dataset(Dataset):
         return sample
 
 
+# TODO: Load data by patient ID
 class mpImage_sorted_by_patient_dataset(Dataset):
-    def __init__(self, img_dir, image_label_path, gt_path, img_suffix=None, transform=None, skip_damaged=True):
+    def __init__(self, img_dir, image_label_path, multi_label_gt_path, img_suffix=None, transform=None, skip_damaged=True):
         """
 
         :param img_path:
-        :param gt_path:
+        :param multi_label_gt_path:
         :param img_suffix:
         """
 
-        self.df = pandas.read_csv(gt_path)
+        self.multi_label_df = pandas.read_csv(multi_label_gt_path)
+        self.patient_id_list = self.multi_label_df["DEIDENTIFIED"]
+
+        self.label_name = ["BCR", "ap", "EPE"]
+        self.multi_label_gt_list = self.multi_label_df[self.label_name]
+
+        self.patient_img_list = []
+
+        for idx, patient_id in enumerate():
+            pass
+
         self.img_dir = img_dir
         img_prefixes = self.df["MPM image file per TMA core "]
+        self.column_list = list(self.multi_label_df.columns)
         self.img_path_list = []
         self.gt_list = []
         scores = self.df['Gleason score for TMA core']
