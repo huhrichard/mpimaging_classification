@@ -33,7 +33,7 @@ print("Using device: ", device)
 args = parser.parse_args()
 print(args)
 
-input_tensor_size = (500, 500)
+input_tensor_size = (350, 350)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,

@@ -55,7 +55,7 @@ class trainer(object):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-        return loss, predict
+        return loss.detach(), predict.detach()
 
     def evaluation(self, running_state, epoch):
         print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
