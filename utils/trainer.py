@@ -44,18 +44,25 @@ class trainer(object):
     def running_model(self, input, gt, epoch, running_state):
         predict = self.model(input)
 
-        self.prediction_list[running_state][epoch].append(predict)
-        self.gt_list[running_state][epoch].append(gt)
+
 
         loss = self.loss_function(predict, gt)
 
-        self.loss_stat[running_state][epoch].append(loss)
+
+
+
         if running_state == "train":
             # print("{} loss:{}".format(running_state, loss))
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-        return loss.detach(), predict.detach()
+
+        loss, predict = loss.detach(), predict.detach()
+        self.loss_stat[running_state][epoch].append(loss)
+        self.prediction_list[running_state][epoch].append(predict)
+        self.gt_list[running_state][epoch].append(gt)
+        
+        return loss, predict
 
     def evaluation(self, running_state, epoch):
         print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
