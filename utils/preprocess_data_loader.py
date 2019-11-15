@@ -65,7 +65,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
 
 # TODO: Load data by patient ID
 class mpImage_sorted_by_patient_dataset(Dataset):
-    def __init__(self, img_dir, image_label_path, multi_label_gt_path, img_suffix=None, transform=None, skip_damaged=True):
+    def __init__(self, img_dir, image_deidentify_path, multi_label_gt_path, img_suffix=None, transform=None, skip_damaged=True):
         """
 
         :param img_path:
@@ -77,12 +77,19 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         self.patient_id_list = self.multi_label_df["DEIDENTIFIED"]
 
         self.label_name = ["BCR", "ap", "EPE"]
-        self.multi_label_gt_list = self.multi_label_df[self.label_name]
+        self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
 
         self.patient_img_list = []
 
-        for idx, patient_id in enumerate():
-            pass
+        self.img_df = pandas.read_csv(image_deidentify_path)
+
+        for idx, patient_id in enumerate(self.patient_id_list):
+            img_files = self.img_df[self.img_df["Deidentifier patient number"] == patient_id]["MPM image file per TMA core "]
+            for img_file in img_files:
+                path_list = find("{}*".format(img_file), img_dir)
+                # print(path_list)
+                # self.img_path_list.append(path_list[0])
+                self.patient_img_list.append(path_list[0])
 
         self.img_dir = img_dir
         img_prefixes = self.df["MPM image file per TMA core "]

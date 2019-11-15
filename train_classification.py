@@ -33,7 +33,7 @@ print("Using device: ", device)
 args = parser.parse_args()
 print(args)
 
-input_tensor_size = (500, 500)
+input_tensor_size = (299, 299)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -45,7 +45,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
 
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
-                                       pretrained_model_name="resnet152",
+                                       pretrained_model_name="inception_v3",
                                        feature_extracting=False,
                                        ).to(device)
     new_trainer = trainer(model=model,
