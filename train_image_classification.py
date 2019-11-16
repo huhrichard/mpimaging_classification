@@ -15,7 +15,7 @@ from utils.postprocessing_visualization import compare_model
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for classification')
-parser.add_argument('--epochs', default=20, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=100, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
@@ -79,9 +79,9 @@ if __name__ == "__main__":
                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
     train_val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
-                                 # cvtransforms.RandomHorizontalFlip(),
-                                 # cvtransforms.RandomVerticalFlip(),
-                                 # cvtransforms.RandomRotation(90),
+                                 cvtransforms.RandomHorizontalFlip(),
+                                 cvtransforms.RandomVerticalFlip(),
+                                 cvtransforms.RandomRotation(90),
                                  cvtransforms.ToTensor(),
                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
