@@ -25,7 +25,7 @@ class simple_transfer_classifier(nn.Module):
         print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         if num_classes == 1:
             self.simplest_linear_BN_act = nn.Sequential(*[
-                                                        nn.BatchNorm1d(self.feature_dim[1]),
+                                                        # nn.BatchNorm1d(self.feature_dim[1]),
                                                         nn.Linear(self.feature_dim[1],
                                                                   num_classes),
                                                         nn.Sigmoid()])
@@ -37,7 +37,7 @@ class simple_transfer_classifier(nn.Module):
             self.simplest_linear_BN_act = nn.Sequential(*[
                                                         nn.Linear(self.feature_dim[1],
                                                                   num_classes),
-                                                        nn.BatchNorm1d(num_classes),
+                                                        # nn.BatchNorm1d(num_classes),
                                                         act])
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
