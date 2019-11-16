@@ -45,7 +45,7 @@ def put_parameters_to_trainer(parameters, num_classes, device):
 
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=(3,input_tensor_size[0],input_tensor_size[1]),
-                                       pretrained_model_name="inception_v3",
+                                       pretrained_model_name="resnext101_32x8d",
                                        pretrain_weight=False,
                                        feature_extracting=False,
                                        ).to(device)

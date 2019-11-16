@@ -24,24 +24,28 @@ class simple_transfer_classifier(nn.Module):
         # self.feature_dim = (0,0,0)
         print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         if num_classes == 1:
-            act = nn.Sigmoid()
+            self.simplest_linear_BN_act = nn.Sequential(*[
+                                                        nn.BatchNorm1d(self.feature_dim[1]),
+                                                        nn.Linear(self.feature_dim[1],
+                                                                  num_classes),
+                                                        nn.Sigmoid()])
         else:
             if multi_label:
-                act = nn.Sequential(*[nn.BatchNorm1d(num_classes),
-                                      nn.Sigmoid()])
+                act = nn.Sigmoid()
             else:
-                act = nn.Sequential(*[nn.BatchNorm1d(num_classes),
-                                      nn.Softmax()])
-        self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
-        self.simplest_linear_BN_act = nn.Sequential(*[
-                                            nn.Linear(self.feature_dim[1] * self.feature_dim[2] * self.feature_dim[3],
-                                                      num_classes),
-                                            # nn.BatchNorm1d(num_classes),
-                                            act])
+                act = nn.Softmax()
+            self.simplest_linear_BN_act = nn.Sequential(*[
+                                                        nn.Linear(self.feature_dim[1],
+                                                                  num_classes),
+                                                        nn.BatchNorm1d(num_classes),
+                                                        act])
+        # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+
 
     def forward(self, input):
         features = self.pretrained_network(input)
-        features = self.resblock1(features)
+        features = self.avgpool(features)
         features_flat = features.flatten(start_dim=1)
         # print(features_flat.shape)
         # print(self.feature_dim)
@@ -75,7 +79,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         elif "densenet" in model_name:
             """ Densenet
             """
-            feature_extractor = list(pretrained_net.children)[0]
+            feature_extractor = list(pretrained_net.children())[0]
 
         elif model_name == "inception_v3":
             """ Inception v3
