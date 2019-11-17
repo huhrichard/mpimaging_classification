@@ -14,7 +14,7 @@ class simple_transfer_classifier(nn.Module):
         self.module_prefix = module_prefix
         self.pretrain_weight = pretrain_weight
         self.feature_extracting = feature_extracting
-
+        self.num_classes = num_classes
         self.pretrained_network, self.feature_dim = get_pretrained_net(pretrained_model_name,
                                                      input_size,
                                                      module_prefix,
@@ -24,8 +24,7 @@ class simple_transfer_classifier(nn.Module):
         # self.feature_dim = (0,0,0)
         print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         if num_classes == 1:
-            self.simplest_linear_BN_act = nn.Sequential(*[
-                                                        # nn.BatchNorm1d(self.feature_dim[1]),
+            self.simplest_linear_act = nn.Sequential(*[
                                                         nn.Linear(self.feature_dim[1],
                                                                   num_classes),
                                                         nn.Sigmoid()])
@@ -34,7 +33,7 @@ class simple_transfer_classifier(nn.Module):
                 act = nn.Sigmoid()
             else:
                 act = nn.Softmax()
-            self.simplest_linear_BN_act = nn.Sequential(*[
+            self.simplest_linear_act = nn.Sequential(*[
                                                         nn.Linear(self.feature_dim[1],
                                                                   num_classes),
                                                         # nn.BatchNorm1d(num_classes),
@@ -49,7 +48,7 @@ class simple_transfer_classifier(nn.Module):
         features_flat = features.flatten(start_dim=1)
         # print(features_flat.shape)
         # print(self.feature_dim)
-        out = self.simplest_linear_BN_act(features_flat)
+        out = self.simplest_linear_act(features_flat)
         return out
 
     # def weight_init(self, use_pretrained_weight):
