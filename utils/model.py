@@ -115,7 +115,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
             exit()
         # print(feature_extractor_list)
         test_output_shape = []
-        if feature_extractor_list.type == list:
+        if type(feature_extractor_list) == list:
             for feature_extractor in feature_extractor_list:
                 test_input = feature_extractor(test_input)
                 test_output_shape.append(test_input.shape)
