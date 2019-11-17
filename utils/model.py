@@ -115,14 +115,15 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
             exit()
         # print(feature_extractor_list)
         test_output_shape = []
-        if type(feature_extractor_list) == list:
+        list_or_not = type(feature_extractor_list) == list
+        if list_or_not:
             for feature_extractor in feature_extractor_list:
                 test_input = feature_extractor(test_input)
                 test_output_shape.append(test_input.shape)
         else:
             test_output_shape = feature_extractor_list(test_input).shape
         # print(test_output)
-        return feature_extractor_list, test_output_shape, feature_extractor_list.type == list
+        return feature_extractor_list, test_output_shape, list_or_not
 
 # def get_only_conv(network):
 #     *list(res50_model.children())
