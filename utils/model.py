@@ -31,9 +31,10 @@ class simple_transfer_classifier(nn.Module):
         print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         # if self.pretrained_network_list.type
         if self.net_as_list:
-            self.simplest_linear_act = []
+            simplest_linear_act = []
             for feature in self.feature_dim:
-                self.simplest_linear_act.append(self.create_linear_act_module(feature, multi_label, num_classes))
+                simplest_linear_act.append(self.create_linear_act_module(feature, multi_label, num_classes))
+            self.simplest_linear_act = nn.ModuleList(simplest_linear_act)
         else:
             self.simplest_linear_act = self.create_linear_act_module(self.feature_dim, multi_label, num_classes)
 
@@ -123,6 +124,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         else:
             test_output_shape = feature_extractor_list(test_input).shape
         # print(test_output)
+        feature_extractor_list = nn.ModuleList(feature_extractor_list)
         return feature_extractor_list, test_output_shape, list_or_not
 
 # def get_only_conv(network):
