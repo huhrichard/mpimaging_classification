@@ -12,6 +12,7 @@ from utils.model import simple_transfer_classifier
 from torch.autograd import Variable
 import time
 from utils.postprocessing_visualization import compare_model
+from decimal import Decimal
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for classification')
@@ -77,7 +78,7 @@ def put_parameters_to_trainer(num_classes=1,
                 if type(value) == str:
                     model_name += "_"+value
                 elif type(value) == int or type(value) == float:
-                    model_name += "_{}={}".format(key, value)
+                    model_name += "_{}={:.2E}".format(key, Decimal(value))
                 elif key == "input_res":
                     model_name += "_{}={}".format(key, value[1])
 
@@ -87,7 +88,7 @@ def put_parameters_to_trainer(num_classes=1,
                                        pretrained_model_name=p_model,
                                        pretrain_weight=p_weight,
                                        feature_extracting=feat_ext,
-                                       multi_classifier = multi_output_vote
+                                       multi_classifier=multi_output_vote
                                        ).to(device)
     new_trainer = trainer(model=model,
                             model_name=model_name,

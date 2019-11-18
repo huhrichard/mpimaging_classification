@@ -22,16 +22,17 @@ class simple_transfer_classifier(nn.Module):
         #                                              pretrain_weight,
         #                                              feature_extracting)
 
-        self.pretrained_network, self.feature_dim, self.net_as_list = get_pretrained_net(pretrained_model_name,
-                                                                                         input_size,
-                                                                                         module_prefix,
-                                                                                         pretrain_weight,
-                                                                                         feature_extracting,
-                                                                                         multi_classifier)
+        self.pretrained_network, self.feature_dim = get_pretrained_net(pretrained_model_name,
+                                                                         input_size,
+                                                                         module_prefix,
+                                                                         pretrain_weight,
+                                                                         feature_extracting,
+                                                                         multi_classifier)
         # print(self.pretrained_network)
         # self.feature_dim = (0,0,0)
-        print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
+        # print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         # if self.pretrained_network_list.type
+        self.net_as_list = multi_classifier
         if self.net_as_list:
             simplest_linear_act = []
             for feature in self.feature_dim:
@@ -48,6 +49,7 @@ class simple_transfer_classifier(nn.Module):
         if self.net_as_list:
             out_list = []
             for idx, net in enumerate(self.pretrained_network):
+                # print(net.weight.shape)
                 input = net(input)
                 avg_pool = self.avgpool(input).flatten(start_dim=1)
                 out_list.append(self.simplest_linear_act[idx](avg_pool).unsqueeze(-1))
@@ -100,7 +102,9 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         if "res" in model_name and "fcn" not in model_name:
             # Resnet for classification
             # feature_extractor = nn.Sequential(*list(pretrained_net.children())[:-2])
-            feature_extractor = list(pretrained_net.children())[:-2]
+            resnet = list(pretrained_net.children())[:-2]
+            first_part_resnet = nn.Sequential(*resnet[:4])
+            feature_extractor = [first_part_resnet]+[n for n in resnet[4:]]
 
         elif "densenet" in model_name:
             """ Densenet
@@ -119,22 +123,28 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
             exit()
 
         if model_name != "inception_v3":
-            if multi_classifier is not True:
+            if multi_classifier:
+                feature_extractor = nn.ModuleList(feature_extractor)
+            else:
                 feature_extractor = nn.Sequential(*feature_extractor)
+        else:
+            feature_extractor = nn.Sequential(*feature_extractor)
+        # print(feature_extractor[0])
+        # print("len of resnext:", len(feature_extractor))
 
         # print(feature_extractor)
         test_output_shape = []
-        net_is_list = type(feature_extractor) == list
-        if net_is_list:
-            for feature_extractor in feature_extractor:
-                test_input = feature_extractor(test_input)
+        # net_is_list = type(feature_extractor) == list
+        if multi_classifier:
+            for ft in feature_extractor:
+
+                test_input = ft(test_input)
                 test_output_shape.append(test_input.shape)
-            feature_extractor = nn.ModuleList(feature_extractor)
         else:
             test_output_shape = feature_extractor(test_input).shape
         # print(test_output)
 
-        return feature_extractor, test_output_shape, net_is_list
+        return feature_extractor, test_output_shape
 
 # def get_only_conv(network):
 #     *list(res50_model.children())
