@@ -49,7 +49,7 @@ class simple_transfer_classifier(nn.Module):
                 input = net(input)
                 avg_pool = self.avgpool(input).flatten(start_dim=1)
                 out_list.append(self.simplest_linear_act[idx](avg_pool).unsqueeze(-1))
-            out = (torch.cat(out_list, dim=-1).median(dim=-1))[0]
+            out = (torch.cat(out_list, dim=-1).mean(dim=-1))
 
         else:
             features = self.pretrained_network(input)
