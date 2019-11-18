@@ -170,7 +170,6 @@ if __name__ == "__main__":
                        "lr":[1e-4, 1e-7],
                        "wd":[1e-2, 1e-6],
                        "input_res":[(3, 300, 300), (3, 500, 500)],
-                       "feature_extracting": [True, False],
                        "multi_output_vote": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
