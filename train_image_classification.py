@@ -170,7 +170,7 @@ if __name__ == "__main__":
                        "feat_ext": [False],
                        "lr":[1e-4, 1e-7],
                        "wd":[1e-2, 1e-6],
-                       "input_res":[(3, input_tensor_size[0], input_tensor_size[1])]
+                       "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "multi_output_vote": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
