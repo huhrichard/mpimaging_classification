@@ -37,9 +37,9 @@ def compare_model(trainers, save_path):
             fig_all_folds = plt.figure()
             ax_all_folds = fig_all_folds.add_subplot(1,1,1)
             fig_all_folds_train_only = plt.figure()
-            ax_all_folds_train_only = fig_all_folds_test_only.add_subplot(1, 1, 1)
+            ax_all_folds_train_only = fig_all_folds_train_only.add_subplot(1, 1, 1)
             fig_all_folds_val_only = plt.figure()
-            ax_all_folds_val_only = fig_all_folds_test_only.add_subplot(1, 1, 1)
+            ax_all_folds_val_only = fig_all_folds_val_only.add_subplot(1, 1, 1)
             fig_all_folds_test_only = plt.figure()
             ax_all_folds_test_only = fig_all_folds_test_only.add_subplot(1,1,1)
 
