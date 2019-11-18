@@ -7,7 +7,8 @@ import importlib
 class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
-                 pretrain_weight=True, feature_extracting=True, multi_label=False):
+                 pretrain_weight=True, feature_extracting=True, multi_label=False,
+                 multi_classifier=True):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
         # self.modules_employing = modules_employing
@@ -25,7 +26,8 @@ class simple_transfer_classifier(nn.Module):
                                                                                          input_size,
                                                                                          module_prefix,
                                                                                          pretrain_weight,
-                                                                                         feature_extracting)
+                                                                                         feature_extracting,
+                                                                                         multi_classifier)
         # print(self.pretrained_network)
         # self.feature_dim = (0,0,0)
         print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
@@ -80,7 +82,8 @@ class simple_transfer_classifier(nn.Module):
 
 
 def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weight=True,
-                       feature_extracting=True):
+                       feature_extracting=True,
+                       multi_classifier=True):
         if module_prefix is None:
             if model_name == "inception_v3":
                 pretrained_net = getattr(models, model_name)(pretrained=pretrain_weight, aux_logits=False)
@@ -96,36 +99,41 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
         # print(model_name)
         if "res" in model_name and "fcn" not in model_name:
             # Resnet for classification
-            # feature_extractor_list = nn.Sequential(*list(pretrained_net.children())[:-2])
-            feature_extractor_list = list(pretrained_net.children())[:-2]
+            # feature_extractor = nn.Sequential(*list(pretrained_net.children())[:-2])
+            feature_extractor = list(pretrained_net.children())[:-2]
 
         elif "densenet" in model_name:
             """ Densenet
             """
-            feature_extractor_list = list(pretrained_net.children())[0]
+            feature_extractor = list(pretrained_net.children())[0]
 
         elif model_name == "inception_v3":
             """ Inception v3
             Be careful, expects (299,299) sized images and has auxiliary output
             """
-            # feature_extractor_list = nn.Sequential(*list(pretrained_net.children())[:-1])
-            feature_extractor_list = list(pretrained_net.children())[:-1]
+            # feature_extractor = nn.Sequential(*list(pretrained_net.children())[:-1])
+            feature_extractor = list(pretrained_net.children())[:-1]
 
         else:
             print("Invalid model name, exiting...")
             exit()
-        # print(feature_extractor_list)
+
+        if model_name != "inception_v3":
+            if multi_classifier is not True:
+                feature_extractor = nn.Sequential(*feature_extractor)
+
+        # print(feature_extractor)
         test_output_shape = []
-        list_or_not = type(feature_extractor_list) == list
+        list_or_not = type(feature_extractor) == list
         if list_or_not:
-            for feature_extractor in feature_extractor_list:
+            for feature_extractor in feature_extractor:
                 test_input = feature_extractor(test_input)
                 test_output_shape.append(test_input.shape)
         else:
-            test_output_shape = feature_extractor_list(test_input).shape
+            test_output_shape = feature_extractor(test_input).shape
         # print(test_output)
-        feature_extractor_list = nn.ModuleList(feature_extractor_list)
-        return feature_extractor_list, test_output_shape, list_or_not
+        feature_extractor = nn.ModuleList(feature_extractor)
+        return feature_extractor, test_output_shape, list_or_not
 
 # def get_only_conv(network):
 #     *list(res50_model.children())
