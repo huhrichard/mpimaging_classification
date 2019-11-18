@@ -81,7 +81,7 @@ def put_parameters_to_trainer(num_classes=1,
                 elif key == "input_res":
                     model_name += "_{}={}".format(key, value[1])
 
-
+    print(model_name)
     model = simple_transfer_classifier(num_classes=num_classes,
                                        input_size=input_res,
                                        pretrained_model_name=p_model,
@@ -171,7 +171,7 @@ if __name__ == "__main__":
                        "wd":[1e-2, 1e-6],
                        "input_res":[(3, 300, 300), (3, 500, 500)],
                        "feature_extracting": [True, False],
-                       "multi_output_vote": True
+                       "multi_output_vote": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
 
