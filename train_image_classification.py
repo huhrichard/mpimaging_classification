@@ -21,7 +21,7 @@ parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of d
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
 parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
 parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
-parser.add_argument('--n_batch', default=32, type=int, help='weight decay (like regularization)')
+parser.add_argument('--n_batch', default=8, type=int, help='weight decay (like regularization)')
 
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
