@@ -66,6 +66,7 @@ class trainer(object):
 
     def evaluation(self, running_state, epoch):
         print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
+        self.model.to(torch.device('cpu'))
         self.prediction_list[running_state][epoch] = torch.cat(self.prediction_list[running_state][epoch], dim=0)
         self.gt_list[running_state][epoch] = torch.cat(self.gt_list[running_state][epoch], dim=0)
 
@@ -76,10 +77,15 @@ class trainer(object):
         for key, value in metrics_dict.items():
             print("{}: {}".format(key, value))
         self.performance_stat[running_state].append(metrics_dict)
+
         return metrics_dict
 
-    def inference(self, input):
+    def inference(self, input, device):
+        self.model = self.model.to(device)
+        input = input.to(device)
         return self.model(input)
+
+    # def model_change_device(self, device):
 
     def weight_init(self, *models, pretrained_weights):
         torch.manual_seed(0)
