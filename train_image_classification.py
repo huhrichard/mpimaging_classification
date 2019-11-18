@@ -213,10 +213,10 @@ if __name__ == "__main__":
 
                     specific_trainer.evaluation(running_state=running_state, epoch=epoch)
 
-                specific_trainer.model.to(torch.device('cpu'))
+
                 time_elapsed = time.time()-epoch_start_time
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
-
+            specific_trainer.model.to(torch.device('cpu'))
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
