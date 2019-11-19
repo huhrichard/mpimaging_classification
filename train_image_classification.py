@@ -13,6 +13,7 @@ from torch.autograd import Variable
 import time
 from utils.postprocessing_visualization import compare_model
 from decimal import Decimal
+from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for classification')
@@ -100,7 +101,7 @@ def put_parameters_to_trainer(num_classes=1,
                             n_batches=args.n_batch,
                             total_epochs=args.epochs,
                             lr_scheduler_list=[],
-                            loss_function=nn.BCELoss())
+                            loss_function=bcel_multi_output())
     return new_trainer
 
 def parameters_dict_to_model_name(parameters_dict):
