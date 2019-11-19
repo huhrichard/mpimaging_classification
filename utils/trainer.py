@@ -200,7 +200,7 @@ def put_parameters_to_trainer(epochs=50,
                                                        params=model.parameters(),
                                                        # amsgrad=True
                                                        ),
-                            total_epochs=args.epochs,
+                            total_epochs=epochs,
                             lr_scheduler_list=[],
                             loss_function=bcel_multi_output())
     return new_trainer
