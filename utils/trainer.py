@@ -3,13 +3,15 @@ from utils.common_library import *
 from utils.loss_metrics_evaluation import performance_evaluation
 from torch.utils.tensorboard import SummaryWriter
 from utils.model import *
+from decimal import Decimal
+from utils.loss_metrics_evaluation import *
 
 class trainer(object):
     def __init__(self,
                  model,
                  model_name,
                  optimizer,
-                 n_batches,
+                 # n_batches,
                  total_epochs,
                  lr_scheduler_list=[],
                  loss_function=nn.BCELoss(),
@@ -22,7 +24,7 @@ class trainer(object):
 
         self.optimizer = optimizer
         self.lr_scheduler_list = lr_scheduler_list
-        self.n_batches = n_batches
+        # self.n_batches = n_batches
         self.loss_function = loss_function
         self.total_epochs = total_epochs
         self.loss_stat = {"train":[[] for i in range(self.total_epochs)],
@@ -145,7 +147,8 @@ class trainer(object):
                     module.bias.data.zero_()
 
 
-def put_parameters_to_trainer(num_classes=1,
+def put_parameters_to_trainer(epochs=50,
+                              num_classes=1,
                               device=torch.device('cpu'),
                               p_model="resnext101_32x8d",
                               p_weight=True,
@@ -155,7 +158,7 @@ def put_parameters_to_trainer(num_classes=1,
                               input_res=(3, 300, 300),
                               out_list=True):
 
-    exclude_name_list = ["num_classes", "device"]
+    exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,
                        "p_weight": True,
@@ -197,7 +200,6 @@ def put_parameters_to_trainer(num_classes=1,
                                                        params=model.parameters(),
                                                        # amsgrad=True
                                                        ),
-                            n_batches=args.n_batch,
                             total_epochs=args.epochs,
                             lr_scheduler_list=[],
                             loss_function=bcel_multi_output())

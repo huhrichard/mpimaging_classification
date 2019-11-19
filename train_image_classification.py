@@ -108,7 +108,8 @@ if __name__ == "__main__":
     running_states = ["train", "val", "test"]
     # Grid Search
 
-    parameters_grid = {"num_classes": [num_classes],
+    parameters_grid = {"epochs": [args.epochs],
+                       "num_classes": [num_classes],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
