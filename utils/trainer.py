@@ -57,7 +57,7 @@ class trainer(object):
             loss.backward()
             self.optimizer.step()
 
-        loss, predict = loss.detach(), predict.detach()
+        loss, predict, gt = loss.detach(), predict.detach(), gt.detach()
         self.loss_stat[running_state][epoch].append(loss)
         self.prediction_list[running_state][epoch].append(predict)
         self.gt_list[running_state][epoch].append(gt)
