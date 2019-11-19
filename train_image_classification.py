@@ -167,10 +167,10 @@ if __name__ == "__main__":
     parameters_grid = {"num_classes": [num_classes],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
-                       "p_weight": [True, False],
+                       "p_weight": [True],
                        "feat_ext": [False],
-                       "lr":[1e-4, 1e-7],
-                       "wd":[1e-2, 1e-6],
+                       "lr":[1e-7],
+                       "wd":[1e-2],
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "multi_output_vote": [True]
                        }
