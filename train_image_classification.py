@@ -79,7 +79,7 @@ def put_parameters_to_trainer(num_classes=1,
                 if type(value) == str:
                     model_name += "_"+value
                 elif type(value) == int or type(value) == float:
-                    model_name += "_{}={:.2E}".format(key, Decimal(value))
+                    model_name += "_{}={:.0e}".format(key, Decimal(value))
                 elif key == "input_res":
                     model_name += "_{}={}".format(key, value[1])
 
