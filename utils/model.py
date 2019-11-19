@@ -53,7 +53,8 @@ class simple_transfer_classifier(nn.Module):
                 input = net(input)
                 avg_pool = self.avgpool(input).flatten(start_dim=1)
                 out_list.append(self.simplest_linear_act[idx](avg_pool).unsqueeze(-1))
-            out = (torch.cat(out_list, dim=-1).mean(dim=-1))
+            out_for_result = (torch.cat(out_list, dim=-1).mean(dim=-1))
+            out_for_loss_function = torch.cat(out_list, dim=-1)
 
         else:
             features = self.pretrained_network(input)
@@ -61,8 +62,10 @@ class simple_transfer_classifier(nn.Module):
             features_flat = features.flatten(start_dim=1)
             # print(features_flat.shape)
             # print(self.feature_dim)
-            out = self.simplest_linear_act(features_flat)[0]
-        return out
+            out_for_result = self.simplest_linear_act(features_flat)[0]
+            out_for_loss_function = out_for_result
+
+        return out_for_result, out_for_loss_function
 
     # def weight_init(self, use_pretrained_weight):
 

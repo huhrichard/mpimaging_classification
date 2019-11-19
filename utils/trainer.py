@@ -42,11 +42,11 @@ class trainer(object):
 
 
     def running_model(self, input, gt, epoch, running_state):
-        predict = self.model(input)
+        predict_for_result, predict_for_loss_function = self.model(input)
 
 
 
-        loss = self.loss_function(predict, gt)
+        loss = self.loss_function(predict_for_loss_function, gt)
 
 
 
@@ -57,7 +57,9 @@ class trainer(object):
             loss.backward()
             self.optimizer.step()
 
-        loss, predict, gt = loss.detach(), predict.detach(), gt.detach()
+        loss, predict, gt = loss.detach().cpu(), \
+                            predict_for_result.detach().cpu(), \
+                            gt.detach().cpu()
         self.loss_stat[running_state][epoch].append(loss)
         self.prediction_list[running_state][epoch].append(predict)
         self.gt_list[running_state][epoch].append(gt)

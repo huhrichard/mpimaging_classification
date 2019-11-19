@@ -207,8 +207,8 @@ if __name__ == "__main__":
                         for batch_idx, data in enumerate(data_loader):
                             input = data['input']
                             gt = data['gt']
-                            input = Variable(input).float().to(device)
-                            gt = Variable(gt).float().to(device)
+                            input = Variable(input, requires_grad=False).float().to(device)
+                            gt = Variable(gt, requires_grad=False).float().to(device)
                             loss, predict = specific_trainer.running_model(input, gt, epoch=epoch, running_state=running_state)
 
                     specific_trainer.evaluation(running_state=running_state, epoch=epoch)
@@ -216,7 +216,7 @@ if __name__ == "__main__":
 
                 time_elapsed = time.time()-epoch_start_time
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
-            specific_trainer.model = specific_trainer.model.to(torch.device('cpu'))
+            specific_trainer.model = specific_trainer.model.cpu()
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
