@@ -2,6 +2,7 @@ from utils.common_library import *
 # from utils import model
 from utils.loss_metrics_evaluation import performance_evaluation
 from torch.utils.tensorboard import SummaryWriter
+from utils.model import *
 
 class trainer(object):
     def __init__(self,
@@ -142,3 +143,62 @@ class trainer(object):
                     # print(module.weight, module.bias)
                     nn.init.uniform_(module.weight)
                     module.bias.data.zero_()
+
+
+def put_parameters_to_trainer(num_classes=1,
+                              device=torch.device('cpu'),
+                              p_model="resnext101_32x8d",
+                              p_weight=True,
+                              feat_ext=False,
+                              lr=1e-7,
+                              wd=1e-2,
+                              input_res=(3, 300, 300),
+                              out_list=True):
+
+    exclude_name_list = ["num_classes", "device"]
+
+    show_model_list = {"p_model": True,
+                       "p_weight": True,
+                       "feat_ext": False,
+                       "lr": True,
+                       "wd": True,
+                       "input_res": False,
+                       "out_list": True
+                       }
+
+    model_name = "TL"
+
+    for key, show in show_model_list.items():
+        if show:
+            value = locals()[key]
+            if type(value) == bool:
+                if value:
+                    model_name += "_"+key
+            else:
+                if type(value) == str:
+                    model_name += "_"+value
+                elif type(value) == int or type(value) == float:
+                    model_name += "_{}={:.0e}".format(key, Decimal(value))
+                elif key == "input_res":
+                    model_name += "_{}={}".format(key, value[1])
+
+    print(model_name)
+    model = simple_transfer_classifier(num_classes=num_classes,
+                                       input_size=input_res,
+                                       pretrained_model_name=p_model,
+                                       pretrain_weight=p_weight,
+                                       feature_extracting=feat_ext,
+                                       multi_classifier=out_list
+                                       ).to(device)
+    new_trainer = trainer(model=model,
+                            model_name=model_name,
+                            optimizer=torch.optim.Adam(lr=lr,
+                                                       weight_decay=wd,
+                                                       params=model.parameters(),
+                                                       # amsgrad=True
+                                                       ),
+                            n_batches=args.n_batch,
+                            total_epochs=args.epochs,
+                            lr_scheduler_list=[],
+                            loss_function=bcel_multi_output())
+    return new_trainer

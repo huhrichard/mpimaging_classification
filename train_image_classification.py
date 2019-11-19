@@ -1,7 +1,7 @@
 from utils.common_library import *
 import argparse
 from sklearn.model_selection import ParameterGrid
-from utils.trainer import trainer
+from utils.trainer import *
 from utils.preprocess_data_loader import *
 from utils.preprocess_data_transform import compose_input_output_transform
 from cvtorchvision import cvtransforms
@@ -20,7 +20,7 @@ parser = argparse.ArgumentParser(description='training for MPM image classificat
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
-parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary.csv', type=str, help='File of the groundtruth')
+parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary_20191114.csv', type=str, help='File of the groundtruth')
 # parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
 # parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
 parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
@@ -38,7 +38,7 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_tensor_size = (800, 800)
+input_tensor_size = (500, 500)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -46,63 +46,7 @@ def model_training_and_evaluate_testing(epochs,
                                         trainer):
     pass
 
-def put_parameters_to_trainer(num_classes=1,
-                              device=torch.device('cpu'),
-                              p_model="resnext101_32x8d",
-                              p_weight=True,
-                              feat_ext=False,
-                              lr=1e-7,
-                              wd=1e-2,
-                              input_res=(3, 300, 300),
-                              out_list=True):
 
-    exclude_name_list = ["num_classes", "device"]
-
-    show_model_list = {"p_model": True,
-                       "p_weight": True,
-                       "feat_ext": False,
-                       "lr": True,
-                       "wd": True,
-                       "input_res": False,
-                       "out_list": True
-                       }
-
-    model_name = "TL"
-
-    for key, show in show_model_list.items():
-        if show:
-            value = locals()[key]
-            if type(value) == bool:
-                if value:
-                    model_name += "_"+key
-            else:
-                if type(value) == str:
-                    model_name += "_"+value
-                elif type(value) == int or type(value) == float:
-                    model_name += "_{}={:.0e}".format(key, Decimal(value))
-                elif key == "input_res":
-                    model_name += "_{}={}".format(key, value[1])
-
-    print(model_name)
-    model = simple_transfer_classifier(num_classes=num_classes,
-                                       input_size=input_res,
-                                       pretrained_model_name=p_model,
-                                       pretrain_weight=p_weight,
-                                       feature_extracting=feat_ext,
-                                       multi_classifier=out_list
-                                       ).to(device)
-    new_trainer = trainer(model=model,
-                            model_name=model_name,
-                            optimizer=torch.optim.Adam(lr=lr,
-                                                       weight_decay=wd,
-                                                       params=model.parameters(),
-                                                       # amsgrad=True
-                                                       ),
-                            n_batches=args.n_batch,
-                            total_epochs=args.epochs,
-                            lr_scheduler_list=[],
-                            loss_function=bcel_multi_output())
-    return new_trainer
 
 def parameters_dict_to_model_name(parameters_dict):
     pass
@@ -141,7 +85,7 @@ if __name__ == "__main__":
                 mpImage_sorted_by_image_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in train_val_transforms])
 
 
-    num_classes = train_val_dataset[0]["gt"].shape[0]
+    num_classes = train_val_dataset[-1]["gt"].shape[-1]
     # Split data into cross-validation_set and test_set
     cv_split_indices, test_indices = cross_validation_and_test_split(len(train_val_dataset))
     print(cv_split_indices, test_indices)
@@ -152,7 +96,7 @@ if __name__ == "__main__":
                                   ) for cv_data_sampler in cv_data_samplers]
 
     # test data loader
-    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_val_input_transform_list)),
+    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(test_input_transform_list)),
                        ]
     test_dataset = torch.utils.data.ConcatDataset([
                 mpImage_sorted_by_image_dataset(img_dir=args.datapath, gt_path=gt_path, transform=t) for t in test_transforms])
@@ -169,7 +113,7 @@ if __name__ == "__main__":
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
                        "feat_ext": [False],
-                       "lr":[1e-5],
+                       "lr":[1e-7],
                        "wd":[1e-2],
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [True]

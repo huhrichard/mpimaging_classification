@@ -65,7 +65,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
 
 # TODO: Load data by patient ID
 class mpImage_sorted_by_patient_dataset(Dataset):
-    def __init__(self, img_dir, image_deidentify_path, multi_label_gt_path, img_suffix=None, transform=None, skip_damaged=True):
+    def __init__(self, img_dir, multi_label_gt_path, img_suffix=None, transform=None, skip_damaged=True):
         """
 
         :param img_path:
@@ -74,20 +74,23 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         """
 
         self.multi_label_df = pandas.read_csv(multi_label_gt_path)
-        self.patient_id_list = self.multi_label_df["DEIDENTIFIED"]
+        self.patient_id_list = self.multi_label_df["Deidentifier patient number"].unique()
 
-        self.label_name = ["BCR", "ap", "EPE"]
-        self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
+        self.label_name = ["BCR", "AP", "EPE"]
+        # self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
 
         self.patient_img_list = []
 
-        self.img_df = pandas.read_csv(image_deidentify_path)
+        # self.img_df = pandas.read_csv(image_deidentify_path)
+        self.gt_list = []
 
         for idx, patient_id in enumerate(self.patient_id_list):
-            img_files = self.img_df[self.img_df["Deidentifier patient number"] == patient_id]["MPM image file per TMA core "]
+            patient_entry = self.multi_label_df[self.multi_label_df["Deidentifier patient number"] == patient_id]
+            img_files = patient_entry['MPM image file per TMA core ']
             for img_file in img_files:
                 path_list = find("{}*".format(img_file), img_dir)
                 self.patient_img_list.append(path_list[0])
+            self.gt_list.append(np.array(patient_entry[self.label_name].astype(float)))
 
         self.transform = transform
 
@@ -103,6 +106,7 @@ class mpImage_sorted_by_patient_dataset(Dataset):
 
         if self.transform:
             sample = self.transform(sample)
+        sample['input'] = torch.stack(sample['input'], dim=0)
 
         return sample
 
