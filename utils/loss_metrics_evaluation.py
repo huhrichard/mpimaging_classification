@@ -16,6 +16,16 @@ class performance_evaluation(object):
 
         return performance_dict
 
+class bcel_multi_output(nn.Module):
+    def __init__(self):
+        super(bcel_multi_output, self).__init__()
+        pass
+
+    def forward(self, predict, gt):
+        if predict.shape != gt.shape:
+            gt = gt.unsqueeze(-1).repeat(1,1,predict.shape[-1])
+        return nn.functional.binary_cross_entropy(predict, gt)
+
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':
         tensor = tensor.cpu()

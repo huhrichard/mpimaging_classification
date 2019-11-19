@@ -53,7 +53,7 @@ class simple_transfer_classifier(nn.Module):
                 input = net(input)
                 avg_pool = self.avgpool(input).flatten(start_dim=1)
                 out_list.append(self.simplest_linear_act[idx](avg_pool).unsqueeze(-1))
-            out_for_result = (torch.cat(out_list, dim=-1).mean(dim=-1))
+            out_for_result = torch.cat(out_list, dim=-1).mean(dim=-1)
             out_for_loss_function = torch.cat(out_list, dim=-1)
 
         else:
