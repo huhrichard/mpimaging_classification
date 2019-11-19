@@ -43,8 +43,8 @@ class trainer(object):
 
     def running_model(self, input, gt, epoch, running_state):
         predict_for_result, predict_for_loss_function = self.model(input)
-        print('p for result', predict_for_result)
-        print('p for loss', predict_for_loss_function)
+        # print('p for result', predict_for_result.shape)
+        # print('p for loss', predict_for_loss_function.shape)
         loss = self.loss_function(predict_for_loss_function, gt)
 
 
