@@ -16,7 +16,7 @@ from decimal import Decimal
 from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
 
-parser = argparse.ArgumentParser(description='training for classification')
+parser = argparse.ArgumentParser(description='training for MPM image classification')
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
@@ -38,7 +38,7 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_tensor_size = (300, 300)
+input_tensor_size = (800, 800)
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -54,7 +54,7 @@ def put_parameters_to_trainer(num_classes=1,
                               lr=1e-7,
                               wd=1e-2,
                               input_res=(3, 300, 300),
-                              multi_output_vote=True):
+                              out_list=True):
 
     exclude_name_list = ["num_classes", "device"]
 
@@ -64,7 +64,7 @@ def put_parameters_to_trainer(num_classes=1,
                        "lr": True,
                        "wd": True,
                        "input_res": False,
-                       "multi_output_vote": True
+                       "out_list": True
                        }
 
     model_name = "TL"
@@ -89,7 +89,7 @@ def put_parameters_to_trainer(num_classes=1,
                                        pretrained_model_name=p_model,
                                        pretrain_weight=p_weight,
                                        feature_extracting=feat_ext,
-                                       multi_classifier=multi_output_vote
+                                       multi_classifier=out_list
                                        ).to(device)
     new_trainer = trainer(model=model,
                             model_name=model_name,
@@ -169,10 +169,10 @@ if __name__ == "__main__":
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
                        "feat_ext": [False],
-                       "lr":[1e-7],
+                       "lr":[1e-5],
                        "wd":[1e-2],
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
-                       "multi_output_vote": [True]
+                       "out_list": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
 
