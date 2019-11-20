@@ -78,7 +78,7 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         self.patient_id_list = self.multi_label_df["Deidentifier patient number"].unique()
 
         self.label_name = ["BCR", "AP", "EPE"]
-        self.g_score
+        # self.g_score
         # self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
 
         self.patient_img_list = []
