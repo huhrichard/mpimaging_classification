@@ -67,7 +67,13 @@ def ap(predict, gt):
 def f1(predict, gt):
     predict[predict>0.5] = 1
     predict[predict<=0.5] = 0
-    return metrics.f1_score(y_true=gt.astype(int), y_pred=predict.astype(int))
+    p = predict.astype(int)
+    g = gt.astype(int)
+    f1_score = 0
+    for idx in range(p.shape[0]):
+        f1_score += metrics.f1_score(y_pred=p, y_true=g)
+    return f1_score/p.shape[0]
+
 
 def evaluate_with_multi_label_classification(predict, gt, func):
 
