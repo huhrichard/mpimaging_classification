@@ -50,8 +50,8 @@ def auc(predict, gt):
 def f_max(predict, gt):
     recall, precision, threshold = metrics.precision_recall_curve(probas_pred=predict,
                                                              y_true=gt)
-    print("recall: ", recall)
-    print("precision: ", precision)
+    # print("recall: ", recall)
+    # print("precision: ", precision)
 
     recall = np.clip(recall, a_min=eps, a_max=1)
     precision = np.clip(precision, a_min=eps, a_max=1)
