@@ -54,7 +54,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        sample = {'input': cv2.imread(self.img_path_list[idx]),
+        sample = {'input': cv2.cvtColor(cv2.imread(self.img_path_list[idx]), cv2.COLOR_BGR2RGB),
                   'gt': torch.from_numpy(self.gt_list[idx])}
 
         if self.transform:
@@ -87,8 +87,10 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         for idx, patient_id in enumerate(self.patient_id_list):
             patient_entry = self.multi_label_df[self.multi_label_df["Deidentifier patient number"] == patient_id]
             img_files = patient_entry['MPM image file per TMA core ']
+            # print(img_files)
             for img_file in img_files:
                 path_list = find("{}*".format(img_file), img_dir)
+                # prin t(path_list)
                 self.patient_img_list.append(path_list[0])
             self.gt_list.append(np.array(patient_entry[self.label_name].astype(float)))
 
@@ -101,8 +103,9 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        sample = {'input': [cv2.imread(patient_img) for patient_img in self.patient_img_list[idx]],
+        sample = {'input': [cv2.cvtColor(cv2.imread(patient_img), cv2.COLOR_BGR2RGB) for patient_img in self.patient_img_list[idx]],
                   'gt': torch.from_numpy(self.gt_list[idx])}
+        print(sample["input"])
 
         if self.transform:
             sample = self.transform(sample)

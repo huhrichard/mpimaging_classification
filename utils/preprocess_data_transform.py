@@ -11,8 +11,10 @@ class compose_input_output_transform(object):
 
     def __call__(self, sample):
         input = sample['input']
+        # print(input)
         if self.input_transform is not None:
             if type(sample['input']) == list:
+                # print(input.s)
                 sample['input'] = [self.input_transform(s) for s in input]
             else:
                 sample['input'] = self.input_transform(input)
