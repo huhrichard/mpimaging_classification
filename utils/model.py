@@ -43,7 +43,7 @@ class simple_transfer_classifier(nn.Module):
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-
+        # print(self.simplest_linear_act)
 
     def forward(self, input):
         if self.net_as_list:
@@ -64,6 +64,7 @@ class simple_transfer_classifier(nn.Module):
             # print(self.feature_dim)
             out_for_result = self.simplest_linear_act(features_flat)[0]
             out_for_loss_function = out_for_result
+
 
         return out_for_result, out_for_loss_function
 

@@ -81,6 +81,8 @@ def f1_by_label(predict, gt):
     g = gt.astype(int)
     f1_score_list = []
     for idx in range(p.shape[1]):
+        print("p:", p[:, idx])
+        print("g:", g[:, idx])
         f1_score_list.append(metrics.f1_score(y_pred=p[:, idx], y_true=g[:, idx]))
     return f1_score_list
 
