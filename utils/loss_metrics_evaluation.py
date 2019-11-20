@@ -71,7 +71,7 @@ def f1(predict, gt):
     g = gt.astype(int)
     f1_score = 0
     for idx in range(p.shape[0]):
-        f1_score += metrics.f1_score(y_pred=p, y_true=g)
+        f1_score += metrics.f1_score(y_pred=p[idx], y_true=g[idx])
     return f1_score/p.shape[0]
 
 
