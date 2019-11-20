@@ -64,7 +64,7 @@ def f_max(predict, gt):
 def ap(predict, gt):
     return metrics.average_precision_score(y_score=predict,y_true=gt)
 
-def f1(predict, gt):
+def f1_by_sample(predict, gt):
     predict[predict>0.5] = 1
     predict[predict<=0.5] = 0
     p = predict.astype(int)
@@ -73,6 +73,16 @@ def f1(predict, gt):
     for idx in range(p.shape[0]):
         f1_score += metrics.f1_score(y_pred=p[idx], y_true=g[idx])
     return f1_score/p.shape[0]
+
+def f1_by_label(predict, gt):
+    predict[predict>0.5] = 1
+    predict[predict<=0.5] = 0
+    p = predict.astype(int)
+    g = gt.astype(int)
+    f1_score_list = []
+    for idx in range(p.shape[1]):
+        f1_score_list.append(metrics.f1_score(y_pred=p[:, idx], y_true=g[:, idx]))
+    return f1_score_list
 
 
 def evaluate_with_multi_label_classification(predict, gt, func):

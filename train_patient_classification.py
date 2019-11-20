@@ -115,7 +115,7 @@ if __name__ == "__main__":
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
                        "multi_label": [True],
-                       "performance_metrics_list" : [["f1"]],
+                       "performance_metrics_list" : [["f1_by_sample", "f1_by_label"]],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
@@ -172,11 +172,13 @@ if __name__ == "__main__":
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
-    label_name_list = train_val_dataset.label_name
-    compare_model(parametric_model_list, args.datapath+"patient_result/")
-    # for idx, label_name in enumerate(label_name_list):
-    #     compare_model(parametric_model_list, args.datapath+"patient_result/",
-    #                   output_label=label_name, output_idx=idx, multi_label_classify=True)
+    # label_name_list = train_val_dataset.label_name
+    compare_model(parametric_model_list, args.datapath+"patient_result/", metrics='f1_by_sample')
+    label_list = ['Gleason score',"BCR", "AP", "EPE"]
+
+    for idx, label_name in enumerate(label_list):
+        compare_model(parametric_model_list, args.datapath+"patient_result/",
+                      output_label=label_name, output_idx=idx, multi_label_classify=True, metrics='f1_by_label')
 
 
 

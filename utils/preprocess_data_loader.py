@@ -78,6 +78,7 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         self.patient_id_list = self.multi_label_df["Deidentifier patient number"].unique()
 
         self.label_name = ["BCR", "AP", "EPE"]
+        self.g_score
         # self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
 
         self.patient_img_list = []
@@ -95,7 +96,12 @@ class mpImage_sorted_by_patient_dataset(Dataset):
                 # prin t(path_list)
                 img_list.append(path_list[0])
             self.patient_img_list.append(img_list)
-            self.gt_list.append(np.array(patient_entry[self.label_name].astype(float)))
+            g_score = patient_entry['Gleason score for TMA core']
+            g_score[g_score!="Normal"] = 1
+            g_score[g_score=="Normal"] = 0
+            g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
+            other_label = np.array(patient_entry[self.label_name].astype(float))
+            self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
 
         self.transform = transform
 

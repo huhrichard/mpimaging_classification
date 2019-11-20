@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
 
-def compare_model(trainers, save_path, output_label='', output_idx=0, multi_label_classify=False):
+def compare_model(trainers, save_path, output_label='', output_idx=0, multi_label_classify=False, metrics=None):
 
     n = len(trainers)
     colors = plt.cm.jet(np.linspace(0, 1, n*3))
     maxepochs = 0
     plt.clf()
     print(trainers[0][0])
-    metrics = list(trainers[0][0].performance_stat["train"][0].keys())
+    if metrics is None:
+        metrics = list(trainers[0][0].performance_stat["train"][0].keys())
     print(metrics)
     epochs = trainers[0][0].total_epochs
     states = ["train", "val", "test"]
