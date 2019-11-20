@@ -14,12 +14,13 @@ class performance_evaluation(object):
         np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
         for metrics in self.metrics_list:
             metric_func = globals()[metrics]
-            if self.multi_label:
-                performance_dict[metrics] = evaluate_with_multi_label_classification(np_predict,
-                                                                                     np_gt,
-                                                                                     metric_func)
-            else:
-                performance_dict[metrics] = metric_func(np_predict, np_gt)
+            # if self.multi_label:
+            #     performance_dict[metrics] = evaluate_with_multi_label_classification(np_predict,
+            #                                                                          np_gt,
+            #                                                                          metric_func)
+            # else:
+            performance_dict[metrics] = metric_func(np_predict, np_gt)
+            print("{}: {}".format(metrics, performance_dict[metrics]))
 
         return performance_dict
 
@@ -58,11 +59,15 @@ def f_max(predict, gt):
     f_score = 2*(recall*precision)/(recall+precision)
     f_max = np.nanmax(f_score)
     max_threshold = threshold[np.nanargmax(f_score)]
-
     return f_max
 
 def ap(predict, gt):
     return metrics.average_precision_score(y_score=predict,y_true=gt)
+
+def f1(predict, gt):
+    predict[predict>0.5] = 1
+    predict[predict<=0.5] = 0
+    return metrics.f1_score(y_true=gt.astype(int), y_pred=predict.astype(int))
 
 def evaluate_with_multi_label_classification(predict, gt, func):
 

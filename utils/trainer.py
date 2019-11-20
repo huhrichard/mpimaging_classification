@@ -78,8 +78,6 @@ class trainer(object):
                                           self.gt_list[running_state][epoch])
 
         # print("# {} epoch performance ({}):".format(epoch, running_state))
-        for key, value in metrics_dict.items():
-            print("{}: {}".format(key, value))
         self.performance_stat[running_state].append(metrics_dict)
 
         return metrics_dict
@@ -149,6 +147,7 @@ class trainer(object):
 
 def put_parameters_to_trainer(epochs=50,
                               multi_label=True,
+                              performance_metrics_list=["auc", "f_max", "ap"],
                               num_classes=1,
                               device=torch.device('cpu'),
                               p_model="resnext101_32x8d",
@@ -196,14 +195,15 @@ def put_parameters_to_trainer(epochs=50,
                                        multi_label=multi_label
                                        ).to(device)
     new_trainer = trainer(model=model,
-                            model_name=model_name,
-                            optimizer=torch.optim.Adam(lr=lr,
+                          model_name=model_name,
+                          optimizer=torch.optim.Adam(lr=lr,
                                                        weight_decay=wd,
                                                        params=model.parameters(),
                                                        # amsgrad=True
                                                        ),
-                            performance_metrics=performance_evaluation(multi_label=multi_label)
-                            total_epochs=epochs,
-                            lr_scheduler_list=[],
-                            loss_function=bcel_multi_output())
+                          performance_metrics=performance_evaluation(multi_label=multi_label,
+                                                                     metrics_list=performance_metrics_list),
+                          total_epochs=epochs,
+                          lr_scheduler_list=[],
+                          loss_function=bcel_multi_output())
     return new_trainer
