@@ -148,6 +148,7 @@ class trainer(object):
 
 
 def put_parameters_to_trainer(epochs=50,
+                              multi_label=True,
                               num_classes=1,
                               device=torch.device('cpu'),
                               p_model="resnext101_32x8d",
@@ -191,7 +192,8 @@ def put_parameters_to_trainer(epochs=50,
                                        pretrained_model_name=p_model,
                                        pretrain_weight=p_weight,
                                        feature_extracting=feat_ext,
-                                       multi_classifier=out_list
+                                       multi_classifier=out_list,
+                                       multi_label=multi_label
                                        ).to(device)
     new_trainer = trainer(model=model,
                             model_name=model_name,

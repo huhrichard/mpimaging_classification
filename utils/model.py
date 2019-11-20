@@ -7,7 +7,7 @@ import importlib
 class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
-                 pretrain_weight=True, feature_extracting=True, multi_label=False,
+                 pretrain_weight=True, feature_extracting=True, multi_label=True,
                  multi_classifier=True):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
