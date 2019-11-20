@@ -27,6 +27,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
         img_prefixes = self.df["MPM image file per TMA core "]
         self.img_path_list = []
         self.gt_list = []
+        self.label_name = 'Gleason score for TMA core'
         scores = self.df['Gleason score for TMA core']
         notes = self.df["Notes"]
         self.img_name = []

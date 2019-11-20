@@ -166,7 +166,7 @@ if __name__ == "__main__":
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
-    compare_model(parametric_model_list, args.datapath+"image_classify_result/")
+    compare_model(parametric_model_list, args.datapath+"image_classify_result/", output_label="Gleason score")
 
 
 

@@ -5,14 +5,21 @@ import sklearn.metrics as metrics
 eps = 1e-6
 
 class performance_evaluation(object):
-    def __init__(self, metrics_list=["auc", "f_max", "ap"]):
+    def __init__(self, multi_label=True, metrics_list=["auc", "f_max", "ap"]):
         self.metrics_list = metrics_list
+        self.multi_label = multi_label
 
     def eval(self, predict, gt):
         performance_dict = {}
+        np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
         for metrics in self.metrics_list:
             metric_func = globals()[metrics]
-            performance_dict[metrics] = metric_func(predict, gt)
+            if self.multi_label:
+                performance_dict[metrics] = evaluate_with_multi_label_classification(np_predict,
+                                                                                     np_gt,
+                                                                                     metric_func)
+            else:
+                performance_dict[metrics] = metric_func(np_predict, np_gt)
 
         return performance_dict
 
@@ -31,22 +38,17 @@ def torch_tensor_np(tensor):
         tensor = tensor.cpu()
 
     np_array = tensor.detach().numpy()
-    if np_array.shape[-1] == 1:
-        np_array = np.squeeze(np_array)
+    # if np_array.shape[-1] == 1:
+    #     np_array = np.squeeze(np_array)
     return np_array
 
 def auc(predict, gt):
-    np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
-    print(np_predict)
-    print(np_gt)
-    auc = metrics.roc_auc_score(y_score=np_predict, y_true=np_gt)
-    return auc
+    return metrics.roc_auc_score(y_score=predict, y_true=gt)
 
 
 def f_max(predict, gt):
-    np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
-    recall, precision, threshold = metrics.precision_recall_curve(probas_pred=np_predict,
-                                                             y_true=np_gt)
+    recall, precision, threshold = metrics.precision_recall_curve(probas_pred=predict,
+                                                             y_true=gt)
     print("recall: ", recall)
     print("precision: ", precision)
 
@@ -60,10 +62,16 @@ def f_max(predict, gt):
     return f_max
 
 def ap(predict, gt):
-    np_predict, np_gt = torch_tensor_np(predict), torch_tensor_np(gt)
-    ap = metrics.average_precision_score(y_score=np_predict,y_true=np_gt)
-    return ap
+    return metrics.average_precision_score(y_score=predict,y_true=gt)
 
+def evaluate_with_multi_label_classification(predict, gt, func):
+
+    num_classes = predict.shape[-1]
+    score_list = []
+    for c in range(num_classes):
+        score_list.append(func(predict[:,c], gt[:, c]))
+
+    return score_list
 
 class loss_func(nn.Module):
     pass

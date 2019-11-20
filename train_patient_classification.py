@@ -170,7 +170,11 @@ if __name__ == "__main__":
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
-    compare_model(parametric_model_list, args.datapath+"result/")
+    label_name_list = train_val_dataset.label_name
+
+    for idx, label_name in enumerate(label_name_list):
+        compare_model(parametric_model_list, args.datapath+"patient_result/",
+                      output_label=label_name, output_idx=idx, multi_label_classify=True)
 
 
 
