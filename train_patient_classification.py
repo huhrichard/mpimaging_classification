@@ -114,6 +114,7 @@ if __name__ == "__main__":
 
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
+                       "multi_label": [True],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],

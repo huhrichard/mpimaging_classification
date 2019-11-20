@@ -202,6 +202,7 @@ def put_parameters_to_trainer(epochs=50,
                                                        params=model.parameters(),
                                                        # amsgrad=True
                                                        ),
+                            performance_metrics=performance_evaluation(multi_label=multi_label)
                             total_epochs=epochs,
                             lr_scheduler_list=[],
                             loss_function=bcel_multi_output())

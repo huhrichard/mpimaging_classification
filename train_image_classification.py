@@ -110,12 +110,13 @@ if __name__ == "__main__":
 
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
+                       "multi_label": [False],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
                        "feat_ext": [True],
-                       "lr":[1e-7],
-                       "wd":[1e-2],
+                       "lr":[1e-4],
+                       "wd":[1e-4],
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [True]
                        }
