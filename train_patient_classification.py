@@ -172,12 +172,13 @@ if __name__ == "__main__":
             trainer_list.append(specific_trainer)
         parametric_model_list.append(trainer_list)
 
+    result_path = args.datapath+"patient_classify_result/"
     # label_name_list = train_val_dataset.label_name
-    compare_model(parametric_model_list, args.datapath+"patient_result/", metrics=['f1_by_sample'])
+    compare_model(parametric_model_list, result_path, metrics=['f1_by_sample'])
     label_list = ['Gleason score',"BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
-        compare_model(parametric_model_list, args.datapath+"patient_classify_result/",
+        compare_model(parametric_model_list, result_path,
                       output_label=label_name, output_idx=idx, multi_label_classify=True, metrics=['f1_by_label', 'balanced_acc_by_label'])
 
 
