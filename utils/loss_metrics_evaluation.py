@@ -64,12 +64,18 @@ def f_max(predict, gt):
 def ap(predict, gt):
     return metrics.average_precision_score(y_score=predict,y_true=gt)
 
-def balanced_acc(predict, gt):
+def balanced_acc_by_label(predict, gt):
     predict[predict>0.5] = 1
     predict[predict<=0.5] = 0
     p = predict.astype(int)
     g = gt.astype(int)
-    return metrics.balanced_accuracy_score(y_pred=p, y_true=g)
+    score_list = []
+    for idx in range(p.shape[1]):
+        print("p:", p[:, idx])
+        print("g:", g[:, idx])
+        score_list.append(metrics.balanced_accuracy_score(y_pred=p[:, idx], y_true=g[:, idx]))
+    return score_list
+    # return metrics.(y_pred=p, y_true=g)
 
 def f1_by_sample(predict, gt):
     predict[predict>0.5] = 1
@@ -99,7 +105,7 @@ def evaluate_with_multi_label_classification(predict, gt, func):
     num_classes = predict.shape[-1]
     score_list = []
     for c in range(num_classes):
-        score_list.append(func(predict[:,c], gt[:, c]))
+        score_list.append(func(y_pred=p[:, c], y_true=g[:, c]))
 
     return score_list
 
