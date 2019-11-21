@@ -115,7 +115,7 @@ if __name__ == "__main__":
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
                        "multi_label": [True],
-                       "performance_metrics_list" : [["f1_by_sample", "f1_by_label"]],
+                       "performance_metrics_list" : [["f1_by_sample", "f1_by_label", "balanced_acc"]],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        "p_weight": [True],
