@@ -81,6 +81,7 @@ class simple_transfer_classifier(nn.Module):
             else:
                 act = nn.Softmax()
             return nn.Sequential(*[nn.Linear(feature_dim[1], num_classes),
+                                   nn.BatchNorm1d(num_classes),
                                     act])
 
 
