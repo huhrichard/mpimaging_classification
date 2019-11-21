@@ -177,7 +177,7 @@ if __name__ == "__main__":
     label_list = ['Gleason score',"BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
-        compare_model(parametric_model_list, args.datapath+"patient_result/",
+        compare_model(parametric_model_list, args.datapath+"patient_classify_result/",
                       output_label=label_name, output_idx=idx, multi_label_classify=True, metrics=['f1_by_label'])
 
 
