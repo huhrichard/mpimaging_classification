@@ -24,6 +24,37 @@ class performance_evaluation(object):
 
         return performance_dict
 
+class performance_evaluation_cv(object):
+    def __init__(self, nfold=5, total_epochs=50, multi_label=True, metrics_list=["auc", "f_max", "ap"],
+                 ):
+        self.metrics_list = metrics_list
+        self.multi_label = multi_label
+        self.nfold = nfold
+        self.total_epochs = total_epochs
+
+    def eval(self, predict, gt, states):
+        performance_dict = {}
+        for metrics in self.metrics_list:
+            metric_func = globals()[metrics]
+            performance_dict[metrics] = {}
+            for state in states:
+                performance_dict[metrics][state] = []
+                for e in range(self.total_epochs):
+                    if state == 'train':
+                        metric_scores = []
+                        for nth_fold in range(self.nfold):
+                            # p = torch_tensor_np(predict[nth_fold],)
+                            p = predict[nth_fold][state][e]
+                            g = gt[nth_fold][state][e]
+                            metric_scores.append(metric_func(p, g))
+                    else:
+                        p = np.concatenate([predict[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
+                        g = np.concatenate([gt[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
+                        metric_scores = metric_func(p, g)
+
+                    performance_dict[metrics][state].append(metric_scores)
+        return performance_dict
+
 class bcel_multi_output(nn.Module):
     def __init__(self):
         super(bcel_multi_output, self).__init__()

@@ -57,55 +57,56 @@ if __name__ == "__main__":
 
 
     # create dataset
-    test_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
-                                 cvtransforms.ToTensor(),
-                                 cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
-
-    train_val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+    train_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
                                  cvtransforms.RandomHorizontalFlip(),
                                  cvtransforms.RandomVerticalFlip(),
                                  cvtransforms.RandomRotation(90),
                                  cvtransforms.ToTensor(),
                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
-    # CV_data set
-    train_val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_val_input_transform_list)),
+    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+                                  cvtransforms.ToTensor(),
+                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+
+    train_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
                   ]
 
-    train_val_dataset = torch.utils.data.ConcatDataset([
+    train_dataset = torch.utils.data.ConcatDataset([
                 mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                   multi_label_gt_path=gt_path,
-                                                  transform=t) for t in train_val_transforms])
+                                                  transform=t) for t in train_transforms])
 
+    val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(val_input_transform_list)),
+                  ]
 
-    num_classes = train_val_dataset[0]["gt"].shape[-1]
-    # Split data into cross-validation_set and test_set
-    cv_split_indices, test_indices = cross_validation_and_test_split(len(train_val_dataset))
-    print(cv_split_indices, test_indices)
-
-    cv_data_samplers = [SubsetRandomSampler(cv_split_index) for cv_split_index in cv_split_indices]
-
-    cv_data_loaders = [DataLoader(dataset=train_val_dataset, batch_size=args.n_batch, sampler=cv_data_sampler
-                                  ) for cv_data_sampler in cv_data_samplers]
-
-    # test data loader
-    test_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(test_input_transform_list)),
-                       ]
-    test_dataset = torch.utils.data.ConcatDataset([
+    val_dataset = torch.utils.data.ConcatDataset([
                 mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                   multi_label_gt_path=gt_path,
-                                                  transform=t) for t in test_transforms])
+                                                  transform=t) for t in val_transforms])
 
-    test_data_sampler = SubsetRandomSampler(test_indices)
-
-    test_data_loader = DataLoader(dataset=test_dataset, batch_size=args.n_batch, sampler=test_data_sampler)
+    num_classes = train_dataset[0]["gt"].shape[-1]
+    # Split data into cross-validation_set
+    cv_split_list = nfold_cross_validation(len(train_dataset))
 
     running_states = ["train", "val", "test"]
+    n_fold = len(cv_split_list)
+
+
+    cv_data_loaders = [{"train": DataLoader(dataset=train_dataset,
+                                            batch_size=args.n_batch,
+                                            sampler=SubsetRandomSampler(train_idx)),
+                        "val": DataLoader(dataset=val_dataset,
+                                          batch_size=args.n_batch,
+                                          sampler=SubsetRandomSampler(val_idx))
+                        } for train_idx, val_idx in cv_split_list]
+
+
     # Grid Search
 
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
                        "multi_label": [True],
+                       "n_fold": [n_fold],
                        "performance_metrics_list" : [["f1_by_sample", "f1_by_label", "balanced_acc_by_label"]],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
@@ -116,53 +117,34 @@ if __name__ == "__main__":
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [True]
                        }
-
     list_parameters = ParameterGrid(parameters_grid)
 
     parametric_model_list = []
     for parameters in list_parameters:
         trainer_list = []
-        for nth_fold in range(len(cv_data_samplers)):
+        specific_trainer = put_parameters_to_trainer(**parameters)
+        for nth_fold in range(n_fold):
             print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
-            specific_trainer = put_parameters_to_trainer(**parameters)
+            specific_trainer.model_init()
+            specific_trainer.model.to(device)
             for epoch in range(args.epochs):
                 print("="*30)
                 print("{} {}th epoch running: {}".format("="*10, epoch, "="*10))
                 epoch_start_time = time.time()
                 for running_state in running_states:
-                    if running_state == "train":
-                        train_splits = list(range(len(cv_data_samplers)))
-                        train_splits.remove(nth_fold)
-                        random.shuffle(train_splits)
-                        for train_split in train_splits:
-                            for batch_idx, data in enumerate(cv_data_loaders[train_split]):
-                                input = data['input']
-                                # print("input mean and sd: ", input.mean(), input.std())
-                                gt = data['gt']
-                                input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-                                gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
-                                loss, predict = specific_trainer.running_model(input, gt, epoch=epoch, running_state=running_state)
-                    else:
-                        if running_state == "val":
-                            data_loader = cv_data_loaders[nth_fold]
-                        elif running_state == "test":
-                            data_loader = test_data_loader
-
-                        for batch_idx, data in enumerate(data_loader):
-                            input = data['input']
-                            gt = data['gt']
-                            input = Variable(input.view(-1, *(input.shape[2:])), requires_grad=False).float().to(device)
-                            gt = Variable(gt.view(-1, *(gt.shape[2:])), requires_grad=False).float().to(device)
-                            loss, predict = specific_trainer.running_model(input, gt, epoch=epoch, running_state=running_state)
-
-                    specific_trainer.evaluation(running_state=running_state, epoch=epoch)
-
-
+                    for batch_idx, data in enumerate(cv_data_loaders[nth_fold][running_state]):
+                        input = data['input']
+                        gt = data['gt']
+                        input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
+                        gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
+                        loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
+                                                                       running_state=running_state, nth_fold=nth_fold)
                 time_elapsed = time.time()-epoch_start_time
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
-            specific_trainer.model = specific_trainer.model.cpu()
-            trainer_list.append(specific_trainer)
-        parametric_model_list.append(trainer_list)
+            # specific_trainer.model = specific_trainer.model
+
+        specific_trainer.evaluation()
+        parametric_model_list.append(specific_trainer)
 
     result_path = args.datapath+"patient_classify_result/"
     # label_name_list = train_val_dataset.label_name

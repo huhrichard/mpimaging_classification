@@ -3,6 +3,7 @@ import cvtorchvision
 from torch.utils.data import Dataset, DataLoader
 import pandas
 import os, fnmatch
+from sklearn.model_selection import KFold, LeaveOneOut
 
 
 def find(pattern, path):
@@ -136,3 +137,22 @@ def cross_validation_and_test_split(len_data, n_folds=5, test_ratio=0.1, random_
 
     return cv_split_nfolds, test_indices
 
+def leave_one_out_cross_validation(len_data):
+    loo = LeaveOneOut()
+    cv_rand_idx = np.random.permutation(len_data)
+    cv_split_list = list(loo.split(cv_rand_idx))
+    cv_split_rand_idx = []
+    for train_idx, val_idx in cv_split_list:
+        cv_split_rand_idx.append((cv_rand_idx[train_idx], cv_rand_idx[val_idx]))
+
+    return cv_split_rand_idx
+
+def nfold_cross_validation(len_data, n_fold=5):
+    loo = KFold(n_splits=n_fold)
+    cv_rand_idx = np.random.permutation(len_data)
+    cv_split_list = list(loo.split(cv_rand_idx))
+    cv_split_rand_idx = []
+    for train_idx, val_idx in cv_split_list:
+        cv_split_rand_idx.append((cv_rand_idx[train_idx], cv_rand_idx[val_idx]))
+
+    return cv_split_rand_idx

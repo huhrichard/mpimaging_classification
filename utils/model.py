@@ -1,5 +1,6 @@
 from utils.common_library import *
 import torchvision.models as models
+import torchvision.models.segmentation as seg
 from utils.custom_module import _ResBlock
 import importlib
 
@@ -96,9 +97,9 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
                 pretrained_net = getattr(models, model_name)(pretrained=pretrain_weight, aux_logits=False)
             else:
                 pretrained_net = getattr(models, model_name)(pretrained=pretrain_weight)
-        else:
-            m = importlib.import_module("torchvision.models."+module_prefix)
-            pretrained_net = getattr(m, model_name)(pretrained=pretrain_weight)
+        elif module_prefix == "seg":
+            # m = importlib.import_module("torchvision.models."+module_prefix)
+            pretrained_net = getattr(seg, model_name)(pretrained=pretrain_weight)
 
         set_parameter_requires_grad(pretrained_net, feature_extracting)
         test_input = torch.zeros(1,input_size[0], input_size[1], input_size[2])
