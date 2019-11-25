@@ -105,7 +105,8 @@ class simple_transfer_classifier(nn.Module):
                 act = nn.Sigmoid()
             else:
                 act = nn.Softmax()
-            return nn.Sequential(*[nn.BatchNorm2d(num_classes),
+            return nn.Sequential(*[ conv_layer,
+                                    nn.BatchNorm2d(num_classes),
                                     nn.AdaptiveAvgPool2d(1),
                                     nn.Sigmoid(),
                                     act])
