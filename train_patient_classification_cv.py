@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # Split data into cross-validation_set
     cv_split_list = nfold_cross_validation(len(train_dataset))
 
-    running_states = ["train", "val", "test"]
+    running_states = ["train", "val"]
     n_fold = len(cv_split_list)
 
 
