@@ -169,11 +169,11 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
     for metric in metrics:
         fig_all_trainer_list = [plt.figure() for plot in plot_states_list]
         ax_all_trainer_list = [fig.add_subplot(1,1,1) for fig in fig_all_trainer_list]
-        for idx, specific_trainer in enumerate(trainers):
+        for trainer_idx, specific_trainer in enumerate(trainers):
             # plot each fold result 1st
             fig_all_fold_list = [plt.figure() for plot in plot_states_list]
             ax_all_fold_list = [fig.add_subplot(1, 1, 1) for fig in fig_all_fold_list]
-            for idx, plot in enumerate(plot_states_list):
+            for plot_idx, plot in enumerate(plot_states_list):
                 for state in states:
                     if state in plot or plot == "":
 
@@ -181,29 +181,29 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       # "y": np.mean(metric_dicts[state], axis=0),
                                       # "yerr": np.std(metric_dicts[state], axis=0),
                                       "label": "{}({})".format(state, specific_trainer.model_name),
-                                      "c": colors[idx * len(states) + c_style[state]],
+                                      "c": colors[trainer_idx * len(states) + c_style[state]],
                                       "linestyle": linestyle_dict[state],
                                       "alpha": 0.4,
                                       "marker": mark_style_dict[state]}
                         if state == "train":
                             plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
                             plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
-                            ax_all_fold_list[idx].errorbar(**plot_paras)
-                            ax_all_trainer_list[idx].errorbar(**plot_paras)
+                            ax_all_fold_list[plot_idx].errorbar(**plot_paras)
+                            ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
                         else:
                             plot_paras["y"] = specific_trainer.performance_stat[metric][state]
-                            ax_all_fold_list[idx].plot(**plot_paras)
-                            ax_all_trainer_list[idx].plot(**plot_paras)
+                            ax_all_fold_list[plot_idx].plot(**plot_paras)
+                            ax_all_trainer_list[plot_idx].plot(**plot_paras)
                 base_name = "{}_{}".format(metric, specific_trainer.model_name)
-                ax_all_fold_list[idx].legend()
-                ax_all_fold_list[idx].set_title("{} of {}".format(metric, output_label))
-                fig_all_fold_list[idx].savefig(save_path + base_name + plot + ".png")
+                ax_all_fold_list[plot_idx].legend()
+                ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
+                fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
 
-        for idx, plot in enumerate(plot_states_list):
+        for plot_idx, plot in enumerate(plot_states_list):
             base_name = "{}".format(metric)
-            ax_all_trainer_list[idx].legend()
-            ax_all_trainer_list[idx].set_title("{} of {}".format(metric, output_label))
-            fig_all_trainer_list[idx].savefig(save_path + base_name + plot + ".png")
+            ax_all_trainer_list[plot_idx].legend()
+            ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
+            fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
 
 
 def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state):
@@ -211,12 +211,14 @@ def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state):
 
     if os.path.exists(final_output_path):
         df = pd.read_csv(final_output_path)
-        for trainer in trainers:
-            for metric in metrics:
-                col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
-                df[col_metric_name] = trainers.performance_stat[metric][state]
-            col_pred_name = "{}_{}_prediction".format(state, trainer.model_name)
-            # df[col_pred_name] =
+    else:
+        df = pd.read_csv(gt_path)
+    for trainer in trainers:
+        for metric in metrics:
+            col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
+            df[col_metric_name] = trainer.performance_stat[metric][state]
+        col_pred_name = "{}_{}_prediction".format(state, trainer.model_name)
+        df[col_pred_name] = prediction_list[n_fold][running_state][-1]
 
     pass
 

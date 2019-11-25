@@ -47,7 +47,7 @@ class trainer(object):
                         "test": [[] for i in range(self.total_epochs)]}
         self.old_epochs = 0
 
-    def running_model(self, input, gt, epoch, running_state, input_names):
+    def running_model(self, input, gt, epoch, running_state, idx):
         predict_for_result, predict_for_loss_function = self.model(input)
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
@@ -63,6 +63,7 @@ class trainer(object):
         loss, predict, gt = loss.detach().cpu(), \
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()
+
         self.loss_stat[running_state][epoch].append(loss)
         self.prediction_list[running_state][epoch].append(predict)
         self.gt_list[running_state][epoch].append(gt)
