@@ -185,8 +185,8 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       "alpha": 0.4,
                                       "marker": mark_style_dict[state]}
                         if state == "train":
-                            plot_paras["y"] = np.mean(trainers.performance_stat[metric][state], axis=0)
-                            plot_paras["yerr"] = np.std(trainers.performance_stat[metric][state], axis=0)
+                            plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
+                            plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
                             ax_all_fold_list[idx].errorbar(**plot_paras)
                             ax_all_trainer_list[idx].errorbar(**plot_paras)
                         else:
@@ -203,5 +203,8 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
             ax_all_trainer_list[idx].legend()
             ax_all_trainer_list[idx].set_title("{} of {}".format(metric, output_label))
             fig_all_trainer_list[idx].savefig(save_path + base_name + plot + ".png")
+
+
+def write_result_on_csv(trainers, save_path, out_csv, )
 
 
