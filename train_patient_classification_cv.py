@@ -140,7 +140,7 @@ if __name__ == "__main__":
                         input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                         gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                         loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
-                                                                       running_state=running_state, nth_fold=nth_fold)
+                                                                       running_state=running_state, nth_fold=nth_fold, idx=idx)
                 time_elapsed = time.time()-epoch_start_time
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
             # specific_trainer.model = specific_trainer.model

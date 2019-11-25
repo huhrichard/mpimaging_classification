@@ -177,7 +177,8 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                 for state in states:
                     if state in plot or plot == "":
 
-                        plot_paras = {"x": range(epochs),
+                        plot_paras = {
+                                        # "x": range(epochs),
                                       # "y": np.mean(metric_dicts[state], axis=0),
                                       # "yerr": np.std(metric_dicts[state], axis=0),
                                       "label": "{}({})".format(state, specific_trainer.model_name),
@@ -206,7 +207,7 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
             fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
 
 
-def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state):
+def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state, patient_dataset, epoch_as_final = -1):
     final_output_path = save_path+out_csv
 
     if os.path.exists(final_output_path):
@@ -218,7 +219,13 @@ def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state):
             col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
             df[col_metric_name] = trainer.performance_stat[metric][state]
         col_pred_name = "{}_{}_prediction".format(state, trainer.model_name)
-        df[col_pred_name] = prediction_list[n_fold][running_state][-1]
+        # this is patient idx fo patient dataset
+        idx_list = torch.cat([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in trainer.n_fold], dim=0)
+        for idx in idx_list:
+            pass
+            # patient_dataset.patient_img_list
+
+        df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
     pass
 

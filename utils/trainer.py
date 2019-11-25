@@ -47,7 +47,7 @@ class trainer(object):
                         "test": [[] for i in range(self.total_epochs)]}
         self.old_epochs = 0
 
-    def running_model(self, input, gt, epoch, running_state, idx):
+    def running_model(self, input, gt, epoch, running_state):
         predict_for_result, predict_for_loss_function = self.model(input)
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
@@ -187,9 +187,12 @@ class cv_trainer(object):
         self.gt_list = [{"train": [[] for i in range(self.total_epochs)],
                          "val": [[] for i in range(self.total_epochs)],
                          "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
+        self.idx_list = [{"train": [[] for i in range(self.total_epochs)],
+                         "val": [[] for i in range(self.total_epochs)],
+                         "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
         self.old_epochs = 0
 
-    def running_model(self, input, gt, epoch, running_state, nth_fold):
+    def running_model(self, input, gt, epoch, running_state, nth_fold, idx):
         predict_for_result, predict_for_loss_function = self.model(input)
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
@@ -205,9 +208,11 @@ class cv_trainer(object):
         loss, predict, gt = loss.detach().cpu(), \
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()
+
         self.loss_stat[nth_fold][running_state][epoch].append(loss)
         self.prediction_list[nth_fold][running_state][epoch].append(predict)
         self.gt_list[nth_fold][running_state][epoch].append(gt)
+        self.idx_list[nth_fold][running_state][epoch].append(idx)
 
         return loss, predict
 
