@@ -235,7 +235,7 @@ def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state, p
             for img_path in img_path_list:
                 img_trimmed_path = img_path.split('/')[0]
 
-        df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
+        # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
     pass
 
