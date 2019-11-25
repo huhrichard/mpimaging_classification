@@ -205,6 +205,7 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
             fig_all_trainer_list[idx].savefig(save_path + base_name + plot + ".png")
 
 
-def write_result_on_csv(trainers, save_path, out_csv, )
+def write_result_on_csv(trainers, save_path, out_csv, ):
+    pass
 
 
