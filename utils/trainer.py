@@ -49,9 +49,9 @@ class trainer(object):
 
     def running_model(self, input, gt, epoch, running_state, input_names):
         predict_for_result, predict_for_loss_function = self.model(input)
-        print('p for loss', predict_for_loss_function)
-        print('p for result', predict_for_result)
-        print('gt', gt)
+        # print('p for loss', predict_for_loss_function)
+        # print('p for result', predict_for_result)
+        # print('gt', gt)
         loss = self.loss_function(predict_for_loss_function, gt)
 
         if running_state == "train":
@@ -164,7 +164,7 @@ class cv_trainer(object):
         self.use_pretrain_weight = use_pretrain_weight
 
         self.model_init()
-        self.optimizer = optimizer['optim'](lr=optimizer['lr'], wd=optimizer['wd'], params=self.model.parameters())
+        self.optimizer = optimizer['optim'](lr=optimizer['lr'], weight_decay=optimizer['wd'], params=self.model.parameters())
 
         self.lr_scheduler_list = lr_scheduler_list
         # self.n_batches = n_batches

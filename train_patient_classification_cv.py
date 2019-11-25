@@ -11,13 +11,13 @@ import random
 from utils.model import simple_transfer_classifier
 from torch.autograd import Variable
 import time
-from utils.postprocessing_visualization import compare_model
+from utils.postprocessing_visualization import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
-parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=10, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary_20191114.csv', type=str, help='File of the groundtruth')
@@ -148,11 +148,11 @@ if __name__ == "__main__":
 
     result_path = args.datapath+"patient_classify_result/"
     # label_name_list = train_val_dataset.label_name
-    compare_model(parametric_model_list, result_path, metrics=['f1_by_sample'])
+    compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
     label_list = ['Gleason score',"BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
-        compare_model(parametric_model_list, result_path,
+        compare_model_cv(parametric_model_list, result_path,
                       output_label=label_name, output_idx=idx, multi_label_classify=True, metrics=['f1_by_label', 'balanced_acc_by_label'])
 
 
