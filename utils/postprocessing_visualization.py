@@ -190,7 +190,7 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                             ax_all_fold_list[idx].errorbar(**plot_paras)
                             ax_all_trainer_list[idx].errorbar(**plot_paras)
                         else:
-                            plot_paras["y"] = trainers.performance_stat[metric][state]
+                            plot_paras["y"] = specific_trainer.performance_stat[metric][state]
                             ax_all_fold_list[idx].plot(**plot_paras)
                             ax_all_trainer_list[idx].plot(**plot_paras)
                 base_name = "{}_{}".format(metric, specific_trainer.model_name)
