@@ -135,7 +135,7 @@ def compare_model(trainers, save_path, output_label='', output_idx=0, multi_labe
         fig_all_trainers_val_only.clf()
 
 
-def compare_model_cv(trainers, save_path, out_csv, output_label='', output_idx=0, multi_label_classify=False, metrics=None):
+def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_idx=0, multi_label_classify=False, metrics=None):
 
     n = len(trainers)
 

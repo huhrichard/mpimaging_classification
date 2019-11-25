@@ -37,10 +37,10 @@ class simple_transfer_classifier(nn.Module):
         if self.net_as_list:
             simplest_linear_act = []
             for feature in self.feature_dim:
-                simplest_linear_act.append(self.create_linear_act_module(feature, multi_label, num_classes))
+                simplest_linear_act.append(self.create_last_layer(feature, multi_label, num_classes))
             self.simplest_linear_act = nn.ModuleList(simplest_linear_act)
         else:
-            self.simplest_linear_act = self.create_linear_act_module(self.feature_dim, multi_label, num_classes)
+            self.simplest_linear_act = self.create_last_layer(self.feature_dim, multi_label, num_classes)
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -71,18 +71,31 @@ class simple_transfer_classifier(nn.Module):
 
     # def weight_init(self, use_pretrained_weight):
 
-    def create_linear_act_module(self, feature_dim, multi_label, num_classes):
+    def create_last_layer(self, feature_dim, multi_label, num_classes, linear=False):
+        linear_layer = nn.Linear(feature_dim[1], num_classes)
+        conv_layer = nn.Conv2d(feature_dim[1], num_classes, kernel_size=1, stride=1, padding=0)
 
-        if num_classes == 1:
-            return nn.Sequential(*[nn.Linear(feature_dim[1], num_classes),
-                                            nn.Sigmoid()])
+        if linear:
+            if num_classes == 1:
+                return nn.Sequential(*[
+                                        linear_layer,
+                                        nn.Sigmoid()])
+            else:
+                if multi_label:
+                    act = nn.Sigmoid()
+                else:
+                    act = nn.Softmax()
+                return nn.Sequential(*[linear_layer,
+                                       nn.BatchNorm1d(num_classes),
+                                        act])
         else:
-            if multi_label:
+            if multi_label or num_classes == 1:
                 act = nn.Sigmoid()
             else:
                 act = nn.Softmax()
-            return nn.Sequential(*[nn.Linear(feature_dim[1], num_classes),
-                                   nn.BatchNorm1d(num_classes),
+            return nn.Sequential(*[nn.BatchNorm2d(num_classes),
+                                    nn.AdaptiveAvgPool2d(1),
+                                    nn.Sigmoid(),
                                     act])
 
 

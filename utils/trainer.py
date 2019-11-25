@@ -210,7 +210,7 @@ class cv_trainer(object):
 
         return loss, predict
 
-    def evaluation(self, datapath):
+    def evaluation(self):
         # print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
 
         running_states = ["train", "val"]
