@@ -222,7 +222,7 @@ class cv_trainer(object):
                 self.gt_list[nth_fold][running_state] = np_t
 
         metrics_dict = self.performance_metrics.eval(self.prediction_list,
-                                             self.gt_list)
+                                             self.gt_list, running_states)
 
 
         self.performance_stat = metrics_dict
