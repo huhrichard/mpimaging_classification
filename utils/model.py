@@ -9,7 +9,7 @@ class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
                  pretrain_weight=True, feature_extracting=True, multi_label=True,
-                 multi_classifier=True):
+                 multi_classifier=True, last_linear=False):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
         # self.modules_employing = modules_employing
@@ -17,6 +17,7 @@ class simple_transfer_classifier(nn.Module):
         self.pretrain_weight = pretrain_weight
         self.feature_extracting = feature_extracting
         self.num_classes = num_classes
+        self.last_linear = last_linear
         # self.pretrained_network, self.feature_dim = get_pretrained_net(pretrained_model_name,
         #                                              input_size,
         #                                              module_prefix,
@@ -37,10 +38,16 @@ class simple_transfer_classifier(nn.Module):
         if self.net_as_list:
             simplest_linear_act = []
             for feature in self.feature_dim:
-                simplest_linear_act.append(self.create_last_layer(feature, multi_label, num_classes))
-            self.simplest_linear_act = nn.ModuleList(simplest_linear_act)
+                simplest_linear_act.append(self.create_last_layer(feature,
+                                                                  multi_label,
+                                                                  num_classes,
+                                                                  linear=last_linear))
+            self.last_layer = nn.ModuleList(simplest_linear_act)
         else:
-            self.simplest_linear_act = self.create_last_layer(self.feature_dim, multi_label, num_classes)
+            self.last_layer = self.create_last_layer(self.feature_dim,
+                                                     multi_label,
+                                                     num_classes,
+                                                     linear=last_linear)
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
@@ -52,8 +59,13 @@ class simple_transfer_classifier(nn.Module):
             for idx, net in enumerate(self.pretrained_network):
                 # print(net.weight.shape)
                 input = net(input)
-                avg_pool = self.avgpool(input).flatten(start_dim=1)
-                out_list.append(self.simplest_linear_act[idx](avg_pool))
+                if self.last_linear:
+                    avg_pool = self.avgpool(input).flatten(start_dim=1)
+                    out_list.append(self.last_layer[idx](avg_pool))
+                else:
+                    out = self.last_layer[idx](input)
+                    out_list.append(self.avgpool(out).flatten(start_dim=1))
+
             out_for_result = torch.stack(out_list, dim=-1).mean(dim=-1)
             out_for_loss_function = torch.stack(out_list, dim=-1)
 
@@ -63,7 +75,7 @@ class simple_transfer_classifier(nn.Module):
             features_flat = features.flatten(start_dim=1)
             # print(features_flat.shape)
             # print(self.feature_dim)
-            out_for_result = self.simplest_linear_act(features_flat)[0]
+            out_for_result = self.last_layer(features_flat)[0]
             out_for_loss_function = out_for_result
 
 
