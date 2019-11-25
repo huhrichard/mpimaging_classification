@@ -186,13 +186,22 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       "linestyle": linestyle_dict[state],
                                       "alpha": 0.4,
                                       "marker": mark_style_dict[state]}
+
                         if state == "train":
-                            plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
-                            plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
+                            if multi_label_classify:
+                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
+                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
+                            else:
+                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
+                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
                             ax_all_fold_list[plot_idx].errorbar(**plot_paras)
                             ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
                         else:
-                            plot_paras["y"] = specific_trainer.performance_stat[metric][state]
+                            print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
+                            if multi_label_classify:
+                                plot_paras["y"] = specific_trainer.performance_stat[metric][state][output_idx]
+                            else:
+                                plot_paras["y"] = specific_trainer.performance_stat[metric][state]
                             ax_all_fold_list[plot_idx].plot(**plot_paras)
                             ax_all_trainer_list[plot_idx].plot(**plot_paras)
                 base_name = "{}_{}".format(metric, specific_trainer.model_name)
@@ -222,8 +231,9 @@ def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state, p
         # this is patient idx fo patient dataset
         idx_list = torch.cat([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in trainer.n_fold], dim=0)
         for idx in idx_list:
-            pass
-            # patient_dataset.patient_img_list
+            img_path_list = patient_dataset.patient_img_list[idx]
+            for img_path in img_path_list:
+                img_trimmed_path = img_path.split('/')[0]
 
         df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
