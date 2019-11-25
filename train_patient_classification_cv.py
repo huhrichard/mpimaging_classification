@@ -133,8 +133,10 @@ if __name__ == "__main__":
                 epoch_start_time = time.time()
                 for running_state in running_states:
                     for batch_idx, data in enumerate(cv_data_loaders[nth_fold][running_state]):
+                        # print(batch_idx)
                         input = data['input']
                         gt = data['gt']
+                        idx = data['idx']
                         input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                         gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                         loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,

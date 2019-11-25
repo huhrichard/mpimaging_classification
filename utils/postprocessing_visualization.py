@@ -1,7 +1,8 @@
 from utils.common_library import *
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
-
+import os
+import pandas as pd
 
 def compare_model(trainers, save_path, output_label='', output_idx=0, multi_label_classify=False, metrics=None):
 
@@ -180,7 +181,7 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       # "y": np.mean(metric_dicts[state], axis=0),
                                       # "yerr": np.std(metric_dicts[state], axis=0),
                                       "label": "{}({})".format(state, specific_trainer.model_name),
-                                      "c": colors[idx * 3 + c_style[state]],
+                                      "c": colors[idx * * len(states) + c_style[state]],
                                       "linestyle": linestyle_dict[state],
                                       "alpha": 0.4,
                                       "marker": mark_style_dict[state]}
@@ -205,7 +206,18 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
             fig_all_trainer_list[idx].savefig(save_path + base_name + plot + ".png")
 
 
-def write_result_on_csv(trainers, save_path, out_csv, ):
+def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state):
+    final_output_path = save_path+out_csv
+
+    if os.path.exists(final_output_path):
+        df = pd.read_csv(final_output_path)
+        for trainer in trainers:
+            for metric in metrics:
+                col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
+                df[col_metric_name] = trainers.performance_stat[metric][state]
+            col_pred_name = "{}_{}_prediction".format(state, trainer.model_name)
+            # df[col_pred_name] =
+
     pass
 
 

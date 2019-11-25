@@ -115,7 +115,8 @@ class mpImage_sorted_by_patient_dataset(Dataset):
             idx = idx.tolist()
         # print(self.patient_img_list[idx])
         sample = {'input': [cv2.cvtColor(cv2.imread(patient_img), cv2.COLOR_BGR2RGB) for patient_img in self.patient_img_list[idx]],
-                  'gt': torch.from_numpy(self.gt_list[idx])}
+                  'gt': torch.from_numpy(self.gt_list[idx]),
+                  'idx': torch.Tensor([idx])}
         # print(sample["input"])
 
         if self.transform:
