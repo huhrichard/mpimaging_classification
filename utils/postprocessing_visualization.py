@@ -145,7 +145,7 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
     if metrics is None:
         metrics = list(trainers[0].performance_stat["train"][0].keys())
     print(metrics)
-    epochs = trainers[0][0].total_epochs
+    epochs = trainers[0].total_epochs
     states = ["train", "val"]
     plot_states_list = ["_train", "_val", ""]
     colors = plt.cm.jet(np.linspace(0, 1, n * len(states)))
@@ -185,12 +185,12 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       "alpha": 0.4,
                                       "marker": mark_style_dict[state]}
                         if state == "train":
-                            plot_paras["y"] = np.mean(trainers[metric][state], axis=0)
-                            plot_paras["yerr"] = np.std(trainers[metric][state], axis=0)
+                            plot_paras["y"] = np.mean(trainers.performance_stat[metric][state], axis=0)
+                            plot_paras["yerr"] = np.std(trainers.performance_stat[metric][state], axis=0)
                             ax_all_fold_list[idx].errorbar(**plot_paras)
                             ax_all_trainer_list[idx].errorbar(**plot_paras)
                         else:
-                            plot_paras["y"] = trainers[metric][state]
+                            plot_paras["y"] = trainers.performance_stat[metric][state]
                             ax_all_fold_list[idx].plot(**plot_paras)
                             ax_all_trainer_list[idx].plot(**plot_paras)
                 base_name = "{}_{}".format(metric, specific_trainer.model_name)
