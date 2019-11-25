@@ -44,6 +44,7 @@ class performance_evaluation_cv(object):
                         metric_scores = []
                         for nth_fold in range(self.nfold):
                             # p = torch_tensor_np(predict[nth_fold],)
+                            print(nth_fold, state, e)
                             p = predict[nth_fold][state][e]
                             g = gt[nth_fold][state][e]
                             metric_scores.append(metric_func(p, g))

@@ -190,9 +190,9 @@ class cv_trainer(object):
 
     def running_model(self, input, gt, epoch, running_state, nth_fold):
         predict_for_result, predict_for_loss_function = self.model(input)
-        print('p for loss', predict_for_loss_function)
-        print('p for result', predict_for_result)
-        print('gt', gt)
+        # print('p for loss', predict_for_loss_function)
+        # print('p for result', predict_for_result)
+        # print('gt', gt)
         loss = self.loss_function(predict_for_loss_function, gt)
 
         if running_state == "train":
