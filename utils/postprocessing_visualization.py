@@ -189,11 +189,13 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
 
                         if state == "train":
                             if multi_label_classify:
+
                                 plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
                                 plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
                             else:
                                 plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
                                 plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
+                            plot_paras["x"] = range(epochs)
                             ax_all_fold_list[plot_idx].errorbar(**plot_paras)
                             ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
                         else:
