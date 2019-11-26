@@ -136,7 +136,10 @@ def compare_model(trainers, save_path, output_label='', output_idx=0, multi_labe
         fig_all_trainers_val_only.clf()
 
 
-def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_idx=0, multi_label_classify=False, metrics=None):
+def compare_model_cv(trainers, save_path, out_csv='',
+                     output_label='', output_idx=0,
+                     multi_label_classify=False, metrics=None,
+                     plot_states_list=None):
 
     n = len(trainers)
 
@@ -148,7 +151,9 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
     print(metrics)
     epochs = trainers[0].total_epochs
     states = ["train", "val"]
-    plot_states_list = ["_train", "_val", ""]
+    if plot_states_list is None:
+        plot_states_list = ["_train", "_val", ""]
+
     colors = plt.cm.jet(np.linspace(0, 1, n * len(states)))
 
     linestyle_dict = {"train": "--",
@@ -188,10 +193,11 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                                       "marker": mark_style_dict[state]}
 
                         if state == "train":
+                            print(specific_trainer.performance_stat[metric][state])
                             if multi_label_classify:
 
-                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
-                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][output_idx], axis=0)
+                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
+                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
                             else:
                                 plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
                                 plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
@@ -201,11 +207,12 @@ def compare_model_cv(trainers, save_path, out_csv='', output_label='', output_id
                         else:
                             print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
                             if multi_label_classify:
-                                plot_paras["y"] = specific_trainer.performance_stat[metric][state][output_idx]
+                                y = specific_trainer.performance_stat[metric][state][:, output_idx]
                             else:
-                                plot_paras["y"] = specific_trainer.performance_stat[metric][state]
-                            ax_all_fold_list[plot_idx].plot(**plot_paras)
-                            ax_all_trainer_list[plot_idx].plot(**plot_paras)
+                                y = specific_trainer.performance_stat[metric][state]
+                            x = range(epochs)
+                            ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
+                            ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
                 base_name = "{}_{}".format(metric, specific_trainer.model_name)
                 ax_all_fold_list[plot_idx].legend()
                 ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))

@@ -205,6 +205,8 @@ class cv_trainer(object):
             loss.backward()
             self.optimizer.step()
 
+
+        # detach all to release gpu memory
         loss, predict, gt = loss.detach().cpu(), \
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()

@@ -71,12 +71,17 @@ class simple_transfer_classifier(nn.Module):
 
         else:
             features = self.pretrained_network(input)
-            features = self.avgpool(features)
-            features_flat = features.flatten(start_dim=1)
-            # print(features_flat.shape)
-            # print(self.feature_dim)
-            out_for_result = self.last_layer(features_flat)[0]
-            out_for_loss_function = out_for_result
+            if self.last_linear:
+                features = self.avgpool(features)
+                features_flat = features.flatten(start_dim=1)
+                # print(features_flat.shape)
+                # print(self.feature_dim)
+                out_for_result = self.last_layer(features_flat)
+                out_for_loss_function = out_for_result
+            else:
+                f = self.last_layer(features)
+                out_for_result = self.avgpool(f).flatten(start_dim=1)
+                out_for_loss_function = out_for_result
 
 
         return out_for_result, out_for_loss_function

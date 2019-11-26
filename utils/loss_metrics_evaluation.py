@@ -19,7 +19,7 @@ class performance_evaluation(object):
             #                                                                          np_gt,
             #                                                                          metric_func)
             # else:
-            performance_dict[metrics] = metric_func(np_predict, np_gt)
+            performance_dict[metrics] = metric_func(np_gt, np_predict)
             print("{}: {}".format(metrics, performance_dict[metrics]))
 
         return performance_dict
@@ -44,16 +44,18 @@ class performance_evaluation_cv(object):
                         metric_scores = []
                         for nth_fold in range(self.nfold):
                             # p = torch_tensor_np(predict[nth_fold],)
-                            print(nth_fold, state, e)
+                            # print(nth_fold, state, e)
                             p = predict[nth_fold][state][e]
                             g = gt[nth_fold][state][e]
-                            metric_scores.append(metric_func(p, g))
+                            metric_scores.append(metric_func(g, p))
+                        # metric_scores = np.array(metric_scores)
                     else:
                         p = np.concatenate([predict[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
                         g = np.concatenate([gt[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
-                        metric_scores = metric_func(p, g)
+                        metric_scores = metric_func(g, p)
 
                     performance_dict[metrics][state].append(metric_scores)
+                performance_dict[metrics][state] = np.array(performance_dict[metrics][state])
 
         return performance_dict
 
@@ -67,6 +69,27 @@ class bcel_multi_output(nn.Module):
             gt = gt.unsqueeze(-1).repeat(1,1,predict.shape[-1])
         return nn.functional.binary_cross_entropy(predict, gt)
 
+class bin_focal_loss_multi_output(nn.Module):
+    def __init__(self,
+                 alpha=0.5,
+                 gamma=2):
+        super(bin_focal_loss_multi_output, self).__init__()
+        self.alpha = torch.Tensor([alpha]).squeeze(-1)
+        self.gamma = torch.Tensor([gamma]).squeeze(-1)
+
+    def forward(self, predict, gt):
+        self.alpha = self.alpha.to(predict.device)
+        self.gamma = self.gamma.to(predict.device)
+        if predict.shape != gt.shape:
+            gt = gt.unsqueeze(-1).repeat(1,1,predict.shape[-1])
+        fl = torch.Tensor([0])
+        for idx, a in enumerate(self.alpha):
+            fl += 0
+        return self.focal_loss(predict, gt)
+
+    def focal_loss(self, predict, gt):
+        return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
+
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':
         tensor = tensor.cpu()
@@ -76,11 +99,11 @@ def torch_tensor_np(tensor):
     #     np_array = np.squeeze(np_array)
     return np_array
 
-def auc(predict, gt):
-    return metrics.roc_auc_score(y_score=predict, y_true=gt)
+def auc(gt, predict):
+    return metrics.roc_auc_score(gt, predict)
 
 
-def f_max(predict, gt):
+def f_max(gt, predict):
     recall, precision, threshold = metrics.precision_recall_curve(probas_pred=predict,
                                                              y_true=gt)
     # print("recall: ", recall)
@@ -95,7 +118,7 @@ def f_max(predict, gt):
     return f_max
 
 def ap(predict, gt):
-    return metrics.average_precision_score(y_score=predict,y_true=gt)
+    return metrics.average_precision_score(gt, predict)
 
 def balanced_acc_by_label(predict, gt):
     predict[predict>0.5] = 1
@@ -104,41 +127,44 @@ def balanced_acc_by_label(predict, gt):
     g = gt.astype(int)
     score_list = []
     for idx in range(p.shape[1]):
-        print("p:", p[:, idx])
-        print("g:", g[:, idx])
-        score_list.append(metrics.balanced_accuracy_score(y_pred=p[:, idx], y_true=g[:, idx]))
+        # print("p:", p[:, idx])
+        # print("g:", g[:, idx])
+        score_list.append(metrics.balanced_accuracy_score(g[:, idx], p[:, idx]))
     return score_list
     # return metrics.(y_pred=p, y_true=g)
 
-def f1_by_sample(predict, gt):
+def f1_by_sample(gt, predict):
     predict[predict>0.5] = 1
     predict[predict<=0.5] = 0
     p = predict.astype(int)
     g = gt.astype(int)
     f1_score = 0
     for idx in range(p.shape[0]):
-        f1_score += metrics.f1_score(y_pred=p[idx], y_true=g[idx])
+        f1_score += metrics.f1_score(g[idx], p[idx])
     return f1_score/p.shape[0]
 
-def f1_by_label(predict, gt):
+def f1_by_label(gt, predict):
     predict[predict>0.5] = 1
     predict[predict<=0.5] = 0
     p = predict.astype(int)
     g = gt.astype(int)
-    score_list = []
-    for idx in range(p.shape[1]):
-        print("p:", p[:, idx])
-        print("g:", g[:, idx])
-        score_list.append(metrics.f1_score(y_pred=p[:, idx], y_true=g[:, idx]))
-    return score_list
+    return evaluate_with_multi_label_classification(g, p, metrics.f1_score)
 
+def auc_by_label(gt, predict):
+    return evaluate_with_multi_label_classification(gt, predict, metrics.roc_auc_score)
 
-def evaluate_with_multi_label_classification(predict, gt, func):
+def ap_by_label(gt, predict):
+    return evaluate_with_multi_label_classification(gt, predict, metrics.average_precision_score)
 
-    num_classes = predict.shape[-1]
+def fmax_by_label(gt, predict):
+    return evaluate_with_multi_label_classification(gt, predict, f_max)
+
+def evaluate_with_multi_label_classification(g, p, func):
+
+    num_classes = p.shape[-1]
     score_list = []
     for c in range(num_classes):
-        score_list.append(func(y_pred=p[:, c], y_true=g[:, c]))
+        score_list.append(func(g[:, c], p[:, c]))
 
     return score_list
 
