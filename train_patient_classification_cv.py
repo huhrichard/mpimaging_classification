@@ -17,7 +17,7 @@ from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
-parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=2, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary_20191114.csv', type=str, help='File of the groundtruth')
@@ -71,6 +71,10 @@ if __name__ == "__main__":
     train_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
                   ]
 
+    base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+                                                  multi_label_gt_path=gt_path,
+                                                  transform=None)
+
     train_dataset = torch.utils.data.ConcatDataset([
                 mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                   multi_label_gt_path=gt_path,
@@ -86,7 +90,10 @@ if __name__ == "__main__":
 
     num_classes = train_dataset[0]["gt"].shape[-1]
     # Split data into cross-validation_set
-    cv_split_list = nfold_cross_validation(len(train_dataset), n_fold=5)
+    # cv_split_list = nfold_cross_validation(len(train_dataset), n_fold=2)
+    cv_split_list = nfold_cross_validation(4, n_fold=2)
+    # cv_split_list = leave_one_out_cross_validation(len(train_dataset))
+    # cv_split_list = leave_one_out_cross_validation(2)
 
     running_states = ["train", "val"]
     n_fold = len(cv_split_list)
@@ -104,7 +111,7 @@ if __name__ == "__main__":
     # Grid Search
 
     metric_list = ["f1_by_sample", "f1_by_label", "balanced_acc_by_label",
-                   # "auc_by_label", "ap_by_label", "fmax_by_label"
+                   "auc_by_label", "ap_by_label", "fmax_by_label"
                    ]
     parameters_grid = {"epochs": [args.epochs],
                        "num_classes": [num_classes],
@@ -165,21 +172,38 @@ if __name__ == "__main__":
         specific_trainer.evaluation()
         parametric_model_list.append(specific_trainer)
 
+    out_df = base_dataset.multi_label_df
     result_path = args.datapath+"patient_classify_result/"
     # label_name_list = train_val_dataset.label_name
-    compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
+
     # label_list = ['Gleason score',"BCR", "AP", "EPE"]
     label_list = ["BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
+        # out_df = write_prediction_on_df(trainers=parametric_model_list,
+        #                                  df=out_df,
+        #                                  state='val',
+        #                                 patient_dataset=base_dataset,
+        #                                 out_label_name=label_name,
+        #                                 out_label_idx=idx
+        #                                  )
+        # out_df = write_scores_on_df(trainers=parametric_model_list,
+        #                             df=out_df,
+        #                             metrics=metric_list[1:],
+        #                             state='val',
+        #                             out_label=)
         compare_model_cv(parametric_model_list, result_path,
                          output_label=label_name, output_idx=idx,
-                         multi_label_classify=True, metrics=metric_list[1:3])
+                         multi_label_classify=True, metrics=metric_list[1:],
+                         )
+
 
         # some metric can't be evaluated when only one class is in the training set
-        compare_model_cv(parametric_model_list, result_path,
-                         output_label=label_name, output_idx=idx,
-                         multi_label_classify=True, metrics=metric_list[3], )
+        # compare_model_cv(parametric_model_list, result_path,
+        #                  output_label=label_name, output_idx=idx,
+        #                  multi_label_classify=True, metrics=metric_list[3], )
+
+    compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
 
 
 

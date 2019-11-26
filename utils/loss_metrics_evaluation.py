@@ -34,6 +34,10 @@ class performance_evaluation_cv(object):
 
     def eval(self, predict, gt, states):
         performance_dict = {}
+        prediction_list_by_state = {}
+        gt_list_by_state = {}
+
+
         for metrics in self.metrics_list:
             metric_func = globals()[metrics]
             performance_dict[metrics] = {}
@@ -42,12 +46,14 @@ class performance_evaluation_cv(object):
                 for e in range(self.total_epochs):
                     if state == 'train':
                         metric_scores = []
+
                         for nth_fold in range(self.nfold):
                             # p = torch_tensor_np(predict[nth_fold],)
                             # print(nth_fold, state, e)
                             p = predict[nth_fold][state][e]
                             g = gt[nth_fold][state][e]
                             metric_scores.append(metric_func(g, p))
+
                         # metric_scores = np.array(metric_scores)
                     else:
                         p = np.concatenate([predict[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)

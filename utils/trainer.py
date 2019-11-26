@@ -221,7 +221,8 @@ class cv_trainer(object):
     def evaluation(self):
         # print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
 
-        running_states = ["train", "val"]
+        # running_states = ["train", "val"]
+        running_states = ["val"]
         for nth_fold in range(self.n_fold):
             for running_state in running_states:
                 np_p = [self.torch_tensor_np(torch.cat(self.prediction_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]

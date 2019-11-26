@@ -139,7 +139,8 @@ def compare_model(trainers, save_path, output_label='', output_idx=0, multi_labe
 def compare_model_cv(trainers, save_path, out_csv='',
                      output_label='', output_idx=0,
                      multi_label_classify=False, metrics=None,
-                     plot_states_list=None):
+                     plot_states_list=None,
+                     ):
 
     n = len(trainers)
 
@@ -150,9 +151,11 @@ def compare_model_cv(trainers, save_path, out_csv='',
         metrics = list(trainers[0].performance_stat["train"][0].keys())
     print(metrics)
     epochs = trainers[0].total_epochs
-    states = ["train", "val"]
+    # states = ["train", "val"]
+    states = ["val"]
     if plot_states_list is None:
-        plot_states_list = ["_train", "_val", ""]
+        plot_states_list = ["_val"]
+        # plot_states_list = ["_train", "_val", ""]
 
     colors = plt.cm.jet(np.linspace(0, 1, n * len(states)))
 
@@ -162,8 +165,8 @@ def compare_model_cv(trainers, save_path, out_csv='',
     mark_style_dict = {"train": ".",
                       "val": "^",
                       "test": "D"}
-    c_style = {"train": 0,
-               "val": 1,
+    c_style = {"train": 1,
+               "val": 0,
                "test": 2}
     """
     for loop: metric->trainer
@@ -193,7 +196,7 @@ def compare_model_cv(trainers, save_path, out_csv='',
                                       "marker": mark_style_dict[state]}
 
                         if state == "train":
-                            print(specific_trainer.performance_stat[metric][state])
+                            # print(specific_trainer.performance_stat[metric][state])
                             if multi_label_classify:
 
                                 plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
@@ -205,7 +208,7 @@ def compare_model_cv(trainers, save_path, out_csv='',
                             ax_all_fold_list[plot_idx].errorbar(**plot_paras)
                             ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
                         else:
-                            print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
+                            # print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
                             if multi_label_classify:
                                 y = specific_trainer.performance_stat[metric][state][:, output_idx]
                             else:
@@ -225,27 +228,34 @@ def compare_model_cv(trainers, save_path, out_csv='',
             fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
 
 
-def write_result_on_csv(trainers, save_path, gt_path, out_csv, metrics, state, patient_dataset, epoch_as_final = -1):
-    final_output_path = save_path+out_csv
-
-    if os.path.exists(final_output_path):
-        df = pd.read_csv(final_output_path)
-    else:
-        df = pd.read_csv(gt_path)
+def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name, out_label_idx,
+                            epoch_as_final = -1,
+                            ):
     for trainer in trainers:
-        for metric in metrics:
-            col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
-            df[col_metric_name] = trainer.performance_stat[metric][state]
-        col_pred_name = "{}_{}_prediction".format(state, trainer.model_name)
+        col_pred_name = "{}_{}_{}_prediction".format(out_label_name, state, trainer.model_name)
         # this is patient idx fo patient dataset
-        idx_list = torch.cat([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in trainer.n_fold], dim=0)
-        for idx in idx_list:
-            img_path_list = patient_dataset.patient_img_list[idx]
-            for img_path in img_path_list:
-                img_trimmed_path = img_path.split('/')[0]
+        df[col_pred_name] = 0
+        idx_list = torch.Tensor([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)])
+        pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+        for idx_for_trainer, idx_for_dataset in enumerate(idx_list):
+            img_path_list = patient_dataset.patient_img_list[idx_for_dataset]
+            for img_idx, img_path in enumerate(img_path_list):
+                # img_trimmed_path = img_path.split('/')[-1].split('.')[0]
+                p = pred[img_idx+idx_for_trainer*len(img_path_list)][state][epoch_as_final][out_label_idx]
+                df.loc[df['MPM image file per TMA core '] in img_path][col_pred_name] = p
 
+    return df
         # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
-    pass
+def write_scores_on_df(trainers, df, metrics, state, out_label='', out_idx=None, epoch_as_final = -1,):
 
+    for trainer in trainers:
+        for metric in metrics:
+            if out_idx is None:
+                col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
+                df[col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
+            else:
+                col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
+                df[col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
 
+    return df
