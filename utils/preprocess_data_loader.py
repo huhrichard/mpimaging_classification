@@ -102,13 +102,16 @@ class mpImage_sorted_by_patient_dataset(Dataset):
             g_score[g_score!="Normal"] = 1
             g_score[g_score=="Normal"] = 0
             g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
+            # print(g_score)
             other_label = np.array(patient_entry[self.label_name].astype(float))
             if included_gscore:
                 self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
-                self.label_name = ['Gleason score for TMA core'] + self.label_name
+                # print(self.gt_list[-1])
             else:
                 self.gt_list.append(np.concatenate([other_label], axis=-1))
 
+        if included_gscore:
+            self.label_name = ['Gleason score for TMA core'] + self.label_name
         self.transform = transform
 
     def __len__(self):
