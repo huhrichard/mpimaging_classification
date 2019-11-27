@@ -123,7 +123,7 @@ if __name__ == "__main__":
                        "p_model": ["resnet18"],
                        "p_weight": [True],
                        "feat_ext": [True],
-                       "lr":[1e-5],
+                       "lr":[1e-3],
                        "wd":[1e-5],
                        "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [True]
@@ -173,26 +173,27 @@ if __name__ == "__main__":
         parametric_model_list.append(specific_trainer)
 
     out_df = base_dataset.multi_label_df
+    label_list = base_dataset.label_name
     result_path = args.datapath+"patient_classify_result/"
     # label_name_list = train_val_dataset.label_name
 
     # label_list = ['Gleason score',"BCR", "AP", "EPE"]
-    label_list = ["BCR", "AP", "EPE"]
+    # label_list = ["BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
-        # out_df = write_prediction_on_df(trainers=parametric_model_list,
-        #                                  df=out_df,
-        #                                  state='val',
-        #                                 patient_dataset=base_dataset,
-        #                                 out_label_name=label_name,
-        #                                 out_label_idx=idx
-        #                                  )
-        # out_df = write_scores_on_df(trainers=parametric_model_list,
-        #                             df=out_df,
-        #                             metrics=metric_list[1:],
-        #                             state='val',
-        #                             out_label=label_name,
-        #                             out_idx=idx)
+        out_df = write_prediction_on_df(trainers=parametric_model_list,
+                                         df=out_df,
+                                         state='val',
+                                        patient_dataset=base_dataset,
+                                        out_label_name=label_name,
+                                        out_label_idx=idx
+                                         )
+        out_df = write_scores_on_df(trainers=parametric_model_list,
+                                    df=out_df,
+                                    metrics=metric_list[1:],
+                                    state='val',
+                                    out_label=label_name,
+                                    out_idx=idx)
         compare_model_cv(parametric_model_list, result_path,
                          output_label=label_name, output_idx=idx,
                          multi_label_classify=True, metrics=metric_list[1:],
@@ -208,8 +209,10 @@ if __name__ == "__main__":
     compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
     out_df = write_scores_on_df(trainers=parametric_model_list,
                                 df=out_df,
-                                metrics=metric_list[1:],
+                                metrics=metric_list[:1],
                                 state='val')
+
+    out_df.to_csv(result_path+'result.csv', index = None, header=True)
 
 
 

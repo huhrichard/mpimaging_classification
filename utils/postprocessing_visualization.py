@@ -213,6 +213,7 @@ def compare_model_cv(trainers, save_path, out_csv='',
                                 y = specific_trainer.performance_stat[metric][state][:, output_idx]
                             else:
                                 y = specific_trainer.performance_stat[metric][state]
+                                print(y)
                             x = range(epochs)
                             ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
                             ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
@@ -238,12 +239,15 @@ def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name,
         df[col_pred_name] = 0
         idx_list = torch.Tensor([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)])
         pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+        # print(pred.shape)
+        idx_list = idx_list.int().flatten()
         for idx_for_trainer, idx_for_dataset in enumerate(idx_list):
+            # print(idx_for_dataset)
             img_path_list = patient_dataset.patient_img_list[idx_for_dataset]
             for img_idx, img_path in enumerate(img_path_list):
-                # img_trimmed_path = img_path.split('/')[-1].split('.')[0]
-                p = pred[img_idx+idx_for_trainer*len(img_path_list)][state][epoch_as_final][out_label_idx]
-                df.loc[df['MPM image file per TMA core '] in img_path][col_pred_name] = p
+                img_trimmed_path = img_path.split('/')[-1].split('.')[0]
+                p = pred[img_idx+idx_for_trainer*len(img_path_list)][out_label_idx]
+                df.loc[df['MPM image file per TMA core ']==img_trimmed_path][col_pred_name] = p
 
     return df
         # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
@@ -254,6 +258,7 @@ def write_scores_on_df(trainers, df, metrics, state, out_label='', out_idx=None,
         for metric in metrics:
             if out_idx is None:
                 col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
+                print(trainer.performance_stat[metric][state][epoch_as_final])
                 df[col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
             else:
                 col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
