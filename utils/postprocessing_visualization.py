@@ -216,13 +216,13 @@ def compare_model_cv(trainers, save_path, out_csv='',
                             x = range(epochs)
                             ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
                             ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
-                base_name = "{}_{}".format(metric, specific_trainer.model_name)
+                base_name = "{}_{}_{}".format(metric, output_label, specific_trainer.model_name)
                 ax_all_fold_list[plot_idx].legend()
                 ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
                 fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
 
         for plot_idx, plot in enumerate(plot_states_list):
-            base_name = "{}".format(metric)
+            base_name = "{}_{}".format(metric, output_label)
             ax_all_trainer_list[plot_idx].legend()
             ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
             fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
