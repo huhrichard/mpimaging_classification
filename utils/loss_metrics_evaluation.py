@@ -52,6 +52,7 @@ class performance_evaluation_cv(object):
                             # print(nth_fold, state, e)
                             p = predict[nth_fold][state][e]
                             g = gt[nth_fold][state][e]
+
                             metric_scores.append(metric_func(g, p))
 
                         # metric_scores = np.array(metric_scores)
@@ -127,9 +128,9 @@ def ap(predict, gt):
     return metrics.average_precision_score(gt, predict)
 
 def balanced_acc_by_label(predict, gt):
-    predict[predict>0.5] = 1
-    predict[predict<=0.5] = 0
-    p = predict.astype(int)
+    p = np.ones_like(predict)
+    p[predict<=0.5] = 0
+    p = p.astype(int)
     g = gt.astype(int)
     score_list = []
     for idx in range(p.shape[1]):
@@ -140,9 +141,9 @@ def balanced_acc_by_label(predict, gt):
     # return metrics.(y_pred=p, y_true=g)
 
 def f1_by_sample(gt, predict):
-    predict[predict>0.5] = 1
-    predict[predict<=0.5] = 0
-    p = predict.astype(int)
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
     g = gt.astype(int)
     f1_score = 0
     for idx in range(p.shape[0]):
@@ -150,9 +151,9 @@ def f1_by_sample(gt, predict):
     return f1_score/p.shape[0]
 
 def f1_by_label(gt, predict):
-    predict[predict>0.5] = 1
-    predict[predict<=0.5] = 0
-    p = predict.astype(int)
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
     g = gt.astype(int)
     return evaluate_with_multi_label_classification(g, p, metrics.f1_score)
 

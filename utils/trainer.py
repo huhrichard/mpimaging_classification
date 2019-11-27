@@ -226,10 +226,11 @@ class cv_trainer(object):
         for nth_fold in range(self.n_fold):
             for running_state in running_states:
                 np_p = [self.torch_tensor_np(torch.cat(self.prediction_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]
+
                 np_t = [self.torch_tensor_np(torch.cat(self.gt_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]
                 self.prediction_list[nth_fold][running_state] = np_p
                 self.gt_list[nth_fold][running_state] = np_t
-
+                print(np_p, np_t)
         metrics_dict = self.performance_metrics.eval(self.prediction_list,
                                              self.gt_list, running_states)
 
