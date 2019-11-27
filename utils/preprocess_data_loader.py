@@ -149,18 +149,11 @@ def leave_one_out_cross_validation(len_data):
     loo = LeaveOneOut()
     cv_rand_idx = np.random.permutation(len_data)
     cv_split_list = list(loo.split(cv_rand_idx))
-    cv_split_rand_idx = []
-    for train_idx, val_idx in cv_split_list:
-        cv_split_rand_idx.append((cv_rand_idx[train_idx], cv_rand_idx[val_idx]))
 
-    return cv_split_rand_idx
+    return cv_split_list
 
 def nfold_cross_validation(len_data, n_fold=5):
-    loo = KFold(n_splits=n_fold)
+    kf = KFold(n_splits=n_fold, shuffle=True)
     cv_rand_idx = np.random.permutation(len_data)
-    cv_split_list = list(loo.split(cv_rand_idx))
-    cv_split_rand_idx = []
-    for train_idx, val_idx in cv_split_list:
-        cv_split_rand_idx.append((cv_rand_idx[train_idx], cv_rand_idx[val_idx]))
-
-    return cv_split_rand_idx
+    cv_split_list = list(kf.split(cv_rand_idx))
+    return cv_split_list

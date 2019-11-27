@@ -133,7 +133,7 @@ if __name__ == "__main__":
     parametric_model_list = []
     for parameters in list_parameters:
         trainer_list = []
-        specific_trainer = put_parameters_to_trainer(**parameters)
+        specific_trainer = put_parameters_to_trainer_cv(**parameters)
         for nth_fold in range(n_fold):
             print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
             specific_trainer.model_init()

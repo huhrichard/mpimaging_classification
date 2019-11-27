@@ -318,19 +318,88 @@ class cv_trainer(object):
                     module.bias.data.zero_()
 
 
-def put_parameters_to_trainer(epochs=50,
-                              multi_label=True,
-                              n_fold=10,
-                              performance_metrics_list=["auc", "f_max", "ap"],
-                              num_classes=1,
-                              device=torch.device('cpu'),
-                              p_model="resnext101_32x8d",
-                              p_weight=True,
-                              feat_ext=False,
-                              lr=1e-7,
-                              wd=1e-2,
-                              input_res=(3, 300, 300),
-                              out_list=True):
+def put_parameters_to_trainer_cv(epochs=50,
+                                 multi_label=True,
+                                 n_fold=10,
+                                 performance_metrics_list=["auc", "f_max", "ap"],
+                                 num_classes=1,
+                                 device=torch.device('cpu'),
+                                 p_model="resnext101_32x8d",
+                                 p_weight=True,
+                                 feat_ext=False,
+                                 lr=1e-7,
+                                 wd=1e-2,
+                                 input_res=(3, 300, 300),
+                                 out_list=True):
+    exclude_name_list = ["num_classes", "device", "epochs"]
+
+    show_model_list = {"p_model": True,
+                       "p_weight": True,
+                       "feat_ext": False,
+                       "lr": True,
+                       "wd": True,
+                       "input_res": False,
+                       "out_list": True
+                       }
+
+    model_name = "TL"
+
+    for key, show in show_model_list.items():
+        if show:
+            value = locals()[key]
+            if type(value) == bool:
+                if value:
+                    model_name += "_" + key
+            else:
+                if type(value) == str:
+                    model_name += "_" + value
+                elif type(value) == int or type(value) == float:
+                    model_name += "_{}={:.0e}".format(key, Decimal(value))
+                elif key == "input_res":
+                    model_name += "_{}={}".format(key, value[1])
+
+    print(model_name)
+    model_dict = {'num_classes': num_classes,
+                  'input_size': input_res,
+                  'pretrained_model_name': p_model,
+                  'pretrain_weight': p_weight,
+                  'feature_extracting': feat_ext,
+                  'multi_classifier': out_list,
+                  'multi_label': multi_label
+                  }
+
+    # model = simple_transfer_classifier(
+    #                                    ).to(device)
+    new_trainer = cv_trainer(model_class=simple_transfer_classifier,
+                             model_dict=model_dict,
+                             model_name=model_name,
+                             optimizer={'optim': torch.optim.Adam,
+                                        'lr': lr,
+                                        'wd': wd},
+                             n_fold=n_fold,
+                             performance_metrics=performance_evaluation_cv(nfold=n_fold,
+                                                                           multi_label=multi_label,
+                                                                        metrics_list=performance_metrics_list,
+                                                                           total_epochs=epochs),
+                             total_epochs=epochs,
+                             lr_scheduler_list=[],
+                             loss_function=bcel_multi_output())
+
+    return new_trainer
+
+def put_parameters_to_trainer_cv_nested(epochs=50,
+                                 multi_label=True,
+                                 n_fold=10,
+                                 performance_metrics_list=["auc", "f_max", "ap"],
+                                 num_classes=1,
+                                 device=torch.device('cpu'),
+                                 p_model="resnext101_32x8d",
+                                 p_weight=True,
+                                 feat_ext=False,
+                                 lr=1e-7,
+                                 wd=1e-2,
+                                 input_res=(3, 300, 300),
+                                 out_list=True):
     exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,
