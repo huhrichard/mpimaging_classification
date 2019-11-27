@@ -68,7 +68,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
 # TODO: Load data by patient ID
 class mpImage_sorted_by_patient_dataset(Dataset):
     def __init__(self, img_dir, multi_label_gt_path, img_suffix=None,
-                 transform=None, skip_damaged=True, included_gscore=False):
+                 transform=None, skip_damaged=True, included_gscore=True):
         """
 
         :param img_path:
