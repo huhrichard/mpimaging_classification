@@ -220,12 +220,13 @@ def compare_model_cv(trainers, save_path, out_csv='',
                 ax_all_fold_list[plot_idx].legend()
                 ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
                 fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
-
+                fig_all_fold_list[plot_idx].clf()
         for plot_idx, plot in enumerate(plot_states_list):
             base_name = "{}_{}".format(metric, output_label)
             ax_all_trainer_list[plot_idx].legend()
             ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
             fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
+            fig_all_trainer_list[plot_idx].clf()
 
 
 def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name, out_label_idx,
