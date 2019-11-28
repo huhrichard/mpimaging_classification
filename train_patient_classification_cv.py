@@ -7,6 +7,7 @@ from utils.preprocess_data_transform import compose_input_output_transform
 from cvtorchvision import cvtransforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
+import pandas
 import random
 from utils.model import simple_transfer_classifier
 from torch.autograd import Variable
@@ -32,13 +33,12 @@ print("Using GPU: ", using_gpu)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
-
-
 args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
 input_tensor_size = (800, 800)
+
 
 def model_training_and_evaluate_testing(epochs,
                                         cross_val_indices,
@@ -47,46 +47,46 @@ def model_training_and_evaluate_testing(epochs,
     pass
 
 
-
 def parameters_dict_to_model_name(parameters_dict):
     pass
+
 
 if __name__ == "__main__":
     img_path = args.img_path
     gt_path = args.gt_path
 
-
     # create dataset
     train_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
-                                 cvtransforms.RandomHorizontalFlip(),
-                                 cvtransforms.RandomVerticalFlip(),
-                                 cvtransforms.RandomRotation(90),
-                                 cvtransforms.ToTensor(),
-                                 cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
-
-    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+                                  cvtransforms.RandomHorizontalFlip(),
+                                  cvtransforms.RandomVerticalFlip(),
+                                  cvtransforms.RandomRotation(90),
                                   cvtransforms.ToTensor(),
                                   cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
 
-    train_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
-                  ]
+    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+                                cvtransforms.ToTensor(),
+                                cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+
+    train_transforms = [
+        compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
+        ]
 
     base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-                                                  multi_label_gt_path=gt_path,
-                                                  transform=None)
+                                                     multi_label_gt_path=gt_path,
+                                                     transform=None)
 
     train_dataset = torch.utils.data.ConcatDataset([
-                mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-                                                  multi_label_gt_path=gt_path,
-                                                  transform=t) for t in train_transforms])
+        mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+                                          multi_label_gt_path=gt_path,
+                                          transform=t) for t in train_transforms])
 
     val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(val_input_transform_list)),
-                  ]
+                      ]
 
     val_dataset = torch.utils.data.ConcatDataset([
-                mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-                                                  multi_label_gt_path=gt_path,
-                                                  transform=t) for t in val_transforms])
+        mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+                                          multi_label_gt_path=gt_path,
+                                          transform=t) for t in val_transforms])
 
     num_classes = train_dataset[0]["gt"].shape[-1]
     # Split data into cross-validation_set
@@ -98,7 +98,6 @@ if __name__ == "__main__":
     running_states = ["train", "val"]
     n_fold = len(cv_split_list)
 
-
     cv_data_loaders = [{"train": DataLoader(dataset=train_dataset,
                                             batch_size=args.n_batch,
                                             sampler=SubsetRandomSampler(train_idx)),
@@ -106,7 +105,6 @@ if __name__ == "__main__":
                                           batch_size=args.n_batch,
                                           sampler=SubsetRandomSampler(val_idx))
                         } for train_idx, val_idx in cv_split_list]
-
 
     # Grid Search
 
@@ -117,16 +115,16 @@ if __name__ == "__main__":
                        "num_classes": [num_classes],
                        "multi_label": [True],
                        "n_fold": [n_fold],
-                       "performance_metrics_list" : [metric_list],
+                       "performance_metrics_list": [metric_list],
                        "device": [device],
                        "p_model": ["resnext101_32x8d"],
                        # "p_model": ["resnet18"],
                        "p_weight": [True],
-                       "feat_ext": [True],
-                       "lr":[1e-3],
-                       "wd":[1e-6],
-                       "input_res":[(3, input_tensor_size[0], input_tensor_size[1])],
-                       "out_list": [True]
+                       "feat_ext": [False],
+                       "lr": [1e-3],
+                       "wd": [1e-6],
+                       "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
+                       "out_list": [True],
                        }
     list_parameters = ParameterGrid(parameters_grid)
 
@@ -141,8 +139,8 @@ if __name__ == "__main__":
             running_loss = 0
             ran_data = 0
             for epoch in range(args.epochs):
-                print("="*30)
-                print("{} {}th epoch running: {}".format("="*10, epoch, "="*10))
+                print("=" * 30)
+                print("{} {}th epoch running: {}".format("=" * 10, epoch, "=" * 10))
                 epoch_start_time = time.time()
 
                 for running_state in running_states:
@@ -156,25 +154,33 @@ if __name__ == "__main__":
                         input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                         gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                         loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
-                                                                       running_state=running_state, nth_fold=nth_fold, idx=idx)
+                                                                       running_state=running_state, nth_fold=nth_fold,
+                                                                       idx=idx)
                         ran_data += 1
                         running_loss += loss.item()
                     state_time_elapsed = time.time() - state_start_time
-                    print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state, state_time_elapsed // 60,
-                                                                                   state_time_elapsed % 60))
-                    print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss/ran_data))
+                    print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
+                                                                                      state_time_elapsed // 60,
+                                                                                      state_time_elapsed % 60))
+                    print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
                 # print(loss)
-                time_elapsed = time.time()-epoch_start_time
+                time_elapsed = time.time() - epoch_start_time
 
-                print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-"*5, epoch, time_elapsed // 60, time_elapsed % 60))
+                print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
+                                                                               time_elapsed % 60))
             # specific_trainer.model = specific_trainer.model
 
         specific_trainer.evaluation()
         parametric_model_list.append(specific_trainer)
 
-    out_df = base_dataset.multi_label_df
+    result_path = args.datapath + "patient_classify_result/"
+    result_csv_name = result_path + 'result.csv'
+    if os.path.exists(result_csv_name):
+        out_df = pandas.read_csv(result_csv_name)
+    else:
+        out_df = base_dataset.multi_label_df
     label_list = base_dataset.label_name
-    result_path = args.datapath+"patient_classify_result/"
+
     # label_name_list = train_val_dataset.label_name
 
     # label_list = ['Gleason score',"BCR", "AP", "EPE"]
@@ -182,12 +188,12 @@ if __name__ == "__main__":
 
     for idx, label_name in enumerate(label_list):
         out_df = write_prediction_on_df(trainers=parametric_model_list,
-                                         df=out_df,
-                                         state='val',
+                                        df=out_df,
+                                        state='val',
                                         patient_dataset=base_dataset,
                                         out_label_name=label_name,
                                         out_label_idx=idx
-                                         )
+                                        )
         out_df = write_scores_on_df(trainers=parametric_model_list,
                                     df=out_df,
                                     metrics=metric_list[1:],
@@ -199,12 +205,10 @@ if __name__ == "__main__":
                          multi_label_classify=True, metrics=metric_list[1:],
                          )
 
-
         # some metric can't be evaluated when only one class is in the training set
         # compare_model_cv(parametric_model_list, result_path,
         #                  output_label=label_name, output_idx=idx,
         #                  multi_label_classify=True, metrics=metric_list[3], )
-
 
     compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
     out_df = write_scores_on_df(trainers=parametric_model_list,
@@ -212,12 +216,4 @@ if __name__ == "__main__":
                                 metrics=metric_list[:1],
                                 state='val')
 
-    out_df.to_csv(result_path+'result.csv', index = None, header=True)
-
-
-
-
-
-
-
-
+    out_df.to_csv(result_path + 'result.csv', index=None, header=True)

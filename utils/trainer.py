@@ -328,10 +328,12 @@ def put_parameters_to_trainer_cv(epochs=50,
                                  p_model="resnext101_32x8d",
                                  p_weight=True,
                                  feat_ext=False,
+                                 optim=torch.optim.Adam,
                                  lr=1e-7,
                                  wd=1e-2,
                                  input_res=(3, 300, 300),
-                                 out_list=True):
+                                 out_list=True,
+                                 lost_function='BCE'):
     exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,

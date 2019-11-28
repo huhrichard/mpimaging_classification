@@ -97,6 +97,28 @@ class bin_focal_loss_multi_output(nn.Module):
     def focal_loss(self, predict, gt):
         return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
 
+class multi_label_loss(nn.Module):
+    def __init__(self, loss_fuction='BCE',
+                 alpha=0.5,
+                 gamma=2):
+        super(multi_label_loss, self).__init__()
+        self.alpha = torch.Tensor([alpha]).squeeze(-1)
+        self.gamma = torch.Tensor([gamma]).squeeze(-1)
+        self.loss_function = loss_fuction
+
+    def forward(self, predict, gt):
+        if predict.shape != gt.shape:
+            gt = gt.unsqueeze(-1).repeat(1, 1, predict.shape[-1])
+        if loss_func == 'BCE':
+            return nn.functional.binary_cross_entropy(predict, gt)
+        elif loss_func == 'FL':
+            self.alpha = self.alpha.to(predict.device)
+            self.gamma = self.gamma.to(predict.device)
+            return self.focal_loss(predict, gt) + self.focal_loss(1-predict, 1-gt)
+
+    def focal_loss(self, predict, gt):
+        return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
+
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':
         tensor = tensor.cpu()
@@ -156,6 +178,8 @@ def f1_by_label(gt, predict):
     p = p.astype(int)
     g = gt.astype(int)
     return evaluate_with_multi_label_classification(g, p, metrics.f1_score)
+
+
 
 def auc_by_label(gt, predict):
     return evaluate_with_multi_label_classification(gt, predict, metrics.roc_auc_score)
