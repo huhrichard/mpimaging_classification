@@ -338,7 +338,7 @@ def put_parameters_to_trainer_cv(epochs=50,
 
     show_model_list = {"p_model": True,
                        "p_weight": True,
-                       "feat_ext": False,
+                       "feat_ext": True,
                        "lr": True,
                        "wd": True,
                        "input_res": False,
