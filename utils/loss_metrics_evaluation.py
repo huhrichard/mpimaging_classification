@@ -109,9 +109,9 @@ class multi_label_loss(nn.Module):
     def forward(self, predict, gt):
         if predict.shape != gt.shape:
             gt = gt.unsqueeze(-1).repeat(1, 1, predict.shape[-1])
-        if loss_func == 'BCE':
+        if self.loss_func == 'BCE':
             return nn.functional.binary_cross_entropy(predict, gt)
-        elif loss_func == 'FL':
+        elif self.loss_func == 'FL':
             self.alpha = self.alpha.to(predict.device)
             self.gamma = self.gamma.to(predict.device)
             return self.focal_loss(predict, gt) + self.focal_loss(1-predict, 1-gt)
