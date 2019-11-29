@@ -1,6 +1,7 @@
 from utils.common_library import *
 # from utils import model
 from utils.loss_metrics_evaluation import performance_evaluation
+from utils.radam import *
 from torch.utils.tensorboard import SummaryWriter
 from utils.model import *
 from decimal import Decimal
@@ -376,7 +377,8 @@ def put_parameters_to_trainer_cv(epochs=50,
     new_trainer = cv_trainer(model_class=simple_transfer_classifier,
                              model_dict=model_dict,
                              model_name=model_name,
-                             optimizer={'optim': torch.optim.Adam,
+                             # optimizer={'optim': torch.optim.Adam,
+                             optimizer={'optim': RAdam,
                                         'lr': lr,
                                         'wd': wd},
                              n_fold=n_fold,
@@ -386,7 +388,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                                                                            total_epochs=epochs),
                              total_epochs=epochs,
                              lr_scheduler_list=[],
-                             loss_function=bcel_multi_output())
+                             loss_function=multi_label_loss(loss_function='FL'))
 
     return new_trainer
 

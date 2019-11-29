@@ -18,7 +18,7 @@ from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
-parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=100, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA2_MPM_Summary_20191114.csv', type=str, help='File of the groundtruth')
@@ -121,7 +121,7 @@ if __name__ == "__main__":
                        # "p_model": ["resnet18"],
                        "p_model": ["wide_resnet101_2"],
                        "p_weight": [True],
-                       "feat_ext": [True],
+                       "feat_ext": [False],
                        "lr": [1e-3],
                        "wd": [1e-6],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],

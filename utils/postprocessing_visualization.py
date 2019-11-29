@@ -146,7 +146,7 @@ def compare_model_cv(trainers, save_path, out_csv='',
 
     maxepochs = 0
     plt.clf()
-    print(trainers[0])
+    # print(trainers[0])
     if metrics is None:
         metrics = list(trainers[0].performance_stat["train"][0].keys())
     print(metrics)
@@ -213,7 +213,7 @@ def compare_model_cv(trainers, save_path, out_csv='',
                                 y = specific_trainer.performance_stat[metric][state][:, output_idx]
                             else:
                                 y = specific_trainer.performance_stat[metric][state]
-                                print(y)
+                                # print(y)
                             x = range(epochs)
                             ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
                             ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
