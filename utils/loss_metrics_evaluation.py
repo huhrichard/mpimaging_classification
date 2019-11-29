@@ -98,13 +98,13 @@ class bin_focal_loss_multi_output(nn.Module):
         return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
 
 class multi_label_loss(nn.Module):
-    def __init__(self, loss_fuction='BCE',
+    def __init__(self, loss_function='BCE',
                  alpha=0.5,
                  gamma=2):
         super(multi_label_loss, self).__init__()
         self.alpha = torch.Tensor([alpha]).squeeze(-1)
         self.gamma = torch.Tensor([gamma]).squeeze(-1)
-        self.loss_function = loss_fuction
+        self.loss_function = loss_function
 
     def forward(self, predict, gt):
         if predict.shape != gt.shape:
