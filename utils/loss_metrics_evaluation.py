@@ -114,10 +114,12 @@ class multi_label_loss(nn.Module):
         elif self.loss_function == 'FL':
             self.alpha = self.alpha.to(predict.device)
             self.gamma = self.gamma.to(predict.device)
-            return self.focal_loss(predict, gt) + self.focal_loss(1-predict, 1-gt)
+            fl = self.focal_loss(predict, gt) + self.focal_loss(1-predict, 1-gt)
+            print(fl)
+            return fl
 
     def focal_loss(self, predict, gt):
-        return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
+        return self.alpha*gt(torch.mean((1-predict)**self.gamma)*torch.log(predict))
 
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':
