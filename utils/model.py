@@ -103,7 +103,7 @@ class simple_transfer_classifier(nn.Module):
                 else:
                     act = nn.Softmax()
                 return nn.Sequential(*[linear_layer,
-                                       nn.GroupNorm(1, num_classes),
+                                       nn.GroupNorm(num_classes, num_classes),
                                        # nn.BatchNorm1d(num_classes),
                                         act])
         else:
@@ -112,7 +112,7 @@ class simple_transfer_classifier(nn.Module):
             else:
                 act = nn.Softmax()
             return nn.Sequential(*[ conv_layer,
-                                    nn.GroupNorm(1, num_classes),
+                                    nn.GroupNorm(num_classes, num_classes),
                                     # nn.BatchNorm2d(num_classes),
                                     nn.AdaptiveAvgPool2d(1),
                                     nn.Sigmoid(),
