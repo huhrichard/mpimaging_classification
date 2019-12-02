@@ -51,15 +51,17 @@ class simple_transfer_classifier(nn.Module):
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        print('pretrain grad ', self.pretrained_network.requires_grad)
-        print('new extension grad ', self.last_layer.requires_grad)
+
+        # print('pretrain grad ', self.pretrained_network.requires_grad)
+        # print('new extension grad ', self.last_layer.requires_grad)
         # print(self.simplest_linear_act)
 
     def forward(self, input):
         if self.net_as_list:
             out_list = []
             for idx, net in enumerate(self.pretrained_network):
-                # print(net.weight.shape)
+                print(net.requires_grad)
+                print(self.last_layer[idx].requires_grad)
                 input = net(input)
                 if self.last_linear:
                     avg_pool = self.avgpool(input).flatten(start_dim=1)
