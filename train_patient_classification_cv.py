@@ -153,12 +153,13 @@ if __name__ == "__main__":
                         idx = data['idx']
 
                         input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-                        gt = Variable(gt.view(-1, *(gt.shape[2:])), requires_grad=False).float().to(device)
+                        gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                         loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
                                                                        running_state=running_state, nth_fold=nth_fold,
                                                                        idx=idx)
                         ran_data += 1
                         running_loss += loss.item()
+
                     state_time_elapsed = time.time() - state_start_time
                     print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
                                                                                       state_time_elapsed // 60,
@@ -166,7 +167,8 @@ if __name__ == "__main__":
                     print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
                 # print(loss)
                 time_elapsed = time.time() - epoch_start_time
-
+                running_loss = 0
+                ran_data = 0
                 print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
                                                                                time_elapsed % 60))
             # specific_trainer.model = specific_trainer.model
