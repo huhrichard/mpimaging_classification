@@ -115,7 +115,7 @@ class multi_label_loss(nn.Module):
             self.alpha = self.alpha.to(predict.device)
             self.gamma = self.gamma.to(predict.device)
             fl = self.focal_loss(predict, gt) + self.focal_loss(1-predict, 1-gt)
-            print(fl)
+            # print(fl)
             return fl.squeeze()
 
     def focal_loss(self, predict, gt):

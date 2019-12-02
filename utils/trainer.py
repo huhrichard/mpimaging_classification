@@ -201,7 +201,7 @@ class cv_trainer(object):
         loss = self.loss_function(predict_for_loss_function, gt)
 
         if running_state == "train":
-            # print("{} loss:{}".format(running_state, loss))
+            print("{} loss:{}".format(running_state, loss))
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
