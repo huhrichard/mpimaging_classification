@@ -136,6 +136,7 @@ if __name__ == "__main__":
         for nth_fold in range(n_fold):
             print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
             specific_trainer.model_init()
+            # specific_trainer.model = specific_trainer.model_init()
             specific_trainer.model.to(device)
             running_loss = 0
             ran_data = 0

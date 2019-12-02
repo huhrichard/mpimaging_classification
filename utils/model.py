@@ -95,8 +95,8 @@ class simple_transfer_classifier(nn.Module):
     def create_last_layer(self, feature_dim, multi_label, num_classes, linear=False):
         linear_layer = nn.Linear(feature_dim[1], num_classes)
         conv_layer = nn.Conv2d(feature_dim[1], num_classes, kernel_size=1, stride=1, padding=0)
-        print('linear weights', linear_layer.weight, linear_layer.bias)
-        print('conv weights', conv_layer.weight, conv_layer.bias)
+        # print('linear weights', linear_layer.weight, linear_layer.bias)
+        # print('conv weights', conv_layer.weight, conv_layer.bias)
         if linear:
             if num_classes == 1:
                 return nn.Sequential(*[

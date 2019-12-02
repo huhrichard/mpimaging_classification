@@ -153,7 +153,7 @@ class cv_trainer(object):
                  model_class,
                  model_dict,
                  model_name,
-                 optimizer,
+                 optimizer_dict,
                  n_fold,
                  total_epochs,
                  lr_scheduler_list=[],
@@ -164,9 +164,15 @@ class cv_trainer(object):
         self.model_dict = model_dict
         self.model_name = model_name
         self.use_pretrain_weight = use_pretrain_weight
+        self.optimizer_dict = optimizer_dict
 
+        """Do not declare self.model in method"""
+        # self.model = self.model_init()
         self.model_init()
-        self.optimizer = optimizer['optim'](lr=optimizer['lr'], weight_decay=optimizer['wd'], params=self.model.parameters())
+        # print(optimizer)
+
+
+        # self.optimizer =
 
         self.lr_scheduler_list = lr_scheduler_list
         # self.n_batches = n_batches
@@ -201,15 +207,16 @@ class cv_trainer(object):
         # print('p for result', predict_for_result)
         # print('gt', gt)
         loss = self.loss_function(predict_for_loss_function, gt)
+        # print(self.optimizer.param_groups)
 
         if running_state == "train":
             print("{} loss:{}".format(running_state, loss))
-            a = list(self.model.parameters())[0].clone()
+            # a = list(self.model.parameters())[0].clone()
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            b = list(self.model.parameters())[0].clone()
-            print('a=b?', torch.equal(a.data, b.data))
+            # b = list(self.model.parameters())[0].clone()
+            # print('a=b?', torch.equal(a.data, b.data))
 
 
         # detach all to release gpu memory
@@ -272,6 +279,21 @@ class cv_trainer(object):
 
         if self.use_pretrain_weight is not True:
             self.weight_init(self.model)
+        self.opti_init()
+
+
+    def opti_init(self):
+        self.optimizer = self.optimizer_dict['optim'](lr=self.optimizer_dict['lr'],
+                                                      weight_decay=self.optimizer_dict['wd'],
+                                                        params=self.model.parameters())
+
+    # def model_init(self):
+    #     self.model = self.model_class(**self.model_dict)
+    #
+    #     if self.use_pretrain_weight is not True:
+    #         self.weight_init(self.model)
+
+        # return model
 
     def weight_init(self, *models, pretrained_weights):
         torch.manual_seed(0)
@@ -386,8 +408,8 @@ def put_parameters_to_trainer_cv(epochs=50,
     new_trainer = cv_trainer(model_class=simple_transfer_classifier,
                              model_dict=model_dict,
                              model_name=model_name,
-                             # optimizer={'optim': torch.optim.Adam,
-                             optimizer={'optim': RAdam,
+                             optimizer_dict={'optim': torch.optim.Adam,
+                                             # optimizer={'optim': RAdam,
                                         'lr': lr,
                                         'wd': wd},
                              n_fold=n_fold,
