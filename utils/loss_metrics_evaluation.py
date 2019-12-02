@@ -148,6 +148,34 @@ def f_max(gt, predict):
     max_threshold = threshold[np.nanargmax(f_score)]
     return f_max
 
+def r_max(gt, predict):
+    recall, precision, threshold = metrics.precision_recall_curve(probas_pred=predict,
+                                                             y_true=gt)
+    # print("recall: ", recall)
+    # print("precision: ", precision)
+
+    recall = np.clip(recall, a_min=eps, a_max=1)
+    precision = np.clip(precision, a_min=eps, a_max=1)
+
+    f_score = 2*(recall*precision)/(recall+precision)
+    # f_max = np.nanmax(f_score)
+    r_max = recall[np.nanargmax(f_score)]
+    return r_max
+
+def p_max(gt, predict):
+    recall, precision, threshold = metrics.precision_recall_curve(probas_pred=predict,
+                                                             y_true=gt)
+    # print("recall: ", recall)
+    # print("precision: ", precision)
+
+    recall = np.clip(recall, a_min=eps, a_max=1)
+    precision = np.clip(precision, a_min=eps, a_max=1)
+
+    f_score = 2*(recall*precision)/(recall+precision)
+    # f_max = np.nanmax(f_score)
+    p_max = precision[np.nanargmax(f_score)]
+    return p_max
+
 def ap(predict, gt):
     return metrics.average_precision_score(gt, predict)
 
@@ -191,6 +219,12 @@ def ap_by_label(gt, predict):
 
 def fmax_by_label(gt, predict):
     return evaluate_with_multi_label_classification(gt, predict, f_max)
+
+def pmax_by_label(gt, predict):
+    return evaluate_with_multi_label_classification(gt, predict, p_max)
+
+def rmax_by_label(gt, predict):
+    return evaluate_with_multi_label_classification(gt, predict, r_max)
 
 def evaluate_with_multi_label_classification(g, p, func):
 

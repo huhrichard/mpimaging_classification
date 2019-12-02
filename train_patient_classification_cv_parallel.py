@@ -16,6 +16,7 @@ from utils.postprocessing_visualization import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
 from torch.utils.tensorboard import SummaryWriter
+from joblib import Parallel, delayed
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
@@ -28,6 +29,9 @@ parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like r
 
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
+
+gpu_count = torch.cuda.device_count()
+print("Avaliable GPU:", gpu_count)
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -137,48 +141,20 @@ if __name__ == "__main__":
     parametric_model_list = []
     for parameters in list_parameters:
         trainer_list = []
-        specific_trainer = put_parameters_to_trainer_cv(**parameters)
-        for nth_fold in range(n_fold):
-            print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
-            specific_trainer.model_init()
-            # specific_trainer.model = specific_trainer.model_init()
-            specific_trainer.model.to(device)
-            running_loss = 0
-            ran_data = 0
-            for epoch in range(args.epochs):
-                print("=" * 30)
-                print("{} {}th epoch running: {}".format("=" * 10, epoch, "=" * 10))
-                epoch_start_time = time.time()
+        # specific_trainer = put_parameters_to_trainer_cv(**parameters)
+        """
+        Try with parallalization
+        """
+        trainers_list = Parallel(n_jobs=gpu_count)(delayed(training_pipeline_per_fold)(nth_trainer=put_parameters_to_trainer_cv(**parameters),
+                                                                                       epochs=args.epochs,
+                                                                                       nth_fold=nth_fold,
+                                                                                       train_data=train_dataset,
+                                                                                       val_data=val_dataset,
+                                                                                       cv_splits=cv_split_list,
+                                                                                       gpu_count=gpu_count,
+                                                                                       n_batch=args.n_batch) for nth_fold in range(n_fold))
 
-                for running_state in running_states:
-                    state_start_time = time.time()
-                    for batch_idx, data in enumerate(cv_data_loaders[nth_fold][running_state]):
-                        # print(batch_idx)
-                        input = data['input']
-                        gt = data['gt']
-                        idx = data['idx']
-
-                        input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-                        gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
-                        loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
-                                                                       running_state=running_state, nth_fold=nth_fold,
-                                                                       idx=idx)
-                        ran_data += 1
-                        running_loss += loss.item()
-
-                    state_time_elapsed = time.time() - state_start_time
-                    print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
-                                                                                      state_time_elapsed // 60,
-                                                                                      state_time_elapsed % 60))
-                    print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
-                # print(loss)
-                time_elapsed = time.time() - epoch_start_time
-                running_loss = 0
-                ran_data = 0
-                print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
-                                                                               time_elapsed % 60))
-            # specific_trainer.model = specific_trainer.model
-
+        specific_trainer = merge_all_fold_trainer(trainer_list)
         specific_trainer.evaluation()
         parametric_model_list.append(specific_trainer)
 

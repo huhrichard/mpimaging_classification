@@ -6,6 +6,10 @@ from torch.utils.tensorboard import SummaryWriter
 from utils.model import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
+from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
+import time
+from torch.autograd import Variable
 
 
 # class trainer(object):
@@ -208,9 +212,9 @@ class cv_trainer(object):
         # print('gt', gt)
         loss = self.loss_function(predict_for_loss_function, gt)
         # print(self.optimizer.param_groups)
-
+        print("{} loss:{}".format(running_state, loss))
         if running_state == "train":
-            print("{} loss:{}".format(running_state, loss))
+
             # a = list(self.model.parameters())[0].clone()
             self.optimizer.zero_grad()
             loss.backward()
@@ -422,6 +426,70 @@ def put_parameters_to_trainer_cv(epochs=50,
                              loss_function=multi_label_loss(loss_function='BCE'))
 
     return new_trainer
+
+def merge_all_fold_trainer(list_of_trainer):
+    first_trainer = list_of_trainer[0]
+    for idx, nth_folder_trainer in enumerate(list_of_trainer):
+        if idx != 0:
+            first_trainer.loss_stat[idx] = nth_folder_trainer.loss_stat[idx]
+            first_trainer.prediction_list[idx] = nth_folder_trainer.prediction_list[idx]
+            first_trainer.gt_list[idx] = nth_folder_trainer.gt_list[idx]
+            first_trainer.idx_list[idx] = nth_folder_trainer.idx_list[idx]
+    return first_trainer
+
+def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_data, cv_splits, gpu_count, n_batch):
+    cv_split = cv_splits[nth_fold]
+    if torch.cuda.is_available():
+        device = torch.device("cuda:{}".format(nth_fold % gpu_count))
+    else:
+        device = torch.device('cpu')
+    train_data_loader = DataLoader(dataset=train_data, batch_size=n_batch, sampler=SubsetRandomSampler(cv_split[0]))
+    val_data_loader = DataLoader(dataset=val_data, batch_size=n_batch, sampler=SubsetRandomSampler(cv_split[1]))
+    print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
+    nth_trainer.model_init()
+    nth_trainer.model.to(device)
+    running_loss = 0
+    ran_data = 0
+    running_states = ['train', 'val']
+    for epoch in range(epochs):
+        print("=" * 30)
+        print("{} {}th epoch running: {}".format("=" * 10, epoch, "=" * 10))
+        epoch_start_time = time.time()
+
+        for running_state in running_states:
+            state_start_time = time.time()
+            if running_state == "train":
+                cv_data_loader = train_data_loader
+            else:
+                cv_data_loader = val_data_loader
+            for batch_idx, data in enumerate(cv_data_loader):
+                # print(batch_idx)
+                input = data['input']
+                gt = data['gt']
+                idx = data['idx']
+
+                input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
+                gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
+                loss, predict = nth_trainer.running_model(input, gt, epoch=epoch,
+                                                               running_state=running_state, nth_fold=nth_fold,
+                                                               idx=idx)
+                ran_data += 1
+                running_loss += loss.item()
+
+            state_time_elapsed = time.time() - state_start_time
+            print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
+                                                                              state_time_elapsed // 60,
+                                                                              state_time_elapsed % 60))
+            print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
+        # print(loss)
+        time_elapsed = time.time() - epoch_start_time
+        running_loss = 0
+        ran_data = 0
+        print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
+                                                                       time_elapsed % 60))
+
+    return nth_trainer
+
 
 def put_parameters_to_trainer_cv_nested(epochs=50,
                                  multi_label=True,

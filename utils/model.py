@@ -1,6 +1,8 @@
 from utils.common_library import *
 import torchvision.models as models
 import torchvision.models.segmentation as seg
+from torchvision import transforms
+# from cvtorchvision import cvtransforms
 from utils.custom_module import _ResBlock
 import importlib
 
@@ -9,7 +11,8 @@ class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
                  pretrain_weight=True, feature_extracting=True, multi_label=True,
-                 multi_classifier=True, last_linear=False):
+                 multi_classifier=True, last_linear=False,
+                 normalization_mean_std=([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
         # self.modules_employing = modules_employing
@@ -51,12 +54,15 @@ class simple_transfer_classifier(nn.Module):
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        # self.normalize = transforms.Normalize(normalization_mean_std[0], normalization_mean_std[1])
+
 
         # print('pretrain grad ', self.pretrained_network.requires_grad)
         # print('new extension grad ', self.last_layer.requires_grad)
         # print(self.simplest_linear_act)
 
     def forward(self, input):
+        # input = self.normalize(input)
         if self.net_as_list:
             out_list = []
             for idx, net in enumerate(self.pretrained_network):
