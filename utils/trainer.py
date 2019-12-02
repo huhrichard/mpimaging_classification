@@ -196,7 +196,7 @@ class cv_trainer(object):
     def running_model(self, input, gt, epoch, running_state, nth_fold, idx):
 
         predict_for_result, predict_for_loss_function = self.model(input)
-        self.check_grad()
+        # self.check_grad()
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
         # print('gt', gt)
@@ -210,16 +210,16 @@ class cv_trainer(object):
 
 
         # detach all to release gpu memory
-        loss, predict, gt = loss.detach().cpu(), \
+        loss_detached, predict_detached, gt_detached = loss.detach().cpu(), \
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()
 
-        self.loss_stat[nth_fold][running_state][epoch].append(loss)
-        self.prediction_list[nth_fold][running_state][epoch].append(predict)
-        self.gt_list[nth_fold][running_state][epoch].append(gt)
+        self.loss_stat[nth_fold][running_state][epoch].append(loss_detached)
+        self.prediction_list[nth_fold][running_state][epoch].append(predict_detached)
+        self.gt_list[nth_fold][running_state][epoch].append(gt_detached)
         self.idx_list[nth_fold][running_state][epoch].append(idx)
 
-        return loss, predict
+        return loss_detached, predict_detached
 
     def evaluation(self):
         # print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
