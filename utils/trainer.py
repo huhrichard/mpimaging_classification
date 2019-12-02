@@ -204,9 +204,12 @@ class cv_trainer(object):
 
         if running_state == "train":
             print("{} loss:{}".format(running_state, loss))
+            a = list(self.model.parameters())[0].clone()
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+            b = list(self.model.parameters())[0].clone()
+            print('a=b?', torch.equal(a.data, b.data))
 
 
         # detach all to release gpu memory
