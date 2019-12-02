@@ -60,8 +60,8 @@ class simple_transfer_classifier(nn.Module):
         if self.net_as_list:
             out_list = []
             for idx, net in enumerate(self.pretrained_network):
-                print(net.weights.requires_grad)
-                print(self.last_layer[idx].weights.requires_grad)
+                # print(net.weights.requires_grad)
+                # print(self.last_layer[idx].weights.requires_grad)
                 input = net(input)
                 if self.last_linear:
                     avg_pool = self.avgpool(input).flatten(start_dim=1)
