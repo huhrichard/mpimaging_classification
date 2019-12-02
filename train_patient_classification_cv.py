@@ -117,8 +117,8 @@ if __name__ == "__main__":
                        "n_fold": [n_fold],
                        "performance_metrics_list": [metric_list],
                        "device": [device],
-                       "p_model": ["resnext101_32x8d"],
-                       # "p_model": ["resnet18"],
+                       # "p_model": ["resnext101_32x8d"],
+                       "p_model": ["resnet18"],
                        # "p_model": ["wide_resnet101_2"],
                        "p_weight": [True],
                        "feat_ext": [False],
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                         idx = data['idx']
 
                         input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-                        gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
+                        gt = Variable(gt.view(-1, *(gt.shape[2:])), requires_grad=False).float().to(device)
                         loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
                                                                        running_state=running_state, nth_fold=nth_fold,
                                                                        idx=idx)
