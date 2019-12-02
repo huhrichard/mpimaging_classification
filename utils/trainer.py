@@ -388,7 +388,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                                                                            total_epochs=epochs),
                              total_epochs=epochs,
                              lr_scheduler_list=[],
-                             loss_function=multi_label_loss(loss_function='FL'))
+                             loss_function=multi_label_loss(loss_function='BCE'))
 
     return new_trainer
 
