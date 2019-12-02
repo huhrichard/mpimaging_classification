@@ -196,6 +196,7 @@ class cv_trainer(object):
     def running_model(self, input, gt, epoch, running_state, nth_fold, idx):
 
         predict_for_result, predict_for_loss_function = self.model(input)
+        self.check_grad()
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
         # print('gt', gt)
@@ -242,6 +243,10 @@ class cv_trainer(object):
         # self.performance_stat[running_state].append(metrics_dict)
 
         return metrics_dict
+
+    def check_grad(self):
+        for param in self.model.parameters():
+            print(param.requires_grad)
 
     @staticmethod
     def torch_tensor_np(tensor):
