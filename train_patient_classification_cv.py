@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     # Grid Search
 
-    metric_list = ["f1_by_sample"
+    metric_list = ["f1_by_sample",
                    "auc_by_label", "ap_by_label", "fmax_by_label",
                    "rmax_by_label", "pmax_by_label",
                    "f1_by_label", "balanced_acc_by_label",
