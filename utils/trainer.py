@@ -228,6 +228,8 @@ class cv_trainer(object):
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()
 
+        idx = idx.detach().cpu()
+
         self.loss_stat[nth_fold][running_state][epoch].append(loss_detached)
         self.prediction_list[nth_fold][running_state][epoch].append(predict_detached)
         self.gt_list[nth_fold][running_state][epoch].append(gt_detached)
