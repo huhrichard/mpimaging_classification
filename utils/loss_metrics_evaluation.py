@@ -119,7 +119,7 @@ class multi_label_loss(nn.Module):
             return fl.squeeze()
 
     def focal_loss(self, predict, gt):
-        return torch.mean(-1*self.alpha*gt*((1-predict)**self.gamma)*torch.log(predict))
+        return -1*torch.mean(self.alpha*gt*((1-predict)**self.gamma)*torch.log(predict))
 
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':
