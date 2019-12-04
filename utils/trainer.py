@@ -491,6 +491,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
         print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
                                                                        time_elapsed % 60))
 
+    nth_trainer.model = None
     return nth_trainer
 
 
