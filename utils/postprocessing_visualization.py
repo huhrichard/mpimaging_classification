@@ -217,13 +217,13 @@ def compare_model_cv(trainers, save_path, out_csv='',
                             x = range(epochs)
                             ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
                             ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
-                base_name = "{}_{}_{}".format(metric, output_label, specific_trainer.model_name)
+                base_name = "{}_{}_{}".format(output_label, metric, specific_trainer.model_name)
                 ax_all_fold_list[plot_idx].legend()
                 ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
                 fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
                 fig_all_fold_list[plot_idx].clf()
         for plot_idx, plot in enumerate(plot_states_list):
-            base_name = "{}_{}".format(metric, output_label)
+            base_name = "{}_{}".format(output_label, metric)
             ax_all_trainer_list[plot_idx].legend()
             ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
             fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
@@ -253,7 +253,7 @@ def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name,
                 # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
                 # print(p)
                 df.loc[df['MPM image file per TMA core ']==img_trimmed_path, col_pred_name] = p
-
+    df.loc[df[col_pred_name]==0, col_pred_name] = ' '
     return df
         # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
@@ -264,9 +264,9 @@ def write_scores_on_df(trainers, df, metrics, state, out_label='', out_idx=None,
             if out_idx is None:
                 col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
                 # print(trainer.performance_stat[metric][state][epoch_as_final])
-                df[col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
+                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
             else:
                 col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
-                df[col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
+                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
 
     return df

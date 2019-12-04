@@ -37,6 +37,8 @@ print("Avaliable GPU:", gpu_count)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
+n_jobs = gpu_count if using_gpu else 1
+
 args = parser.parse_args()
 print(args)
 
@@ -115,7 +117,7 @@ if __name__ == "__main__":
 
     # Grid Search
 
-    metric_list = ["f1_by_sample"
+    metric_list = ["f1_by_sample",
                    "auc_by_label", "ap_by_label", "fmax_by_label",
                    "rmax_by_label", "pmax_by_label",
                    "f1_by_label", "balanced_acc_by_label",
@@ -145,7 +147,7 @@ if __name__ == "__main__":
         """
         Try with parallalization
         """
-        trainers_list = Parallel(n_jobs=gpu_count)(delayed(training_pipeline_per_fold)(nth_trainer=put_parameters_to_trainer_cv(**parameters),
+        trainers_list = Parallel(n_jobs=n_jobs)(delayed(training_pipeline_per_fold)(nth_trainer=put_parameters_to_trainer_cv(**parameters),
                                                                                        epochs=args.epochs,
                                                                                        nth_fold=nth_fold,
                                                                                        train_data=train_dataset,

@@ -76,7 +76,8 @@ class simple_transfer_classifier(nn.Module):
                     out = self.last_layer[idx](input)
                     out_list.append(self.avgpool(out).flatten(start_dim=1))
 
-            out_for_result = torch.stack(out_list, dim=-1).mean(dim=-1)
+            # out_for_result = torch.stack(out_list, dim=-1).mean(dim=-1)
+            out_for_result = out_list[-1]
             out_for_loss_function = torch.stack(out_list, dim=-1)
 
         else:

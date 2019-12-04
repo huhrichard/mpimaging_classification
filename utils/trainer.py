@@ -371,7 +371,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                                  wd=1e-2,
                                  input_res=(3, 300, 300),
                                  out_list=True,
-                                 lost_function='BCE'):
+                                 loss='BCE'):
     exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,
@@ -380,7 +380,8 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "lr": True,
                        "wd": True,
                        "input_res": False,
-                       "out_list": True
+                       "out_list": True,
+                       "loss": True
                        }
 
     model_name = "TL"
@@ -473,6 +474,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
 
                 input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                 gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
+                # print(gt)
                 loss, predict = nth_trainer.running_model(input, gt, epoch=epoch,
                                                                running_state=running_state, nth_fold=nth_fold,
                                                                idx=idx)

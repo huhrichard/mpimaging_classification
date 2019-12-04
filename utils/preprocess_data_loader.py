@@ -87,10 +87,10 @@ class mpImage_sorted_by_patient_dataset(Dataset):
 
         # self.img_df = pandas.read_csv(image_deidentify_path)
         self.gt_list = []
-
         for idx, patient_id in enumerate(self.patient_id_list):
             patient_entry = self.multi_label_df[self.multi_label_df["Deidentifier patient number"] == patient_id]
             img_files = patient_entry['MPM image file per TMA core ']
+
             # print(img_files)
             img_list = []
             for img_file in img_files:
@@ -109,7 +109,6 @@ class mpImage_sorted_by_patient_dataset(Dataset):
                 # print(self.gt_list[-1])
             else:
                 self.gt_list.append(np.concatenate([other_label], axis=-1))
-
         if included_gscore:
             self.label_name = ['Gleason score for TMA core'] + self.label_name
         self.transform = transform
