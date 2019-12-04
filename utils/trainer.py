@@ -486,10 +486,11 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
                                                                               state_time_elapsed // 60,
                                                                               state_time_elapsed % 60))
             print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
+            running_loss = 0
+            ran_data = 0
         # print(loss)
         time_elapsed = time.time() - epoch_start_time
-        running_loss = 0
-        ran_data = 0
+
         print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
                                                                        time_elapsed % 60))
 
