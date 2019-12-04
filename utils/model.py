@@ -11,7 +11,7 @@ class simple_transfer_classifier(nn.Module):
     def __init__(self, num_classes, input_size,
                  module_prefix=None, pretrained_model_name="resnet18",
                  pretrain_weight=True, feature_extracting=True, multi_label=True,
-                 multi_classifier=True, last_linear=False,
+                 multi_classifier=True, last_linear=True,
                  normalization_mean_std=([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])):
         super(simple_transfer_classifier, self).__init__()
         self.pretrained_model_name = pretrained_model_name
@@ -114,7 +114,7 @@ class simple_transfer_classifier(nn.Module):
                 else:
                     act = nn.Softmax()
                 return nn.Sequential(*[linear_layer,
-                                       nn.GroupNorm(num_classes, num_classes),
+                                       # nn.GroupNorm(num_classes, num_classes),
                                        # nn.BatchNorm1d(num_classes),
                                         act])
         else:
@@ -123,7 +123,7 @@ class simple_transfer_classifier(nn.Module):
             else:
                 act = nn.Softmax()
             return nn.Sequential(*[ conv_layer,
-                                    nn.GroupNorm(num_classes, num_classes),
+                                    # nn.GroupNorm(num_classes, num_classes),
                                     # nn.BatchNorm2d(num_classes),
                                     nn.AdaptiveAvgPool2d(1),
                                     nn.Sigmoid(),
