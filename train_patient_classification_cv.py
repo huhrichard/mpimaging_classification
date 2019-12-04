@@ -40,7 +40,7 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_tensor_size = (500, 500)
+input_tensor_size = (800, 800)
 
 
 def model_training_and_evaluate_testing(epochs,
@@ -129,7 +129,7 @@ if __name__ == "__main__":
                        "p_model": ["resnet18"],
                        # "p_model": ["wide_resnet101_2"],
                        "p_weight": [True],
-                       "feat_ext": [True],
+                       "feat_ext": [False],
                        "lr": [1e-5],
                        "wd": [1e-6],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
