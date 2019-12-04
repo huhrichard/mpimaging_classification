@@ -443,6 +443,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
     cv_split = cv_splits[nth_fold]
     if torch.cuda.is_available():
         device = torch.device("cuda:{}".format(nth_fold % gpu_count))
+        print(device)
     else:
         device = torch.device('cpu')
     train_data_loader = DataLoader(dataset=train_data, batch_size=n_batch, sampler=SubsetRandomSampler(cv_split[0]))
