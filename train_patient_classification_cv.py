@@ -125,8 +125,8 @@ if __name__ == "__main__":
                        "n_fold": [n_fold],
                        "performance_metrics_list": [metric_list],
                        "device": [device],
-                       # "p_model": ["resnext101_32x8d"],
-                       "p_model": ["resnet18"],
+                       "p_model": ["resnext101_32x8d"],
+                       # "p_model": ["resnet18"],
                        # "p_model": ["wide_resnet101_2"],
                        "p_weight": [True],
                        "feat_ext": [False],
@@ -150,45 +150,6 @@ if __name__ == "__main__":
                                                     cv_splits=cv_split_list,
                                                     gpu_count=gpu_count,
                                                     n_batch=args.n_batch)
-        #     print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
-        #     specific_trainer.model_init()
-        #     # specific_trainer.model = specific_trainer.model_init()
-        #     specific_trainer.model.to(device)
-        #     running_loss = 0
-        #     ran_data = 0
-        #     for epoch in range(args.epochs):
-        #         print("=" * 30)
-        #         print("{} {}th epoch running: {}".format("=" * 10, epoch, "=" * 10))
-        #         epoch_start_time = time.time()
-        #
-        #         for running_state in running_states:
-        #             state_start_time = time.time()
-        #             for batch_idx, data in enumerate(cv_data_loaders[nth_fold][running_state]):
-        #                 # print(batch_idx)
-        #                 input = data['input']
-        #                 gt = data['gt']
-        #                 idx = data['idx']
-        #
-        #                 input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-        #                 gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
-        #                 loss, predict = specific_trainer.running_model(input, gt, epoch=epoch,
-        #                                                                running_state=running_state, nth_fold=nth_fold,
-        #                                                                idx=idx)
-        #                 ran_data += 1
-        #                 running_loss += loss.item()
-        #
-        #             state_time_elapsed = time.time() - state_start_time
-        #             print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
-        #                                                                               state_time_elapsed // 60,
-        #                                                                               state_time_elapsed % 60))
-        #             print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
-        #         # print(loss)
-        #         time_elapsed = time.time() - epoch_start_time
-        #         running_loss = 0
-        #         ran_data = 0
-        #         print("{}{}th epoch running time cost: {:.0f}m {:.0f}s".format("-" * 5, epoch, time_elapsed // 60,
-        #                                                                        time_elapsed % 60))
-        #     # specific_trainer.model = specific_trainer.model
 
         specific_trainer.evaluation()
         parametric_model_list.append(specific_trainer)
