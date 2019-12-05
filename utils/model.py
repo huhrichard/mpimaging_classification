@@ -76,9 +76,9 @@ class simple_transfer_classifier(nn.Module):
                     avg_pool = self.final_pooling_avg(input).flatten(start_dim=1)
                     max_pool = self.final_pooling_max(input).flatten(start_dim=1)
                     min_pool = -1*self.final_pooling_max(-1*input).flatten(start_dim=1)
-                    print(avg_pool.shape)
+                    # print(avg_pool.shape)
                     pool_cat = torch.cat([max_pool, avg_pool, min_pool], dim=-1)
-                    print(pool_cat.shape)
+                    # print(pool_cat.shape)
                     out_list.append(self.last_layer[idx](pool_cat))
                 else:
                     out = self.last_layer[idx](input)

@@ -474,7 +474,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
                 input = data['input']
                 gt = data['gt']
                 idx = data['idx']
-                print(idx, gt)
+                # print(idx, gt)
                 input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                 gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                 # print(gt)
