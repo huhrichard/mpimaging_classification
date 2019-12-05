@@ -204,7 +204,6 @@ class cv_trainer(object):
         self.old_epochs = 0
 
     def running_model(self, input, gt, epoch, running_state, nth_fold, idx):
-
         predict_for_result, predict_for_loss_function = self.model(input)
         # self.check_grad()
         # print('p for loss', predict_for_loss_function)
@@ -227,6 +226,10 @@ class cv_trainer(object):
         loss_detached, predict_detached, gt_detached = loss.detach().cpu(), \
                             predict_for_result.detach().cpu(), \
                             gt.detach().cpu()
+
+        if running_state == "val":
+            print("predict:", predict_detached)
+            print("gt:", gt_detached)
 
         idx = idx.detach().cpu()
 
@@ -471,7 +474,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
                 input = data['input']
                 gt = data['gt']
                 idx = data['idx']
-
+                print(idx, gt)
                 input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
                 gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
                 # print(gt)

@@ -41,20 +41,21 @@ class simple_transfer_classifier(nn.Module):
         if self.net_as_list:
             simplest_linear_act = []
             for feature in self.feature_dim:
-                simplest_linear_act.append(self.create_last_layer(feature,
+                simplest_linear_act.append(self.create_last_layer(feature*3,
                                                                   multi_label,
                                                                   num_classes,
                                                                   linear=last_linear))
             self.last_layer = nn.ModuleList(simplest_linear_act)
         else:
-            self.last_layer = self.create_last_layer(self.feature_dim,
+            self.last_layer = self.create_last_layer(self.feature_dim*3,
                                                      multi_label,
                                                      num_classes,
                                                      linear=last_linear)
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
-        # self.final_pooling = nn.AdaptiveAvgPool2d((1, 1))
-        self.final_pooling = nn.AdaptiveMaxPool2d((1, 1))
+        self.final_pooling_avg = nn.AdaptiveAvgPool2d((1, 1))
+        self.final_pooling_max = nn.AdaptiveMaxPool2d((1, 1))
+        # self.final_pooling = nn.AdaptiveMaxPool2d((1, 1))
         # self.normalize = transforms.Normalize(normalization_mean_std[0], normalization_mean_std[1])
 
 
@@ -71,8 +72,11 @@ class simple_transfer_classifier(nn.Module):
                 # print(self.last_layer[idx].weights.requires_grad)
                 input = net(input)
                 if self.last_linear:
-                    avg_pool = self.final_pooling(input).flatten(start_dim=1)
-                    out_list.append(self.last_layer[idx](avg_pool))
+                    avg_pool = self.final_pooling_avg(input).flatten(start_dim=1)
+                    max_pool = self.final_pooling_max(input).flatten(start_dim=1)
+                    min_pool = -1*self.final_pooling_max(-1*input).flatten(start_dim=1)
+                    pool_cat = torch.cat([max_pool, avg_pool, min_pool], dim=-1)
+                    out_list.append(self.last_layer[idx](pool_cat))
                 else:
                     out = self.last_layer[idx](input)
                     out_list.append(self.final_pooling(out).flatten(start_dim=1))

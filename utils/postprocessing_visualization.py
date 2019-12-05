@@ -239,6 +239,7 @@ def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name,
         df[col_pred_name] = 0
         idx_list = torch.Tensor([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)])
         pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+        gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         # print(pred)
         idx_list = idx_list.int().flatten()
         for idx_for_trainer, idx_for_dataset in enumerate(idx_list):
@@ -250,6 +251,9 @@ def write_prediction_on_df(trainers, df, state, patient_dataset, out_label_name,
                 p_idx = img_idx+idx_for_trainer*len(img_path_list)
                 # print(p_idx)
                 p = pred[p_idx][out_label_idx]
+                g = gt[p_idx][out_label_idx]
+                # print(img_trimmed_path,':')
+                # print('{} predict: {}, gt: {}'.format(out_label_name, p, g))
                 # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
                 # print(p)
                 df.loc[df['MPM image file per TMA core ']==img_trimmed_path, col_pred_name] = p
