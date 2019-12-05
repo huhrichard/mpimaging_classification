@@ -131,7 +131,7 @@ if __name__ == "__main__":
                        "p_weight": [True],
                        "feat_ext": [False],
                        "lr": [1e-5],
-                       "wd": [1e-6],
+                       "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [True],
                        }
