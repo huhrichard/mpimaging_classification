@@ -217,4 +217,4 @@ def set_parameter_requires_grad(model, feature_extracting):
 
 
 
-
+# class simple_transfer_classifier(nn.Module):
