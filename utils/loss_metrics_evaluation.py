@@ -95,7 +95,7 @@ class bin_focal_loss_multi_output(nn.Module):
         return self.focal_loss(predict, gt)
 
     def focal_loss(self, predict, gt):
-        return self.alpha*(torch.mean((1-predict)**self.gamma)*torch.log(gt))
+        return -1*self.alpha*(torch.mean((1-predict)**self.gamma)*gt*torch.log(predict))
 
 class multi_label_loss(nn.Module):
     def __init__(self, loss_function='BCE',
@@ -110,6 +110,7 @@ class multi_label_loss(nn.Module):
         if predict.shape != gt.shape:
             gt = gt.unsqueeze(-1).repeat(1, 1, predict.shape[-1])
         if self.loss_function == 'BCE':
+
             return nn.functional.binary_cross_entropy(predict, gt)
         elif self.loss_function == 'FL':
             self.alpha = self.alpha.to(predict.device)
@@ -119,7 +120,7 @@ class multi_label_loss(nn.Module):
             return fl.squeeze()
 
     def focal_loss(self, predict, gt):
-        return -1*torch.mean(self.alpha*gt*((1-predict)**self.gamma)*torch.log(predict))
+        return -1*torch.mean(self.alpha*((1-predict)**self.gamma)*gt*torch.log(predict))
 
 def torch_tensor_np(tensor):
     if tensor.device.type != 'cpu':

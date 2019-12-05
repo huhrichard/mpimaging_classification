@@ -228,8 +228,9 @@ class cv_trainer(object):
                             gt.detach().cpu()
 
         if running_state == "val":
-            print("predict:", predict_detached)
-            print("gt:", gt_detached)
+            if epoch % 10 == 0:
+                print("predict:", predict_detached)
+                print("gt:", gt_detached)
 
         idx = idx.detach().cpu()
 
