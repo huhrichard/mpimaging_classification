@@ -133,8 +133,8 @@ if __name__ == "__main__":
                        "lr": [1e-5],
                        "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
-                       "out_list": [True],
-                       "loss": ["FL"]
+                       "out_list": [False],
+                       "loss": ["BCE"]
                        }
     list_parameters = ParameterGrid(parameters_grid)
 

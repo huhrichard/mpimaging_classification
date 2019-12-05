@@ -55,7 +55,7 @@ class simple_transfer_classifier(nn.Module):
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
         self.final_pooling_avg = nn.AdaptiveAvgPool2d((1, 1))
-        self.final_pooling_max = nn.AdaptiveMaxPool2d((1, 1))
+        # self.final_pooling_max = nn.AdaptiveMaxPool2d((1, 1))
         # self.final_pooling = nn.AdaptiveMaxPool2d((1, 1))
         # self.normalize = transforms.Normalize(normalization_mean_std[0], normalization_mean_std[1])
 
@@ -74,12 +74,13 @@ class simple_transfer_classifier(nn.Module):
                 input = net(input)
                 if self.last_linear:
                     avg_pool = self.final_pooling_avg(input).flatten(start_dim=1)
-                    max_pool = self.final_pooling_max(input).flatten(start_dim=1)
-                    min_pool = -1*self.final_pooling_max(-1*input).flatten(start_dim=1)
+                    # max_pool = self.final_pooling_max(input).flatten(start_dim=1)
+                    # min_pool = -1*self.final_pooling_max(-1*input).flatten(start_dim=1)
                     # print(avg_pool.shape)
-                    pool_cat = torch.cat([max_pool, avg_pool, min_pool], dim=-1)
+                    # pool_cat = torch.cat([max_pool, avg_pool, min_pool], dim=-1)
                     # print(pool_cat.shape)
-                    out_list.append(self.last_layer[idx](pool_cat))
+                    # out_list.append(self.last_layer[idx](pool_cat))
+                    out_list.append(self.last_layer[idx](avg_pool))
                 else:
                     out = self.last_layer[idx](input)
                     out_list.append(self.final_pooling(out).flatten(start_dim=1))
@@ -108,8 +109,8 @@ class simple_transfer_classifier(nn.Module):
     # def weight_init(self, use_pretrained_weight):
 
     def create_last_layer(self, feature_dim, multi_label, num_classes, linear=False):
-        linear_layer = nn.Linear(feature_dim[1]*3, num_classes)
-        conv_layer = nn.Conv2d(feature_dim[1]*3, num_classes, kernel_size=1, stride=1, padding=0)
+        linear_layer = nn.Linear(feature_dim[1], num_classes)
+        conv_layer = nn.Conv2d(feature_dim[1], num_classes, kernel_size=1, stride=1, padding=0)
         # print('linear weights', linear_layer.weight, linear_layer.bias)
         # print('conv weights', conv_layer.weight, conv_layer.bias)
         if linear:
