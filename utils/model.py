@@ -53,7 +53,8 @@ class simple_transfer_classifier(nn.Module):
                                                      linear=last_linear)
 
         # self.resblock1 = _ResBlock(in_channels=self.feature_dim[1], out_channels=self.feature_dim[1])
-        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        # self.final_pooling = nn.AdaptiveAvgPool2d((1, 1))
+        self.final_pooling = nn.AdaptiveMaxPool2d((1, 1))
         # self.normalize = transforms.Normalize(normalization_mean_std[0], normalization_mean_std[1])
 
 
@@ -70,11 +71,11 @@ class simple_transfer_classifier(nn.Module):
                 # print(self.last_layer[idx].weights.requires_grad)
                 input = net(input)
                 if self.last_linear:
-                    avg_pool = self.avgpool(input).flatten(start_dim=1)
+                    avg_pool = self.final_pooling(input).flatten(start_dim=1)
                     out_list.append(self.last_layer[idx](avg_pool))
                 else:
                     out = self.last_layer[idx](input)
-                    out_list.append(self.avgpool(out).flatten(start_dim=1))
+                    out_list.append(self.final_pooling(out).flatten(start_dim=1))
 
             # out_for_result = torch.stack(out_list, dim=-1).mean(dim=-1)
             out_for_result = out_list[-1]
@@ -83,7 +84,7 @@ class simple_transfer_classifier(nn.Module):
         else:
             features = self.pretrained_network(input)
             if self.last_linear:
-                features = self.avgpool(features)
+                features = self.final_pooling(features)
                 features_flat = features.flatten(start_dim=1)
                 # print(features_flat.shape)
                 # print(self.feature_dim)
@@ -91,7 +92,7 @@ class simple_transfer_classifier(nn.Module):
                 out_for_loss_function = out_for_result
             else:
                 f = self.last_layer(features)
-                out_for_result = self.avgpool(f).flatten(start_dim=1)
+                out_for_result = self.final_pooling(f).flatten(start_dim=1)
                 out_for_loss_function = out_for_result
 
 
