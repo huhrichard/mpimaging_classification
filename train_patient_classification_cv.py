@@ -40,7 +40,7 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_tensor_size = (300, 300)
+input_tensor_size = (800, 800)
 
 
 def model_training_and_evaluate_testing(epochs,

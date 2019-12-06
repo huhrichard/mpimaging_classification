@@ -66,6 +66,31 @@ class performance_evaluation_cv(object):
 
         return performance_dict
 
+
+class performance_val_evaluater(object):
+    def __init__(self, multi_label=True, metrics_list=["auc", "f_max", "ap"],
+                 ):
+        self.metrics_list = metrics_list
+        self.multi_label = multi_label
+
+    def eval(self, predict, gt):
+        performance_dict = {}
+
+        for metric in self.metrics_list:
+            metric_func = globals()[metric]
+            metric_score = metric_func(gt, predict)
+            performance_dict[metrics] = metric_score
+
+        return performance_dict
+
+def choose_best_params(performance_list, metric_list, choose_score_by=[]):
+    performance_score_per_model = []
+    vote_list = np.zeros((len(metric_list), len(performance_list)))
+    for idx, metric in enumerate(metric_list):
+        performance_of_specific_metric = np.array([performance[metric] for performance in performance_list])
+
+
+
 class bcel_multi_output(nn.Module):
     def __init__(self):
         super(bcel_multi_output, self).__init__()
