@@ -132,7 +132,7 @@ class multi_label_loss(nn.Module):
         self.loss_function = loss_function
 
     def forward(self, predict, gt):
-        weight = np.ones_like(predict)
+        weight = torch.ones_like(predict)
         if predict.shape != gt.shape:
             gt = gt.unsqueeze(-1).repeat(1, 1, predict.shape[-1])
             weight[...,:-1] = weight[...,:-1]/(weight.shape[-1]-1)
