@@ -327,7 +327,8 @@ def write_prediction_on_df(df, model_name, label_name, label_idx, predict_list, 
         # this is patient idx fo patient dataset
         df[col_pred_name] = 0
         for idx_pred, idx_for_df in enumerate(idx_list):
-            
+            pass
+
 
     df.loc[df[col_pred_name]==0, col_pred_name] = ' '
     return df

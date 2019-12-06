@@ -9,6 +9,7 @@ from sklearn.svm import SVC
 from sklearn.ensemble import (RandomForestClassifier, ExtraTreesClassifier,
                               AdaBoostClassifier)
 from .utils import loss_metrics_evaluation
+from .utils.postprocessing_visualization import *
 
 
 def find(pattern, path):
@@ -35,7 +36,8 @@ if __name__ == "__main__":
     img_names = patient_df['MPM image file per TMA core ']
     img_feature_list = []
     img_resolution = 300
-    y = patient_df[["BCR", "AP", "EPE"]]
+    label_names = ["BCR", "AP", "EPE"]
+    y = patient_df[label_names]
 
     for img_name in img_names:
         img_path = find("*{}*".format(img_name), base_datapath)[0]
@@ -66,11 +68,22 @@ if __name__ == "__main__":
     #     outer_X_train, outer_X_test = img_feature_list[outer_train_idx], img_feature_list[outer_test_idx]
     #     outer_Y_train, outer_Y_test = y[outer_train_idx], y[outer_test_idx]
     #     outer_deids_train, outer_deids_test = deids[outer_train_idx], deids[outer_test_idx]
-    #     performance_inner_list = []
+    performance_list = []
+    predicts_list = []
+    gts_list = []
+
+    result_path = base_datapath + "patient_classify_result/"
+    result_csv_name = result_path + 'result.csv'
+    if os.path.exists(result_csv_name):
+        out_df = pd.read_csv(result_csv_name)
+    else:
+        out_df = patient_df.copy()
+
     for params in params_list:
         rfc = RandomForestClassifier(**params)
-        predict_list = []
-        gt_list = []
+        predicts = []
+        gts = []
+        val_indice = []
         model_name = "RFC_" + str(params)[1:-1]
         # for inner_train_idx, inner_val_idx in inner_cv.split(outer_X_train, outer_Y_train, outer_deids_train):
         for inner_train_idx, inner_val_idx in inner_cv.split(img_feature_list, y, deids):
@@ -79,13 +92,30 @@ if __name__ == "__main__":
                                         inner_val_idx=inner_val_idx,
                                         X=img_feature_list,
                                         Y=y)
-            predict_list.append(predict)
-            gt_list.append(gt)
-        np_predict_cat = np.concatenate(predict_list, axis=0)
-        np_gt_cat = np.concatenate(gt_list, axis=0)
-
+            predicts.append(predict)
+            gts.append(gt)
+            val_indice.append(inner_val_idx)
+        np_predict_cat = np.concatenate(predicts, axis=0)
+        np_gt_cat = np.concatenate(gts, axis=0)
+        np_idx_list = np.concatenate(val_indice, axis=0)
         performance_list.append(performance_evaluater.eval(predict=np_predict_cat,
                                                                  gt=np_gt_cat))
+
+        for idx, label in enumerate(label_names):
+            out_df = write_prediction_on_df(df=out_df,
+                                            model_name=model_name,
+                                            label_name=label,
+                                            label_idx=idx,
+                                            predict_list=np_predict_cat,
+                                            idx_list=np_idx_list
+                                            )
+
+
+
+
+
+
+
 
 
 
