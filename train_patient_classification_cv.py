@@ -134,7 +134,7 @@ if __name__ == "__main__":
                        "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [False],
-                       "loss": ["BCE"]
+                       "loss": ["FL"]
                        }
     list_parameters = ParameterGrid(parameters_grid)
 
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     if os.path.exists(result_csv_name):
         out_df = pandas.read_csv(result_csv_name)
     else:
-        out_df = base_dataset.multi_label_df
+        out_df = base_dataset.multi_label_df.copy()
     label_list = base_dataset.label_name
 
     # label_name_list = train_val_dataset.label_name
@@ -169,19 +169,19 @@ if __name__ == "__main__":
     # label_list = ["BCR", "AP", "EPE"]
 
     for idx, label_name in enumerate(label_list):
-        out_df = write_prediction_on_df(trainers=parametric_model_list,
-                                        df=out_df,
-                                        state='val',
-                                        patient_dataset=base_dataset,
-                                        out_label_name=label_name,
-                                        out_label_idx=idx
-                                        )
-        out_df = write_scores_on_df(trainers=parametric_model_list,
-                                    df=out_df,
-                                    metrics=metric_list[1:],
-                                    state='val',
-                                    out_label=label_name,
-                                    out_idx=idx)
+        out_df = write_prediction_on_df_DL(trainers=parametric_model_list,
+                                           df=out_df,
+                                           state='val',
+                                           patient_dataset=base_dataset,
+                                           out_label_name=label_name,
+                                           out_label_idx=idx
+                                           )
+        out_df = write_scores_on_df_DL(trainers=parametric_model_list,
+                                       df=out_df,
+                                       metrics=metric_list[1:],
+                                       state='val',
+                                       out_label=label_name,
+                                       out_idx=idx)
         compare_model_cv(parametric_model_list, result_path,
                          output_label=label_name, output_idx=idx,
                          multi_label_classify=True, metrics=metric_list[1:],
@@ -193,9 +193,9 @@ if __name__ == "__main__":
         #                  multi_label_classify=True, metrics=metric_list[3], )
 
     compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
-    out_df = write_scores_on_df(trainers=parametric_model_list,
-                                df=out_df,
-                                metrics=metric_list[:1],
-                                state='val')
+    out_df = write_scores_on_df_DL(trainers=parametric_model_list,
+                                   df=out_df,
+                                   metrics=metric_list[:1],
+                                   state='val')
     out_df.fillna(' ')
     out_df.to_csv(result_path + 'result.csv', index=None, header=True)
