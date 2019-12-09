@@ -82,18 +82,7 @@ if __name__ == "__main__":
                                                      multi_label_gt_path=gt_path,
                                                      transform=train_transforms[0])
 
-    # train_dataset = torch.utils.data.ConcatDataset([
-    #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-    #                                       multi_label_gt_path=gt_path,
-    #                                       transform=t) for t in train_transforms])
-    #
-    # # val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(val_input_transform_list)),
-    # #                   ]
-    #
-    # val_dataset = torch.utils.data.ConcatDataset([
-    #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-    #                                       multi_label_gt_path=gt_path,
-    #                                       transform=t) for t in val_transforms])
+
 
     num_classes = base_dataset[0]["gt"].shape[-1]
     # Split data into cross-validation_set
@@ -105,13 +94,6 @@ if __name__ == "__main__":
     running_states = ["train", "val"]
     n_fold = len(cv_split_list)
 
-    # cv_data_loaders = [{"train": DataLoader(dataset=train_dataset,
-    #                                         batch_size=args.n_batch,
-    #                                         sampler=SubsetRandomSampler(train_idx)),
-    #                     "val": DataLoader(dataset=val_dataset,
-    #                                       batch_size=args.n_batch,
-    #                                       sampler=SubsetRandomSampler(val_idx))
-    #                     } for train_idx, val_idx in cv_split_list]
 
     # Grid Search
 

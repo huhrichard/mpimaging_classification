@@ -557,8 +557,8 @@ def get_normalization_mean_std_from_training_set(base_dataset_dict, train_idx, d
         # if train_data_stack.shape[0] == 0:
         train_data_stack.append(input.transpose_(0,-3).flatten(start_dim=1))
     torch_stacked_input = torch.cat(train_data_stack, dim=1)
-    train_mean = torch_stacked_input.mean(dim=1)
-    train_std = torch_stacked_input.std(dim=1)
+    train_mean = torch_stacked_input.mean(dim=1).to(torch.device('cpu'))
+    train_std = torch_stacked_input.std(dim=1).to(torch.device('cpu'))
     return train_mean, train_std
 
 
