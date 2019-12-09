@@ -333,17 +333,16 @@ def write_prediction_on_df(df, model_name, label_name, label_idx, predict_list, 
     return df
 
 
-def write_scores_on_df(trainers, df, metrics, state, out_label='', out_idx=None, epoch_as_final = -1, ):
+def write_scores_on_df(df, model_name, metrics, performance_stat, out_label='', out_idx=None):
 
-    for trainer in trainers:
-        for metric in metrics:
-            if out_idx is None:
-                col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
-                # print(trainer.performance_stat[metric][state][epoch_as_final])
-                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
-            else:
-                col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
-                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
+    for metric in metrics:
+        if out_idx is None:
+            col_metric_name = "{}_{}".format(metric, model_name)
+            # print(trainer.performance_stat[metric][state][epoch_as_final])
+            df.loc[0, col_metric_name] = performance_stat[metric]
+        else:
+            col_metric_name = "{}_{}_{}".format(out_label, metric, model_name)
+            df.loc[0, col_metric_name] = performance_stat[metric][out_idx]
 
     return df
 
