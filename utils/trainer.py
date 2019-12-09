@@ -549,7 +549,7 @@ def get_normalization_mean_std_from_training_set(base_dataset_dict, train_idx, d
         ]
     base_dataset = base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
                                                      multi_label_gt_path=base_dataset_dict["gt_path"],
-                                                     transform=train_transforms)
+                                                     transform=train_transforms[0])
     train_data_loader = DataLoader(dataset=base_dataset, sampler=sampler)
     train_data_stack = []
     for batch_idx, data in enumerate(train_data_loader):
