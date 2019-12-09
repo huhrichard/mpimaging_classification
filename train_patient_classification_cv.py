@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                      multi_label_gt_path=gt_path,
-                                                     transform=None)
+                                                     transform=train_input_transform_list)
 
     # train_dataset = torch.utils.data.ConcatDataset([
     #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
