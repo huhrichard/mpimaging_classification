@@ -150,7 +150,7 @@ if __name__ == "__main__":
                                                     nth_fold=nth_fold,
                                                     base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
                                                                         "datapath": args.datapath,
-                                                                        "gtpath": gt_path},
+                                                                        "gt_path": gt_path},
                                                     train_transform_list=train_input_transform_list,
                                                     val_transform_list=val_input_transform_list,
                                                     # train_data=train_dataset,
