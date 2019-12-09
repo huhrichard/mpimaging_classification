@@ -74,13 +74,13 @@ if __name__ == "__main__":
                                 # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                 ]
 
-    # train_transforms = [
-    #     compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
-    #     ]
+    train_transforms = [
+        compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
+        ]
 
     base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                      multi_label_gt_path=gt_path,
-                                                     transform=train_input_transform_list)
+                                                     transform=train_transforms)
 
     # train_dataset = torch.utils.data.ConcatDataset([
     #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
