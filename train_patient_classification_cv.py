@@ -21,7 +21,8 @@ parser = argparse.ArgumentParser(description='training for MPM image classificat
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
-parser.add_argument('--gt_path', default='data/TMA_MPM_Summary_20191122.csv', type=str, help='File of the groundtruth')
+parser.add_argument('--gt_path', default='data/TMA_MPM_Summary_20191122_excluded_repeated.csv',
+                    type=str, help='File of the groundtruth')
 # parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
 # parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
 parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
