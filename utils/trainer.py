@@ -10,6 +10,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 import time
 from torch.autograd import Variable
+from cvtorchvision import cvtransforms
+from utils.preprocess_data_transform import compose_input_output_transform
 
 
 # class trainer(object):
@@ -163,7 +165,8 @@ class cv_trainer(object):
                  lr_scheduler_list=[],
                  loss_function=nn.BCELoss(),
                  performance_metrics=performance_evaluation_cv(),
-                 use_pretrain_weight=True):
+                 use_pretrain_weight=True,
+                 train_data_normal=False):
         self.model_class = model_class
         self.model_dict = model_dict
         self.model_name = model_name
@@ -183,6 +186,7 @@ class cv_trainer(object):
         self.n_fold = n_fold
         self.loss_function = loss_function
         self.total_epochs = total_epochs
+        self.train_data_normal = train_data_normal
 
         self.loss_stat = [{"train": [[] for i in range(self.total_epochs)],
                            "val": [[] for i in range(self.total_epochs)],
@@ -375,7 +379,8 @@ def put_parameters_to_trainer_cv(epochs=50,
                                  wd=1e-2,
                                  input_res=(3, 300, 300),
                                  out_list=True,
-                                 loss='BCE'):
+                                 loss='BCE',
+                                 train_data_normal=False):
     exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,
@@ -385,7 +390,8 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "wd": True,
                        "input_res": False,
                        "out_list": True,
-                       "loss": True
+                       "loss": True,
+                       "train_data_normal": True
                        }
 
     model_name = "TL"
@@ -430,7 +436,8 @@ def put_parameters_to_trainer_cv(epochs=50,
                                                                            total_epochs=epochs),
                              total_epochs=epochs,
                              lr_scheduler_list=[],
-                             loss_function=multi_label_loss(loss_function=loss))
+                             loss_function=multi_label_loss(loss_function=loss),
+                             train_data_normal=train_data_normal)
 
     return new_trainer
 
@@ -444,13 +451,45 @@ def merge_all_fold_trainer(list_of_trainer):
             first_trainer.idx_list[idx] = nth_folder_trainer.idx_list[idx]
     return first_trainer
 
-def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_data, cv_splits, gpu_count, n_batch):
+def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
+                               train_transform_list, val_transform_list,
+                               cv_splits, gpu_count, n_batch):
     cv_split = cv_splits[nth_fold]
     if torch.cuda.is_available():
         device = torch.device("cuda:{}".format(nth_fold % gpu_count))
         print(device)
     else:
         device = torch.device('cpu')
+    if not nth_trainer.train_data_normal:
+        img_net_normal = cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        train_transform_list.append(img_net_normal)
+        val_transform_list.append(img_net_normal)
+    else:
+        train_mean, train_std = get_normalization_mean_std_from_training_set(base_dataset_dict=base_dataset_dict,
+                                                                             train_idx=cv_split[0],
+                                                                             device=device,
+                                                                             train_transform_list=train_transform_list,
+                                                                             n_batch=n_batch)
+        train_normal = cvtransforms.Normalize(train_mean, train_std)
+        train_transform_list.append(train_normal)
+        val_transform_list.append(train_normal)
+
+    train_transforms = [
+        compose_input_output_transform(input_transform=cvtransforms.Compose(train_transform_list)),
+        ]
+    train_data = torch.utils.data.ConcatDataset([
+        base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
+                                          multi_label_gt_path=base_dataset_dict["gt_path"],
+                                          transform=t) for t in train_transforms])
+
+    val_transforms = [
+        compose_input_output_transform(input_transform=cvtransforms.Compose(val_transform_list)),
+    ]
+    val_data = torch.utils.data.ConcatDataset([
+        base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
+                                          multi_label_gt_path=base_dataset_dict["gt_path"],
+                                          transform=t) for t in val_transforms])
+
     train_data_loader = DataLoader(dataset=train_data, batch_size=n_batch, sampler=SubsetRandomSampler(cv_split[0]))
     val_data_loader = DataLoader(dataset=val_data, batch_size=n_batch, sampler=SubsetRandomSampler(cv_split[1]))
     print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
@@ -500,6 +539,28 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, train_data, val_da
 
     nth_trainer.model = None
     return nth_trainer
+
+def get_normalization_mean_std_from_training_set(base_dataset_dict, train_idx, device,
+                                                 train_transform_list, n_batch):
+    sampler = SubsetRandomSampler(train_idx)
+    simpler_transform = [train_transform_list[0], train_transform_list[-1]]
+    train_transforms = [
+        compose_input_output_transform(input_transform=cvtransforms.Compose(simpler_transform)),
+        ]
+    base_dataset = base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
+                                                     multi_label_gt_path=base_dataset_dict["gt_path"],
+                                                     transform=train_transforms)
+    train_data_loader = DataLoader(dataset=base_dataset, sampler=sampler)
+    train_data_stack = []
+    for batch_idx, data in enumerate(train_data_loader):
+        input = data['input'].to(device)
+        # if train_data_stack.shape[0] == 0:
+        train_data_stack.append(input.transpose_(0,-3).flatten(start_dim=1))
+    torch_stacked_input = torch.cat(train_data_stack, dim=1)
+    train_mean = torch_stacked_input.mean(dim=1)
+    train_std = torch_stacked_input.std(dim=1)
+    return train_mean, train_std
+
 
 
 def put_parameters_to_trainer_cv_nested(epochs=50,
@@ -567,6 +628,7 @@ def put_parameters_to_trainer_cv_nested(epochs=50,
                                                                            total_epochs=epochs),
                              total_epochs=epochs,
                              lr_scheduler_list=[],
-                             loss_function=bcel_multi_output())
+                             loss_function=bcel_multi_output(),
+                             )
 
     return new_trainer

@@ -65,52 +65,52 @@ if __name__ == "__main__":
                                   cvtransforms.RandomVerticalFlip(),
                                   cvtransforms.RandomRotation(90),
                                   cvtransforms.ToTensor(),
-                                  cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                  # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                   ]
 
     val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
                                 cvtransforms.ToTensor(),
-                                cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+                                # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                 ]
 
-    train_transforms = [
-        compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
-        ]
+    # train_transforms = [
+    #     compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
+    #     ]
 
     base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
                                                      multi_label_gt_path=gt_path,
                                                      transform=None)
 
-    train_dataset = torch.utils.data.ConcatDataset([
-        mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-                                          multi_label_gt_path=gt_path,
-                                          transform=t) for t in train_transforms])
+    # train_dataset = torch.utils.data.ConcatDataset([
+    #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+    #                                       multi_label_gt_path=gt_path,
+    #                                       transform=t) for t in train_transforms])
+    #
+    # # val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(val_input_transform_list)),
+    # #                   ]
+    #
+    # val_dataset = torch.utils.data.ConcatDataset([
+    #     mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+    #                                       multi_label_gt_path=gt_path,
+    #                                       transform=t) for t in val_transforms])
 
-    val_transforms = [compose_input_output_transform(input_transform=cvtransforms.Compose(val_input_transform_list)),
-                      ]
-
-    val_dataset = torch.utils.data.ConcatDataset([
-        mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
-                                          multi_label_gt_path=gt_path,
-                                          transform=t) for t in val_transforms])
-
-    num_classes = train_dataset[0]["gt"].shape[-1]
+    num_classes = base_dataset[0]["gt"].shape[-1]
     # Split data into cross-validation_set
     # cv_split_list = nfold_cross_validation(len(train_dataset), n_fold=2)
     # cv_split_list = nfold_cross_validation(4, n_fold=2)
-    cv_split_list = leave_one_out_cross_validation(len(train_dataset))
+    cv_split_list = leave_one_out_cross_validation(len(base_dataset))
     # cv_split_list = leave_one_out_cross_validation(2)
 
     running_states = ["train", "val"]
     n_fold = len(cv_split_list)
 
-    cv_data_loaders = [{"train": DataLoader(dataset=train_dataset,
-                                            batch_size=args.n_batch,
-                                            sampler=SubsetRandomSampler(train_idx)),
-                        "val": DataLoader(dataset=val_dataset,
-                                          batch_size=args.n_batch,
-                                          sampler=SubsetRandomSampler(val_idx))
-                        } for train_idx, val_idx in cv_split_list]
+    # cv_data_loaders = [{"train": DataLoader(dataset=train_dataset,
+    #                                         batch_size=args.n_batch,
+    #                                         sampler=SubsetRandomSampler(train_idx)),
+    #                     "val": DataLoader(dataset=val_dataset,
+    #                                       batch_size=args.n_batch,
+    #                                       sampler=SubsetRandomSampler(val_idx))
+    #                     } for train_idx, val_idx in cv_split_list]
 
     # Grid Search
 
@@ -134,7 +134,8 @@ if __name__ == "__main__":
                        "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [False],
-                       "loss": ["FL"]
+                       "loss": ["FL"],
+                       "train_data_normal": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
 
@@ -146,8 +147,13 @@ if __name__ == "__main__":
             specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
                                                     epochs=args.epochs,
                                                     nth_fold=nth_fold,
-                                                    train_data=train_dataset,
-                                                    val_data=val_dataset,
+                                                    base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
+                                                                        "datapath": args.datapath,
+                                                                        "gtpath": gt_path},
+                                                    train_transform_list=train_input_transform_list,
+                                                    val_transform_list=val_input_transform_list,
+                                                    # train_data=train_dataset,
+                                                    # val_data=val_dataset,
                                                     cv_splits=cv_split_list,
                                                     gpu_count=gpu_count,
                                                     n_batch=args.n_batch)
