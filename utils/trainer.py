@@ -544,6 +544,7 @@ def get_normalization_mean_std_from_training_set(base_dataset_dict, train_idx, d
                                                  train_transform_list, n_batch):
     sampler = SubsetRandomSampler(train_idx)
     simpler_transform = [train_transform_list[0], train_transform_list[-1]]
+    print(simpler_transform)
     train_transforms = [
         compose_input_output_transform(input_transform=cvtransforms.Compose(simpler_transform)),
         ]
