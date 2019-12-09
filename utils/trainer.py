@@ -455,6 +455,9 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
                                cv_splits, gpu_count, n_batch):
     cv_split = cv_splits[nth_fold]
+    train_transform_list_temp = train_transform_list.copy()
+    val_transform_list_temp = val_transform_list.copy()
+
     if torch.cuda.is_available():
         device = torch.device("cuda:{}".format(nth_fold % gpu_count))
         print(device)
@@ -462,20 +465,20 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
         device = torch.device('cpu')
     if not nth_trainer.train_data_normal:
         img_net_normal = cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        train_transform_list.append(img_net_normal)
-        val_transform_list.append(img_net_normal)
+        train_transform_list_temp.append(img_net_normal)
+        val_transform_list_temp.append(img_net_normal)
     else:
         train_mean, train_std = get_normalization_mean_std_from_training_set(base_dataset_dict=base_dataset_dict,
                                                                              train_idx=cv_split[0],
                                                                              device=device,
-                                                                             train_transform_list=train_transform_list,
+                                                                             train_transform_list=train_transform_list_temp,
                                                                              n_batch=n_batch)
         train_normal = cvtransforms.Normalize(train_mean, train_std)
-        train_transform_list.append(train_normal)
-        val_transform_list.append(train_normal)
+        train_transform_list_temp.append(train_normal)
+        val_transform_list_temp.append(train_normal)
 
     train_transforms = [
-        compose_input_output_transform(input_transform=cvtransforms.Compose(train_transform_list)),
+        compose_input_output_transform(input_transform=cvtransforms.Compose(train_transform_list_temp)),
         ]
     train_data = torch.utils.data.ConcatDataset([
         base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
@@ -483,7 +486,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                           transform=t) for t in train_transforms])
 
     val_transforms = [
-        compose_input_output_transform(input_transform=cvtransforms.Compose(val_transform_list)),
+        compose_input_output_transform(input_transform=cvtransforms.Compose(val_transform_list_temp)),
     ]
     val_data = torch.utils.data.ConcatDataset([
         base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],

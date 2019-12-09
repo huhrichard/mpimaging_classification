@@ -128,18 +128,18 @@ if __name__ == "__main__":
         specific_trainer = put_parameters_to_trainer_cv(**parameters)
         for nth_fold in range(n_fold):
             specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
-                                                    epochs=args.epochs,
-                                                    nth_fold=nth_fold,
-                                                    base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
+                                                          epochs=args.epochs,
+                                                          nth_fold=nth_fold,
+                                                          base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
                                                                         "datapath": args.datapath,
                                                                         "gt_path": gt_path},
-                                                    train_transform_list=train_input_transform_list,
-                                                    val_transform_list=val_input_transform_list,
-                                                    # train_data=train_dataset,
-                                                    # val_data=val_dataset,
-                                                    cv_splits=cv_split_list,
-                                                    gpu_count=gpu_count,
-                                                    n_batch=args.n_batch)
+                                                          train_transform_list_temp=train_input_transform_list,
+                                                          val_transform_list_temp=val_input_transform_list,
+                                                          # train_data=train_dataset,
+                                                          # val_data=val_dataset,
+                                                          cv_splits=cv_split_list,
+                                                          gpu_count=gpu_count,
+                                                          n_batch=args.n_batch)
 
         specific_trainer.evaluation()
         parametric_model_list.append(specific_trainer)
