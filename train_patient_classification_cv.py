@@ -117,7 +117,7 @@ if __name__ == "__main__":
                        "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [False],
-                       "loss": ["FL"],
+                       "loss": ["BCE"],
                        "train_data_normal": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)

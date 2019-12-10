@@ -329,7 +329,7 @@ def write_prediction_on_df(df, model_name, label_name, label_idx, predict_list, 
     for idx_pred, idx_for_df in enumerate(idx_list):
         pred = predict_list[idx_pred, label_idx]
         df.loc[idx_for_df, col_pred_name] = pred
-    df.loc[df[col_pred_name]==0, col_pred_name] = ' '
+    # df.loc[df[col_pred_name]==0, col_pred_name] = ' '
     return df
 
 

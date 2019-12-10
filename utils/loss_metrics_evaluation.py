@@ -79,7 +79,7 @@ class performance_val_evaluater(object):
         for metric in self.metrics_list:
             metric_func = globals()[metric]
             metric_score = metric_func(gt, predict)
-            performance_dict[metrics] = metric_score
+            performance_dict[metric] = metric_score
 
         return performance_dict
 
