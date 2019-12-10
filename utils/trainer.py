@@ -464,9 +464,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
     else:
         device = torch.device('cpu')
     if not nth_trainer.train_data_normal:
-        img_net_normal = cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        train_transform_list_temp.append(img_net_normal)
-        val_transform_list_temp.append(img_net_normal)
+        train_normal = cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     else:
         train_mean, train_std = get_normalization_mean_std_from_training_set(base_dataset_dict=base_dataset_dict,
                                                                              train_idx=cv_split[0],
@@ -474,8 +472,9 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                                                              train_transform_list=train_transform_list_temp,
                                                                              n_batch=n_batch)
         train_normal = cvtransforms.Normalize(train_mean, train_std)
-        train_transform_list_temp.append(train_normal)
-        val_transform_list_temp.append(train_normal)
+    print(train_normal)
+    train_transform_list_temp.append(train_normal)
+    val_transform_list_temp.append(train_normal)
 
     train_transforms = [
         compose_input_output_transform(input_transform=cvtransforms.Compose(train_transform_list_temp)),
