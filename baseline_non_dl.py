@@ -30,6 +30,7 @@ def trainer_inner(model, inner_train_idx, inner_val_idx, X, Y):
     inner_Y_val_predict = model.predict_proba(inner_X_val)
     binary = model.predict(inner_X_val)
     # print('Binary Predict:', binary)
+
     # print('Predict:', inner_Y_val_predict)
     inner_Y_val_predict_positive_score = np.array([predict[:,1] for predict in inner_Y_val_predict]).transpose(1,0)
     # print('Predict reshaped:', inner_Y_val_predict_positive_score)
@@ -49,10 +50,10 @@ if __name__ == "__main__":
 
     for img_name in img_names:
         img_path = find("*{}*".format(img_name), base_datapath)[0]
-        bgr_img = cv2.imread(img_path)
-        downscaled_img = cv2.resize(bgr_img, (img_resolution, img_resolution), cv2.INTER_LINEAR)
+        gray_img = cv2.imread(img_path, 0)/255.0
+        downscaled_img = cv2.resize(gray_img, (img_resolution, img_resolution), cv2.INTER_LINEAR)
         hog_features = feature.hog(downscaled_img, orientations=16, pixels_per_cell=(16, 16),
-                            cells_per_block=(1, 1), visualize=False, multichannel=True)
+                            cells_per_block=(1, 1), visualize=False)
 
         img_feature_list.append(hog_features)
         # gray_img = cv2.cvtColor(bgr_img.copy(), cv2.COLOR_BGR2GRAY)
@@ -61,11 +62,11 @@ if __name__ == "__main__":
         # img_feature_list.append(daisy_features.flatten())
 
     img_feature_list = np.array(img_feature_list).transpose(0,1)
-    print(img_feature_list.shape)
+    # print(img_feature_list.shape)
 
     params_list = list(ParameterGrid({"n_estimators": [10, 20, 50, 100],
                                       "class_weight":[None, "balanced", "balanced_subsample"],
-                                      "criterion": ["entropy"]}))
+                                      "criterion": ["entropy", "gini"]}))
 
     inner_cv = model_selection.LeaveOneGroupOut()
     outer_cv = model_selection.LeaveOneGroupOut()
@@ -94,11 +95,13 @@ if __name__ == "__main__":
         out_df = patient_df.copy()
 
     for params in params_list:
-        rfc = RandomForestClassifier(**params)
+        # rfc = RandomForestClassifier(**params)
+        rfc = ExtraTreesClassifier(**params)
         predicts = []
         gts = []
         val_indice = []
-        model_name = "RFC_" + str(params)[1:-1]
+        # model_name = "RFC_" + str(params)[1:-1]
+        model_name = "ETC_" + str(params)[1:-1]
         print(model_name)
         # for inner_train_idx, inner_val_idx in inner_cv.split(outer_X_train, outer_Y_train, outer_deids_train):
         for inner_train_idx, inner_val_idx in inner_cv.split(img_feature_list, y, deids):
