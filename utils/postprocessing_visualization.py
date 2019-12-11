@@ -297,7 +297,7 @@ def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_na
                 p_idx = img_idx+idx_for_trainer*len(img_path_list)
                 # print(p_idx)
                 p = pred[p_idx][out_label_idx]
-                g = gt[p_idx][out_label_idx]
+                # g = gt[p_idx][out_label_idx]
                 # print(img_trimmed_path,':')
                 # print('{} predict: {}, gt: {}'.format(out_label_name, p, g))
                 # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
@@ -311,12 +311,10 @@ def write_scores_on_df_DL(trainers, df, metrics, state, out_label='', out_idx=No
 
     for trainer in trainers:
         for metric in metrics:
+            col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
             if out_idx is None:
-                col_metric_name = "{}_{}_{}".format(metric, state, trainer.model_name)
-                # print(trainer.performance_stat[metric][state][epoch_as_final])
                 df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
             else:
-                col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
                 df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
 
     return df

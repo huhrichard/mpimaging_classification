@@ -14,146 +14,6 @@ from cvtorchvision import cvtransforms
 from utils.preprocess_data_transform import compose_input_output_transform
 
 
-# class trainer(object):
-#     def __init__(self,
-#                  model_class,
-#                  model_dict,
-#                  model_name,
-#                  optimizer,
-#                  n_fold,
-#                  total_epochs,
-#                  lr_scheduler_list=[],
-#                  loss_function=nn.BCELoss(),
-#                  performance_metrics=performance_evaluation(),
-#                  use_pretrain_weight=True):
-#         self.model_class = model_class
-#         self.model_dict = model_dict
-#         self.model = self.model_class(**self.model_dict)
-#         self.model_name = model_name
-#         if use_pretrain_weight is not True:
-#             self.weight_init(self.model)
-#
-#         self.optimizer = optimizer
-#         self.lr_scheduler_list = lr_scheduler_list
-#         # self.n_batches = n_batches
-#         self.loss_function = loss_function
-#         self.total_epochs = total_epochs
-#         self.loss_stat = {"train": [[] for i in range(self.total_epochs)],
-#                           "val": [[] for i in range(self.total_epochs)],
-#                           "test": [[] for i in range(self.total_epochs)]}
-#         self.best_model = None
-#         self.performance_metrics = performance_metrics
-#         self.performance_stat = {"train": [],
-#                                  "val": [],
-#                                  "test": []}
-#         self.prediction_list = {"train": [[] for i in range(self.total_epochs)],
-#                                 "val": [[] for i in range(self.total_epochs)],
-#                                 "test": [[] for i in range(self.total_epochs)]}
-#         self.gt_list = {"train": [[] for i in range(self.total_epochs)],
-#                         "val": [[] for i in range(self.total_epochs)],
-#                         "test": [[] for i in range(self.total_epochs)]}
-#         self.old_epochs = 0
-#
-#     def running_model(self, input, gt, epoch, running_state):
-#         predict_for_result, predict_for_loss_function = self.model(input)
-#         # print('p for loss', predict_for_loss_function)
-#         # print('p for result', predict_for_result)
-#         # print('gt', gt)
-#         loss = self.loss_function(predict_for_loss_function, gt)
-#
-#         if running_state == "train":
-#             # print("{} loss:{}".format(running_state, loss))
-#             self.optimizer.zero_grad()
-#             loss.backward()
-#             self.optimizer.step()
-#
-#         loss, predict, gt = loss.detach().cpu(), \
-#                             predict_for_result.detach().cpu(), \
-#                             gt.detach().cpu()
-#
-#         self.loss_stat[running_state][epoch].append(loss)
-#         self.prediction_list[running_state][epoch].append(predict)
-#         self.gt_list[running_state][epoch].append(gt)
-#
-#         return loss, predict
-#
-#     def evaluation(self, running_state, epoch):
-#         print("{} running state: {} {}".format("*" * 5, running_state, "*" * 5))
-#
-#         self.prediction_list[running_state][epoch] = torch.cat(self.prediction_list[running_state][epoch], dim=0)
-#         self.gt_list[running_state][epoch] = torch.cat(self.gt_list[running_state][epoch], dim=0)
-#
-#         metrics_dict = self.performance_metrics.eval(self.prediction_list[running_state][epoch],
-#                                                      self.gt_list[running_state][epoch])
-#
-#         # print("# {} epoch performance ({}):".format(epoch, running_state))
-#         self.performance_stat[running_state].append(metrics_dict)
-#
-#         return metrics_dict
-#
-#     def inference(self, input, device):
-#         self.model = self.model.to(device)
-#         input = input.to(device)
-#         return self.model(input)
-#
-#     # def model_change_device(self, device):
-#
-#     def weight_init(self, *models, pretrained_weights):
-#         torch.manual_seed(0)
-#         for model in models:
-#             # print(model)
-#             modules_list = list(model.modules())
-#
-#             for idx, module in enumerate(modules_list):
-#                 # print('test',idx,  module)
-#                 # print('test_idx', list(model.modules())[idx])
-#                 if isinstance(module, nn.Conv2d):
-#                     """Searching next activation function"""
-#                     activation_not_found = True
-#                     alpha = 0
-#                     non_linearity = ''
-#                     next_idx = idx + 1
-#                     while activation_not_found:
-#                         # print(modules_list[next_idx])
-#                         if next_idx == len(modules_list):
-#                             alpha = 1
-#                             non_linearity = 'sigmoid'
-#                             activation_not_found = False
-#                         elif isinstance(modules_list[next_idx], nn.PReLU):
-#                             alpha = float(modules_list[next_idx].weight.mean())
-#                             non_linearity = 'leaky_relu'
-#                             activation_not_found = False
-#                         elif isinstance(modules_list[next_idx], nn.Sigmoid):
-#                             alpha = 1
-#                             non_linearity = 'sigmoid'
-#                             activation_not_found = False
-#                         elif isinstance(modules_list[next_idx], nn.ReLU):
-#                             alpha = 0
-#                             non_linearity = 'relu'
-#                             activation_not_found = False
-#                         next_idx += 1
-#
-#                     if module.bias is None:
-#                         # print(module)
-#                         module.weight.data.zero_()
-#                         # module.bias.data.zero_()
-#                     else:
-#                         module.bias.data.zero_()
-#                         # makeDeltaOrthogonal(module.weight, nn.init.calculate_gain(non_linearity, alpha))
-#                         nn.init.kaiming_normal_(module.weight, a=alpha, nonlinearity=non_linearity)
-#                         # nn.init.xavier_normal_(module.weight, gain=math.sqrt(2/(1+0.25**2)))
-#                 elif isinstance(module, nn.Linear):
-#                     # makeDeltaOrthogonal(module.weight, 1)
-#                     nn.init.orthogonal_(module.weight)
-#                     # if module.bias is not None:
-#                     #     module.bias.data.zero_()
-#                     # nn.init.kaiming_normal_(module.bias)
-#                 elif isinstance(module, nn.BatchNorm2d) or isinstance(module, nn.GroupNorm):
-#                     # print(module.weight, module.bias)
-#                     nn.init.uniform_(module.weight)
-#                     module.bias.data.zero_()
-
-
 class cv_trainer(object):
     def __init__(self,
                  model_class,
@@ -196,12 +56,16 @@ class cv_trainer(object):
         self.performance_stat = [{"train": [],
                                   "val": [],
                                   "test": []}]
+        # self.performance_stat_by_patients = [{"train": [],
+        #                                     "val": [],
+        #                                     "test": []}]
         self.prediction_list = [{"train": [[] for i in range(self.total_epochs)],
                                  "val": [[] for i in range(self.total_epochs)],
                                  "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
         self.gt_list = [{"train": [[] for i in range(self.total_epochs)],
                          "val": [[] for i in range(self.total_epochs)],
                          "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
+
         self.idx_list = [{"train": [[] for i in range(self.total_epochs)],
                          "val": [[] for i in range(self.total_epochs)],
                          "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
@@ -258,15 +122,15 @@ class cv_trainer(object):
                 self.prediction_list[nth_fold][running_state] = np_p
                 self.gt_list[nth_fold][running_state] = np_t
                 # print(np_p, np_t)
-        metrics_dict = self.performance_metrics.eval(self.prediction_list,
-                                             self.gt_list, running_states)
+        metrics_by_images = self.performance_metrics.eval(self.prediction_list,
+                                                          self.gt_list, running_states)
 
 
-        self.performance_stat = metrics_dict
+        self.performance_stat = metrics_by_images
         # print("# {} epoch performance ({}):".format(epoch, running_state))
         # self.performance_stat[running_state].append(metrics_dict)
 
-        return metrics_dict
+        return metrics_by_images
 
     def check_grad(self):
         for param in self.model.parameters():
@@ -453,7 +317,7 @@ def merge_all_fold_trainer(list_of_trainer):
 
 def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
-                               cv_splits, gpu_count, n_batch):
+                               cv_splits, gpu_count, n_batch, label_idx):
     cv_split = cv_splits[nth_fold]
     train_transform_list_temp = train_transform_list.copy()
     val_transform_list_temp = val_transform_list.copy()
@@ -514,7 +378,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
             for batch_idx, data in enumerate(cv_data_loader):
                 # print(batch_idx)
                 input = data['input']
-                gt = data['gt']
+                gt = data['gt'][...,label_idx].unsqueeze(-1)
                 idx = data['idx']
                 # print(idx, gt)
                 input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)

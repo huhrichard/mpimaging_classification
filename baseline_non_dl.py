@@ -64,7 +64,7 @@ if __name__ == "__main__":
     img_feature_list = np.array(img_feature_list).transpose(0,1)
     # print(img_feature_list.shape)
 
-    params_list = list(ParameterGrid({"n_estimators": [10, 20, 50, 100],
+    params_list = list(ParameterGrid({"n_estimators": [10, 20, 50],
                                       "class_weight":[None, "balanced", "balanced_subsample"],
                                       "criterion": ["entropy", "gini"]}))
 
@@ -95,13 +95,13 @@ if __name__ == "__main__":
         out_df = patient_df.copy()
 
     for params in params_list:
-        # rfc = RandomForestClassifier(**params)
+        rfc = RandomForestClassifier(**params)
         rfc = ExtraTreesClassifier(**params)
         predicts = []
         gts = []
         val_indice = []
-        # model_name = "RFC_" + str(params)[1:-1]
-        model_name = "ETC_" + str(params)[1:-1]
+        model_name = "RFC_" + str(params)[1:-1]
+        # model_name = "ETC_" + str(params)[1:-1]
         print(model_name)
         # for inner_train_idx, inner_val_idx in inner_cv.split(outer_X_train, outer_Y_train, outer_deids_train):
         for inner_train_idx, inner_val_idx in inner_cv.split(img_feature_list, y, deids):

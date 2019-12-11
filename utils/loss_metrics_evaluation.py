@@ -218,7 +218,23 @@ def balanced_acc_by_label(predict, gt):
         # print("g:", g[:, idx])
         score_list.append(metrics.balanced_accuracy_score(g[:, idx], p[:, idx]))
     return score_list
-    # return metrics.(y_pred=p, y_true=g)
+
+def balanced_acc_by_img(predict, gt):
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
+    g = gt.astype(int)
+    return metrics.balanced_accuracy_score(g, p)
+
+def balanced_acc_by_patient(predict, gt):
+    imgs_per_patient = 5
+    gt = np.mean(gt.reshape(imgs_per_patient, -1, gt.shape[-1], order='F'), axis=0)
+    predict = np.mean(predict.reshape(imgs_per_patient, -1, predict.shape[-1], order='F'), axis=0)
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
+    g = gt.astype(int)
+    return metrics.balanced_accuracy_score(g, p)
 
 def f1_by_sample(gt, predict):
     p = np.ones_like(predict)
@@ -236,6 +252,49 @@ def f1_by_label(gt, predict):
     p = p.astype(int)
     g = gt.astype(int)
     return evaluate_with_multi_label_classification(g, p, metrics.f1_score)
+
+def f1_by_img(gt, predict):
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
+    g = gt.astype(int)
+    return metrics.f1_score(g, p)
+
+def f1_by_patient(gt, predict):
+    imgs_per_patient = 5
+    gt = np.mean(gt.reshape(imgs_per_patient, -1, gt.shape[-1], order='F'), axis=0)
+    predict = np.mean(predict.reshape(imgs_per_patient, -1, predict.shape[-1], order='F'), axis=0)
+    p = np.ones_like(predict)
+    p[predict <= 0.5] = 0
+    p = p.astype(int)
+    g = gt.astype(int)
+    return metrics.f1_score(g, p)
+
+def auc_by_img(gt, predict): return metrics.roc_auc_score(gt, predict)
+
+def ap_by_img(gt, predict): return metrics.average_precision_score(gt, predict)
+
+def fmax_by_img(gt, predict): return f_max(gt, predict)
+
+def pmax_by_img(gt, predict): return p_max(gt, predict)
+
+def rmax_by_img(gt, predict): return r_max(gt, predict)
+
+
+def auc_by_patient(gt, predict):
+    return evaluate_by_patients(gt, predict, metrics.roc_auc_score)
+
+def ap_by_patient(gt, predict):
+    return evaluate_by_patients(gt, predict, metrics.average_precision_score)
+
+def fmax_by_patient(gt, predict):
+    return evaluate_by_patients(gt, predict, f_max)
+
+def pmax_by_patient(gt, predict):
+    return evaluate_by_patients(gt, predict, p_max)
+
+def rmax_by_patient(gt, predict):
+    return evaluate_by_patients(gt, predict, r_max)
 
 
 
@@ -262,6 +321,13 @@ def evaluate_with_multi_label_classification(g, p, func):
         score_list.append(func(g[:, c], p[:, c]))
 
     return score_list
+
+def evaluate_by_patients(g, p, func):
+    imgs_per_patient = 5
+    g = np.mean(g.reshape(imgs_per_patient, -1, g.shape[-1], order='F'), axis=0)
+    p = np.mean(p.reshape(imgs_per_patient, -1, p.shape[-1], order='F'), axis=0)
+    return func(g, p)
+
 
 class loss_func(nn.Module):
     pass

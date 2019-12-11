@@ -15,7 +15,7 @@ import time
 from utils.postprocessing_visualization import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
-from utils.configs import parameters_grid, metric_list
+from utils.configs import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
@@ -99,33 +99,14 @@ if __name__ == "__main__":
     # Grid Search
     parameters_grid["epochs"] = [args.epochs]
     parameters_grid["num_classes"] = [num_classes]
+    parameters_grid["num_classes"] = [1]
     parameters_grid["n_fold"] = [n_fold]
     parameters_grid["device"] = [device]
 
 
     list_parameters = ParameterGrid(parameters_grid)
 
-    parametric_model_list = []
-    for parameters in list_parameters:
-        trainer_list = []
-        specific_trainer = put_parameters_to_trainer_cv(**parameters)
-        for nth_fold in range(n_fold):
-            specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
-                                                          epochs=args.epochs,
-                                                          nth_fold=nth_fold,
-                                                          base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
-                                                                        "datapath": args.datapath,
-                                                                        "gt_path": gt_path},
-                                                          train_transform_list=train_input_transform_list,
-                                                          val_transform_list=val_input_transform_list,
-                                                          # train_data=train_dataset,
-                                                          # val_data=val_dataset,
-                                                          cv_splits=cv_split_list,
-                                                          gpu_count=gpu_count,
-                                                          n_batch=args.n_batch)
-
-        specific_trainer.evaluation()
-        parametric_model_list.append(specific_trainer)
+    label_list = base_dataset.label_name
 
     result_path = args.datapath + "patient_classify_result/"
     result_csv_name = result_path + 'result.csv'
@@ -133,41 +114,66 @@ if __name__ == "__main__":
         out_df = pandas.read_csv(result_csv_name)
     else:
         out_df = base_dataset.multi_label_df.copy()
-    label_list = base_dataset.label_name
-
-    # label_name_list = train_val_dataset.label_name
-
-    # label_list = ['Gleason score',"BCR", "AP", "EPE"]
-    # label_list = ["BCR", "AP", "EPE"]
-
+    metrics = img_metric_list
     for idx, label_name in enumerate(label_list):
+        print("Current label predicting:", label_name)
+        if idx == 0:
+            metrics = img_metric_list
+        else:
+            metrics = img_metric_list + patient_metric_list
+        print(metrics)
+        parametric_model_list = []
+        for parameters in list_parameters:
+            trainer_list = []
+            parameters['performance_metrics_list'] = metrics
+            specific_trainer = put_parameters_to_trainer_cv(**parameters)
+            for nth_fold in range(n_fold):
+                specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
+                                                              epochs=args.epochs,
+                                                              nth_fold=nth_fold,
+                                                              base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset,
+                                                                            "datapath": args.datapath,
+                                                                            "gt_path": gt_path},
+                                                              train_transform_list=train_input_transform_list,
+                                                              val_transform_list=val_input_transform_list,
+                                                              label_idx=idx,
+                                                              cv_splits=cv_split_list,
+                                                              gpu_count=gpu_count,
+                                                              n_batch=args.n_batch)
+
+            specific_trainer.evaluation()
+            parametric_model_list.append(specific_trainer)
+
+
+
+
+        # label_name_list = train_val_dataset.label_name
+
+        # label_list = ['Gleason score',"BCR", "AP", "EPE"]
+        # label_list = ["BCR", "AP", "EPE"]
+
+
         out_df = write_prediction_on_df_DL(trainers=parametric_model_list,
                                            df=out_df,
                                            state='val',
                                            patient_dataset=base_dataset,
                                            out_label_name=label_name,
-                                           out_label_idx=idx
+                                           out_label_idx=0
                                            )
         out_df = write_scores_on_df_DL(trainers=parametric_model_list,
                                        df=out_df,
-                                       metrics=metric_list[1:],
+                                       metrics=metrics,
                                        state='val',
-                                       out_label=label_name,
-                                       out_idx=idx)
+                                       out_label=label_name)
         compare_model_cv(parametric_model_list, result_path,
-                         output_label=label_name, output_idx=idx,
-                         multi_label_classify=True, metrics=metric_list[1:],
+                         output_label=label_name, output_idx=0,
+                         multi_label_classify=False, metrics=metrics,
                          )
 
-        # some metric can't be evaluated when only one class is in the training set
-        # compare_model_cv(parametric_model_list, result_path,
-        #                  output_label=label_name, output_idx=idx,
-        #                  multi_label_classify=True, metrics=metric_list[3], )
+            # some metric can't be evaluated when only one class is in the training set
+            # compare_model_cv(parametric_model_list, result_path,
+            #                  output_label=label_name, output_idx=idx,
+            #                  multi_label_classify=True, metrics=metric_list[3], )
 
-    compare_model_cv(parametric_model_list, result_path, metrics=['f1_by_sample'])
-    out_df = write_scores_on_df_DL(trainers=parametric_model_list,
-                                   df=out_df,
-                                   metrics=metric_list[:1],
-                                   state='val')
     out_df.fillna(' ')
     out_df.to_csv(result_path + 'result.csv', index=None, header=True)
