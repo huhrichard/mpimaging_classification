@@ -43,6 +43,7 @@ args = parser.parse_args()
 print(args)
 
 n_jobs = gpu_count if using_gpu else 1
+print("Parallel run with {} jobs tgt.".format(n_jobs))
 # print("# Batch: ",)
 input_tensor_size = (300, 300)
 
