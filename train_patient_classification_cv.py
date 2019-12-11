@@ -108,16 +108,16 @@ if __name__ == "__main__":
                        "n_fold": [n_fold],
                        "performance_metrics_list": [metric_list],
                        "device": [device],
-                       "p_model": ["resnext101_32x8d"],
-                       # "p_model": ["resnet18"],
+                       # "p_model": ["resnext101_32x8d"],
+                       "p_model": ["resnet18"],
                        # "p_model": ["wide_resnet101_2"],
                        "p_weight": [True],
                        "feat_ext": [False],
-                       "lr": [1e-7],
+                       "lr": [1e-8],
                        "wd": [1e-3],
                        "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                        "out_list": [False],
-                       "loss": ["BCE"],
+                       "loss": ["FL"],
                        "train_data_normal": [True]
                        }
     list_parameters = ParameterGrid(parameters_grid)
