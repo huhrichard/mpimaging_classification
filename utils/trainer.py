@@ -86,7 +86,7 @@ class cv_trainer(object):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-            # b = list(self.model.parameters())[0].clone()
+            b = list(self.model.parameters())[0].clone()
             # print('a=b?', torch.equal(a.data, b.data))
 
 

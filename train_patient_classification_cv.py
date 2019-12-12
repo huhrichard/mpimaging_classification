@@ -108,12 +108,8 @@ if __name__ == "__main__":
 
     label_list = base_dataset.label_name
 
-    result_path = args.datapath + "patient_classify_result/"
-    result_csv_name = result_path + 'result.csv'
-    if os.path.exists(result_csv_name):
-        out_df = pandas.read_csv(result_csv_name)
-    else:
-        out_df = base_dataset.multi_label_df.copy()
+
+
     metrics = img_metric_list
     for idx, label_name in enumerate(label_list):
         print("Current label predicting:", label_name)
@@ -170,10 +166,19 @@ if __name__ == "__main__":
                          multi_label_classify=False, metrics=metrics,
                          )
 
+        result_path = args.datapath + "patient_classify_result/"
+        result_csv_name = result_path + 'result.csv'
+        if os.path.exists(result_csv_name):
+            out_df = pandas.read_csv(result_csv_name)
+        else:
+            out_df = base_dataset.multi_label_df.copy()
+
+        out_df.fillna(' ')
+        out_df.to_csv(result_path + 'result.csv', index=None, header=True)
+
             # some metric can't be evaluated when only one class is in the training set
             # compare_model_cv(parametric_model_list, result_path,
             #                  output_label=label_name, output_idx=idx,
             #                  multi_label_classify=True, metrics=metric_list[3], )
 
-    out_df.fillna(' ')
-    out_df.to_csv(result_path + 'result.csv', index=None, header=True)
+

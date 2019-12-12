@@ -29,10 +29,10 @@ parameters_grid = {
                    # "p_model": ["wide_resnet101_2"],
                    "p_weight": [True],
                    "feat_ext": [False],
-                   "lr": [1e-8],
+                   "lr": [1e-7],
                    "wd": [1e-3],
                    # "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
                    "out_list": [False],
-                   "loss": ["FL"],
+                   "loss": ["BCE"],
                    "train_data_normal": [True]
                    }
