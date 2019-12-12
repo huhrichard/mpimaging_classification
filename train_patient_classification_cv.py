@@ -147,7 +147,12 @@ if __name__ == "__main__":
 
         # label_list = ['Gleason score',"BCR", "AP", "EPE"]
         # label_list = ["BCR", "AP", "EPE"]
-
+        result_path = args.datapath + "patient_classify_result/"
+        result_csv_name = result_path + 'result.csv'
+        if os.path.exists(result_csv_name):
+            out_df = pandas.read_csv(result_csv_name)
+        else:
+            out_df = base_dataset.multi_label_df.copy()
 
         out_df = write_prediction_on_df_DL(trainers=parametric_model_list,
                                            df=out_df,
@@ -166,12 +171,7 @@ if __name__ == "__main__":
                          multi_label_classify=False, metrics=metrics,
                          )
 
-        result_path = args.datapath + "patient_classify_result/"
-        result_csv_name = result_path + 'result.csv'
-        if os.path.exists(result_csv_name):
-            out_df = pandas.read_csv(result_csv_name)
-        else:
-            out_df = base_dataset.multi_label_df.copy()
+
 
         out_df.fillna(' ')
         out_df.to_csv(result_path + 'result.csv', index=None, header=True)
