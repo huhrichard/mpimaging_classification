@@ -27,7 +27,7 @@ parameters_grid = {
                    # "p_model": ["resnext101_32x8d"],
                    "p_model": ["resnet18"],
                    # "p_model": ["wide_resnet101_2"],
-                   "p_weight": [True],
+                   "p_weight": [False],
                    "feat_ext": [False],
                    "lr": [1e-7],
                    "wd": [1e-3],
