@@ -240,7 +240,7 @@ def leave_one_out_cross_validation(len_data):
 def leave_one_patient_out_cross_validation(len_data, patient_deid):
     logo = LeaveOneGroupOut()
     cv_rand_idx = np.random.permutation(len_data)
-    cv_split_list = list(logo.split(cv_rand_idx, groups=patient_deid))
+    cv_split_list = list(logo.split(cv_rand_idx, cv_rand_idx, groups=patient_deid))
 
     return cv_split_list
 
