@@ -170,23 +170,24 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         self.gt_list = []
 
         for idx, img_prefix in enumerate(self.img_prefixes):
-            if self.notes[idx] != "" or skip_with_notes is False:
-                path_list = find("{}*".format(img_prefix), img_dir)
-                # prin t(path_list)
-                self.patient_img_list.append(path_list[0])
-                self.patient_deid_list.append(self.deids[idx])
-                self.row_idx_list.append(idx)
-                if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
-                    g_score = 0
-                else:
-                    g_score = 1
-                g_score = np.array([g_score]).astype(float)
-                other_label = np.array(self.multi_label_df.loc[idx, self.label_name].astype(float))
-                if included_gscore:
-                    self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
-                    # print(self.gt_list[-1])
-                else:
-                    self.gt_list.append(np.concatenate([other_label], axis=-1))
+            if self.notes[idx] != "" and skip_with_notes:
+                continue
+            path_list = find("{}*".format(img_prefix), img_dir)
+            # prin t(path_list)
+            self.patient_img_list.append(path_list[0])
+            self.patient_deid_list.append(self.deids[idx])
+            self.row_idx_list.append(idx)
+            if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
+                g_score = 0
+            else:
+                g_score = 1
+            g_score = np.array([g_score]).astype(float)
+            other_label = np.array(self.multi_label_df.loc[idx, self.label_name].astype(float))
+            if included_gscore:
+                self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
+                # print(self.gt_list[-1])
+            else:
+                self.gt_list.append(np.concatenate([other_label], axis=-1))
 
         self.patient_deid_list = np.expand_dims(np.array(self.patient_deid_list).astype(int), axis=-1)
         self.row_idx_list = np.expand_dims(np.array(self.row_idx_list).astype(int), axis=-1)
@@ -196,7 +197,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.patient_unique_deid_list)
+        return len(self.patient_img_list)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
