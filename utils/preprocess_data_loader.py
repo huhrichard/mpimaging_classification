@@ -176,11 +176,11 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
                 self.patient_img_list.append(path_list[0])
                 self.patient_deid_list.append(self.deids[idx])
                 self.row_idx_list.append(idx)
-                g_score = self.multi_label_df['Gleason score for TMA core'][idx]
-                g_score[g_score != "Normal"] = 1
-                g_score[g_score == "Normal"] = 0
-                g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
-                # print(g_score)
+                if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
+                    g_score = 0
+                else:
+                    g_score = 1
+                g_score = np.array([g_score]).astype(float)
                 other_label = np.array(self.multi_label_df[self.label_name][idx].astype(float))
                 if included_gscore:
                     self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))

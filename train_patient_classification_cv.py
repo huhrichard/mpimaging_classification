@@ -184,7 +184,7 @@ if __name__ == "__main__":
                          output_label=label_name, output_idx=0,
                          multi_label_classify=False, metrics=metrics,
                          )
-        
+
         out_df.fillna(' ')
         out_df.to_csv(result_path + 'result.csv', index=None, header=True)
 
