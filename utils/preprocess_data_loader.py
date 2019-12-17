@@ -176,8 +176,8 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
             path_list = find("{}*".format(img_prefix), img_dir)
             # prin t(path_list)
             self.patient_img_list.append(path_list[0])
-            self.patient_deid_list.append(self.deids[idx])
-            self.row_idx_list.append(idx)
+            self.patient_deid_list.append([self.deids[idx]])
+            self.row_idx_list.append([idx])
             if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
                 g_score = 0
             else:
@@ -190,8 +190,8 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
             else:
                 self.gt_list.append(np.concatenate([other_label], axis=-1))
 
-        self.patient_deid_list = np.expand_dims(np.array(self.patient_deid_list).astype(int), axis=-1)
-        self.row_idx_list = np.expand_dims(np.array(self.row_idx_list).astype(int), axis=-1)
+        self.patient_deid_list = np.array(self.patient_deid_list).astype(int)
+        self.row_idx_list = np.array(self.row_idx_list).astype(int)
 
         if included_gscore:
             self.label_name = ['Gleason score for TMA core'] + self.label_name
@@ -238,9 +238,10 @@ def leave_one_out_cross_validation(len_data):
     return cv_split_list
 
 def leave_one_patient_out_cross_validation(len_data, patient_deid):
+    print(len_data, patient_deid.shape)
     logo = LeaveOneGroupOut()
     cv_rand_idx = np.random.permutation(len_data)
-    cv_split_list = list(logo.split(cv_rand_idx, cv_rand_idx, groups=patient_deid))
+    cv_split_list = list(logo.split(cv_rand_idx, cv_rand_idx, groups=patient_deid.squeeze()))
 
     return cv_split_list
 
