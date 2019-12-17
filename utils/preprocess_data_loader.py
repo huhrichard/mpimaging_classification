@@ -3,7 +3,7 @@ import cvtorchvision
 from torch.utils.data import Dataset, DataLoader
 import pandas
 import os, fnmatch
-from sklearn.model_selection import KFold, LeaveOneOut
+from sklearn.model_selection import KFold, LeaveOneOut, LeaveOneGroupOut
 
 
 def find(pattern, path):
@@ -68,7 +68,7 @@ class mpImage_sorted_by_image_dataset(Dataset):
 # TODO: Load data by patient ID
 class mpImage_sorted_by_patient_dataset(Dataset):
     def __init__(self, img_dir, multi_label_gt_path, img_suffix=None,
-                 transform=None, skip_damaged=False, included_gscore=True):
+                 transform=None, skip_with_notes=True, included_gscore=True):
         """
 
         :param img_path:
@@ -77,57 +77,140 @@ class mpImage_sorted_by_patient_dataset(Dataset):
         """
 
         self.multi_label_df = pandas.read_csv(multi_label_gt_path)
-        self.patient_id_list = self.multi_label_df["Deidentifier patient number"].unique()
+        self.patient_unique_deid_list = self.multi_label_df["Deidentifier patient number"].unique()
 
         self.label_name = ["BCR", "AP", "EPE"]
         # self.g_score
         # self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
 
         self.patient_img_list = []
+        self.patient_deid_list = []
+        notes = "Notes"
 
         # self.img_df = pandas.read_csv(image_deidentify_path)
         self.gt_list = []
-        for idx, patient_id in enumerate(self.patient_id_list):
+
+        for p_idx, patient_id in enumerate(self.patient_unique_deid_list):
             patient_entry = self.multi_label_df[self.multi_label_df["Deidentifier patient number"] == patient_id]
             img_files = patient_entry['MPM image file per TMA core ']
+            notes_entry = patient_entry[notes]
 
             # print(img_files)
-            img_list = []
-            for img_file in img_files:
-                path_list = find("{}*".format(img_file), img_dir)
+            # img_list = []
+            for img_idx, img_file in enumerate(img_files):
+                if notes_entry[img_idx] == '' and skip_with_notes:
+                    path_list = find("{}*".format(img_file), img_dir)
                 # prin t(path_list)
-                img_list.append(path_list[0])
-            self.patient_img_list.append(img_list)
-            g_score = patient_entry['Gleason score for TMA core']
-            g_score[g_score!="Normal"] = 1
-            g_score[g_score=="Normal"] = 0
-            g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
-            # print(g_score)
-            other_label = np.array(patient_entry[self.label_name].astype(float))
-            if included_gscore:
-                self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
-                # print(self.gt_list[-1])
-            else:
-                self.gt_list.append(np.concatenate([other_label], axis=-1))
+                    self.patient_img_list.append(path_list[0])
+                    self.patient_deid_list.append(patient_id)
+            # self.patient_img_list.append(img_list)
+                    g_score = patient_entry[p_idx]['Gleason score for TMA core']
+                    g_score[g_score!="Normal"] = 1
+                    g_score[g_score=="Normal"] = 0
+                    g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
+                    # print(g_score)
+                    other_label = np.array(patient_entry[p_idx][self.label_name].astype(float))
+                    if included_gscore:
+                        self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
+                        # print(self.gt_list[-1])
+                    else:
+                        self.gt_list.append(np.concatenate([other_label], axis=-1))
+        self.patient_deid_list = np.expand_dims(np.array(self.patient_deid_list).astype(int), axis=-1)
         if included_gscore:
             self.label_name = ['Gleason score for TMA core'] + self.label_name
         self.transform = transform
 
     def __len__(self):
-        return len(self.patient_id_list)
+        return len(self.patient_unique_deid_list)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         # print(self.patient_img_list[idx])
-        sample = {'input': [cv2.cvtColor(cv2.imread(patient_img), cv2.COLOR_BGR2RGB) for patient_img in self.patient_img_list[idx]],
+        sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB),
                   'gt': torch.from_numpy(self.gt_list[idx]),
-                  'idx': torch.Tensor([idx])}
+                  'deid': torch.from_numpy(self.patient_deid_list[idx])}
         # print(sample["input"])
 
         if self.transform:
             sample = self.transform(sample)
-        sample['input'] = torch.stack(sample['input'], dim=0)
+        # sample['input'] = torch.stack(sample['input'], dim=0)
+
+        return sample
+
+
+class mpImage_sorted_by_patient_dataset_2(Dataset):
+    def __init__(self, img_dir, multi_label_gt_path, img_suffix=None,
+                 transform=None, skip_with_notes=True, included_gscore=True):
+        """
+
+        :param img_path:
+        :param multi_label_gt_path:
+        :param img_suffix:
+        """
+
+        self.multi_label_df = pandas.read_csv(multi_label_gt_path)
+        self.patient_unique_deid_list = self.multi_label_df["Deidentifier patient number"].unique()
+        self.img_prefixes = self.multi_label_df["MPM image file per TMA core "]
+        self.deids = self.multi_label_df["Deidentifier patient number"]
+        self.notes = self.multi_label_df["Notes"]
+
+
+        self.label_name = ["BCR", "AP", "EPE"]
+        # self.g_score
+        # self.multi_label_gt_list = np.array(self.multi_label_df[self.label_name])
+
+        self.patient_img_list = []
+        self.patient_deid_list = []
+        self.row_idx_list = []
+        self.gt_list = []
+        # notes = "Notes"
+
+        # self.img_df = pandas.read_csv(image_deidentify_path)
+        self.gt_list = []
+
+        for idx, img_prefix in enumerate(self.img_prefixes):
+            if self.notes[idx] != "" or skip_with_notes is False:
+                path_list = find("{}*".format(img_prefix), img_dir)
+                # prin t(path_list)
+                self.patient_img_list.append(path_list[0])
+                self.patient_deid_list.append(self.deids[idx])
+                self.row_idx_list.append(idx)
+                g_score = self.multi_label_df['Gleason score for TMA core'][idx]
+                g_score[g_score != "Normal"] = 1
+                g_score[g_score == "Normal"] = 0
+                g_score = np.expand_dims(np.array(g_score).astype(float), axis=-1)
+                # print(g_score)
+                other_label = np.array(self.multi_label_df[self.label_name][idx].astype(float))
+                if included_gscore:
+                    self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
+                    # print(self.gt_list[-1])
+                else:
+                    self.gt_list.append(np.concatenate([other_label], axis=-1))
+
+        self.patient_deid_list = np.expand_dims(np.array(self.patient_deid_list).astype(int), axis=-1)
+        self.row_idx_list = np.expand_dims(np.array(self.row_idx_list).astype(int), axis=-1)
+
+        if included_gscore:
+            self.label_name = ['Gleason score for TMA core'] + self.label_name
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.patient_unique_deid_list)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        # print(self.patient_img_list[idx])
+        sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB),
+                  'gt': torch.from_numpy(self.gt_list[idx]),
+                  'deid': torch.from_numpy(self.patient_deid_list[idx]),
+                  'row_idx': torch.from_numpy(self.row_idx_list[idx])}
+        # print(sample["input"])
+
+        if self.transform:
+            sample = self.transform(sample)
+        # sample['input'] = torch.stack(sample['input'], dim=0)
 
         return sample
 
@@ -148,6 +231,13 @@ def leave_one_out_cross_validation(len_data):
     loo = LeaveOneOut()
     cv_rand_idx = np.random.permutation(len_data)
     cv_split_list = list(loo.split(cv_rand_idx))
+
+    return cv_split_list
+
+def leave_one_patient_out_cross_validation(len_data, patient_deid):
+    logo = LeaveOneGroupOut()
+    cv_rand_idx = np.random.permutation(len_data)
+    cv_split_list = list(logo.split(cv_rand_idx, groups=patient_deid))
 
     return cv_split_list
 

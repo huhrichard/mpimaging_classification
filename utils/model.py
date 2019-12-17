@@ -65,7 +65,10 @@ class simple_transfer_classifier(nn.Module):
         # print(self.simplest_linear_act)
 
     def forward(self, input):
+        input_shape = input.shape
+
         # input = self.normalize(input)
+        class_activation_map_list = []
         if self.net_as_list:
             out_list = []
             for idx, net in enumerate(self.pretrained_network):
@@ -73,14 +76,19 @@ class simple_transfer_classifier(nn.Module):
                 # print(self.last_layer[idx].weights.requires_grad)
                 input = net(input)
                 if self.last_linear:
-                    avg_pool = self.final_pooling(input).flatten(start_dim=1)
+                    # avg_pool = self.final_pooling(input).flatten(start_dim=1)
+                    avg_pool = self.final_pooling(input)
                     # max_pool = self.final_pooling_max(input).flatten(start_dim=1)
                     # min_pool = -1*self.final_pooling_max(-1*input).flatten(start_dim=1)
                     # print(avg_pool.shape)
                     # pool_cat = torch.cat([max_pool, avg_pool, min_pool], dim=-1)
                     # print(pool_cat.shape)
                     # out_list.append(self.last_layer[idx](pool_cat))
-                    out_list.append(self.last_layer[idx](avg_pool))
+                    out_list.append(self.last_layer[idx](avg_pool).flatten(start_dim=1))
+                    act_map = nn.functional.interpolate(self.last_layer[idx](input),
+                                                        size=(input_shape[-2], input_shape[-1]),
+                                                        mode='bilinear')
+                    class_activation_map_list.append(act_map)
                 else:
                     out = self.last_layer[idx](input)
                     out_list.append(self.final_pooling(out).flatten(start_dim=1))
@@ -93,23 +101,27 @@ class simple_transfer_classifier(nn.Module):
             features = self.pretrained_network(input)
             if self.last_linear:
                 features = self.final_pooling(features)
-                features_flat = features.flatten(start_dim=1)
+                # features_flat = features
                 # print(features_flat.shape)
                 # print(self.feature_dim)
-                out_for_result = self.last_layer(features_flat)
+                out_for_result = self.last_layer(features).flatten(start_dim=1)
                 out_for_loss_function = out_for_result
+                act_map = nn.functional.interpolate(self.last_layer(features),
+                                                    size=(input_shape[-2], input_shape[-1]),
+                                                    mode='bilinear')
+                class_activation_map_list.append(act_map)
             else:
                 f = self.last_layer(features)
                 out_for_result = self.final_pooling(f).flatten(start_dim=1)
                 out_for_loss_function = out_for_result
 
 
-        return out_for_result, out_for_loss_function
+        return out_for_result, out_for_loss_function, class_activation_map_list
 
     # def weight_init(self, use_pretrained_weight):
 
     def create_last_layer(self, feature_dim, multi_label, num_classes, linear=False):
-        linear_layer = nn.Linear(feature_dim[1], num_classes)
+        linear_layer = nn.Conv2d(feature_dim[1], num_classes, kernel_size=1, stride=1, padding=0)
         conv_layer = nn.Conv2d(feature_dim[1], num_classes, kernel_size=1, stride=1, padding=0)
         # print('linear weights', linear_layer.weight, linear_layer.bias)
         # print('conv weights', conv_layer.weight, conv_layer.bias)

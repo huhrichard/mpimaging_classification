@@ -283,26 +283,30 @@ def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_na
         col_pred_name = "{}_{}_{}_prediction".format(out_label_name, state, trainer.model_name)
         # this is patient idx fo patient dataset
         df[col_pred_name] = 0
-        idx_list = torch.Tensor([trainer.idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)])
+
+        row_idx_list = torch.Tensor([trainer.row_idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)])
+
         pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         # print(pred)
-        idx_list = idx_list.int().flatten()
-        for idx_for_trainer, idx_for_dataset in enumerate(idx_list):
+        row_idx_list = row_idx_list.int().flatten()
+        for idx_for_trainer, row_idx in enumerate(row_idx_list):
+            df.loc[row_idx, col_pred_name] = pred[idx_for_trainer][out_label_idx]
             # print(idx_for_trainer, idx_for_dataset)
-            img_path_list = patient_dataset.patient_img_list[idx_for_dataset]
-            for img_idx, img_path in enumerate(img_path_list):
-                img_trimmed_path = img_path.split('/')[-1].split('.')[0]
-                # print(img_trimmed_path)
-                p_idx = img_idx+idx_for_trainer*len(img_path_list)
-                # print(p_idx)
-                p = pred[p_idx][out_label_idx]
-                # g = gt[p_idx][out_label_idx]
-                # print(img_trimmed_path,':')
-                # print('{} predict: {}, gt: {}'.format(out_label_name, p, g))
-                # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
-                # print(p)
-                df.loc[df['MPM image file per TMA core ']==img_trimmed_path, col_pred_name] = p
+
+            # img_path_list = patient_dataset.patient_img_list[idx_for_dataset]
+            # for img_idx, img_path in enumerate(img_path_list):
+            #     img_trimmed_path = img_path.split('/')[-1].split('.')[0]
+            #     # print(img_trimmed_path)
+            #     p_idx = img_idx+idx_for_trainer*len(img_path_list)
+            #     # print(p_idx)
+            #     p = pred[p_idx][out_label_idx]
+            #     # g = gt[p_idx][out_label_idx]
+            #     # print(img_trimmed_path,':')
+            #     # print('{} predict: {}, gt: {}'.format(out_label_name, p, g))
+            #     # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
+            #     # print(p)
+            #     df.loc[df['MPM image file per TMA core ']==img_trimmed_path, col_pred_name] = p
         df.loc[df[col_pred_name]==0, col_pred_name] = ' '
     return df
         # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]

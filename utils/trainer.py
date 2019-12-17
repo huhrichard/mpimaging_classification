@@ -66,13 +66,17 @@ class cv_trainer(object):
                          "val": [[] for i in range(self.total_epochs)],
                          "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
 
-        self.idx_list = [{"train": [[] for i in range(self.total_epochs)],
+        self.deid_list = [{"train": [[] for i in range(self.total_epochs)],
                          "val": [[] for i in range(self.total_epochs)],
                          "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
+
+        self.row_idx_list = [{"train": [[] for i in range(self.total_epochs)],
+                           "val": [[] for i in range(self.total_epochs)],
+                           "test": [[] for i in range(self.total_epochs)]} for n in range(n_fold)]
         self.old_epochs = 0
 
-    def running_model(self, input, gt, epoch, running_state, nth_fold, idx):
-        predict_for_result, predict_for_loss_function = self.model(input)
+    def running_model(self, input, gt, epoch, running_state, nth_fold, deid, row_idx):
+        predict_for_result, predict_for_loss_function, activation_map_list = self.model(input)
         # self.check_grad()
         # print('p for loss', predict_for_loss_function)
         # print('p for result', predict_for_result)
@@ -100,12 +104,13 @@ class cv_trainer(object):
                 print("predict:", predict_detached)
                 print("gt:", gt_detached)
 
-        idx = idx.detach().cpu()
+        deid = deid.detach().cpu()
 
         self.loss_stat[nth_fold][running_state][epoch].append(loss_detached)
         self.prediction_list[nth_fold][running_state][epoch].append(predict_detached)
         self.gt_list[nth_fold][running_state][epoch].append(gt_detached)
-        self.idx_list[nth_fold][running_state][epoch].append(idx)
+        self.deid_list[nth_fold][running_state][epoch].append(deid)
+        self.row_idx_list[nth_fold][running_state][epoch].append(row_idx)
 
         return loss_detached, predict_detached
 
@@ -116,14 +121,17 @@ class cv_trainer(object):
         running_states = ["val"]
         for nth_fold in range(self.n_fold):
             for running_state in running_states:
-                np_p = [self.torch_tensor_np(torch.cat(self.prediction_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]
+                self.prediction_list[nth_fold][running_state] = self.torch_n_fold_to_np(self.prediction_list, nth_fold=nth_fold, running_state=running_state)
+                self.gt_list[nth_fold][running_state] = self.torch_n_fold_to_np(self.gt_list, nth_fold=nth_fold, running_state=running_state)
+                self.deid_list[nth_fold][running_state] = self.torch_n_fold_to_np(self.deid_list, nth_fold=nth_fold, running_state=running_state)
+                self.row_idx_list[nth_fold][running_state] = self.torch_n_fold_to_np(self.row_idx_list, nth_fold=nth_fold, running_state=running_state)
 
-                np_t = [self.torch_tensor_np(torch.cat(self.gt_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]
-                self.prediction_list[nth_fold][running_state] = np_p
-                self.gt_list[nth_fold][running_state] = np_t
                 # print(np_p, np_t)
         metrics_by_images = self.performance_metrics.eval(self.prediction_list,
-                                                          self.gt_list, running_states)
+                                                          self.gt_list,
+                                                          self.deid_list,
+                                                          # self.row_idx_list,
+                                                          running_states)
 
 
         self.performance_stat = metrics_by_images
@@ -131,6 +139,9 @@ class cv_trainer(object):
         # self.performance_stat[running_state].append(metrics_dict)
 
         return metrics_by_images
+
+    def torch_n_fold_to_np(self, torch_tensor_list, nth_fold, running_state):
+        return [self.torch_tensor_np(torch.cat(torch_tensor_list[nth_fold][running_state][epoch], dim=0)) for epoch in range(self.total_epochs)]
 
     def check_grad(self):
         for param in self.model.parameters():
@@ -379,14 +390,18 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                 # print(batch_idx)
                 input = data['input']
                 gt = data['gt'][...,label_idx].unsqueeze(-1)
-                idx = data['idx']
-                # print(idx, gt)
-                input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
-                gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
-                # print(gt)
+                deid = data['deid']
+                row_idx = data['row_idx']
+
+                input = Variable(input).float().to(device)
+                gt = Variable(gt).float().to(device)
+
+                # input = Variable(input.view(-1, *(input.shape[2:]))).float().to(device)
+                # gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(device)
+
                 loss, predict = nth_trainer.running_model(input, gt, epoch=epoch,
-                                                               running_state=running_state, nth_fold=nth_fold,
-                                                               idx=idx)
+                                                          running_state=running_state, nth_fold=nth_fold,
+                                                          deid=deid, row_idx=row_idx)
                 ran_data += 1
                 running_loss += loss.item()
 

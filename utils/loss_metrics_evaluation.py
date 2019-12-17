@@ -32,17 +32,17 @@ class performance_evaluation_cv(object):
         self.nfold = nfold
         self.total_epochs = total_epochs
 
-    def eval(self, predict, gt, states):
+    def eval(self, predict, gt, deid_list, states):
         performance_dict = {}
         prediction_list_by_state = {}
         gt_list_by_state = {}
 
 
-        for metrics in self.metrics_list:
-            metric_func = globals()[metrics]
-            performance_dict[metrics] = {}
+        for metric in self.metrics_list:
+            metric_func = globals()[metric]
+            performance_dict[metric] = {}
             for state in states:
-                performance_dict[metrics][state] = []
+                performance_dict[metric][state] = []
                 for e in range(self.total_epochs):
                     if state == 'train':
                         metric_scores = []
@@ -59,10 +59,14 @@ class performance_evaluation_cv(object):
                     else:
                         p = np.concatenate([predict[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
                         g = np.concatenate([gt[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
-                        metric_scores = metric_func(g, p)
+                        deid = np.concatenate([deid_list[nth_fold][state][e] for nth_fold in range(self.nfold)], axis=0)
+                        if "patient" in metric:
+                            metric_scores = metric_func(g, p, deid=deid)
+                        else:
+                            metric_scores = metric_func(g, p)
 
-                    performance_dict[metrics][state].append(metric_scores)
-                performance_dict[metrics][state] = np.array(performance_dict[metrics][state])
+                    performance_dict[metric][state].append(metric_scores)
+                performance_dict[metric][state] = np.array(performance_dict[metric][state])
 
         return performance_dict
 
@@ -281,20 +285,20 @@ def pmax_by_img(gt, predict): return p_max(gt, predict)
 def rmax_by_img(gt, predict): return r_max(gt, predict)
 
 
-def auc_by_patient(gt, predict):
-    return evaluate_by_patients(gt, predict, metrics.roc_auc_score)
+def auc_by_patient(gt, predict, deid):
+    return evaluate_by_patients(gt, predict, metrics.roc_auc_score, deid)
 
-def ap_by_patient(gt, predict):
-    return evaluate_by_patients(gt, predict, metrics.average_precision_score)
+def ap_by_patient(gt, predict, deid):
+    return evaluate_by_patients(gt, predict, metrics.average_precision_score, deid)
 
-def fmax_by_patient(gt, predict):
-    return evaluate_by_patients(gt, predict, f_max)
+def fmax_by_patient(gt, predict, deid):
+    return evaluate_by_patients(gt, predict, f_max, deid)
 
-def pmax_by_patient(gt, predict):
-    return evaluate_by_patients(gt, predict, p_max)
+def pmax_by_patient(gt, predict, deid):
+    return evaluate_by_patients(gt, predict, p_max, deid)
 
-def rmax_by_patient(gt, predict):
-    return evaluate_by_patients(gt, predict, r_max)
+def rmax_by_patient(gt, predict, deid):
+    return evaluate_by_patients(gt, predict, r_max, deid)
 
 
 
@@ -322,11 +326,14 @@ def evaluate_with_multi_label_classification(g, p, func):
 
     return score_list
 
-def evaluate_by_patients(g, p, func):
-    imgs_per_patient = 5
-    g = np.mean(g.reshape(imgs_per_patient, -1, g.shape[-1], order='F'), axis=0)
-    p = np.mean(p.reshape(imgs_per_patient, -1, p.shape[-1], order='F'), axis=0)
-    return func(g, p)
+def evaluate_by_patients(g, p, func, deid):
+    unique_ids = np.unique(deid)
+    pat_p = []
+    pat_g = []
+    for unique_id in unique_ids:
+        pat_g.append(np.mean(g[deid==unique_id], axis=0))
+        pat_p.append(np.mean(p[deid==unique_id], axis=0))
+    return func(pat_g, pat_p)
 
 
 class loss_func(nn.Module):

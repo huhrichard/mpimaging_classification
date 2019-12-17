@@ -27,6 +27,7 @@ parser.add_argument('--gt_path', default='data/TMA_MPM_Summary_20191122_excluded
 # parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
 # parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
 parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
+parser.add_argument('--predicting_label', default=0, type=int, help='label gonna be predicted')
 
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
@@ -79,7 +80,7 @@ if __name__ == "__main__":
         compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
         ]
 
-    base_dataset = mpImage_sorted_by_patient_dataset(img_dir=args.datapath,
+    base_dataset = mpImage_sorted_by_patient_dataset_2(img_dir=args.datapath,
                                                      multi_label_gt_path=gt_path,
                                                      transform=train_transforms[0])
 
@@ -89,7 +90,9 @@ if __name__ == "__main__":
     # Split data into cross-validation_set
     # cv_split_list = nfold_cross_validation(len(train_dataset), n_fold=2)
     # cv_split_list = nfold_cross_validation(4, n_fold=2)
-    cv_split_list = leave_one_out_cross_validation(len(base_dataset))
+    # cv_split_list = leave_one_out_cross_validation(len(base_dataset))
+    cv_split_list = leave_one_patient_out_cross_validation(len(base_dataset),
+                                                           patient_deid=base_dataset.patient_deid_list)
     # cv_split_list = leave_one_out_cross_validation(2)
 
     running_states = ["train", "val"]
@@ -111,7 +114,18 @@ if __name__ == "__main__":
 
 
     metrics = img_metric_list
+    # idx = args.predicting_label
+    # label_name = label_list[idx]
+
+    result_path = args.datapath + "patient_classify_result/"
+    result_csv_name = result_path + 'result.csv'
+    if os.path.exists(result_csv_name):
+        out_df = pandas.read_csv(result_csv_name)
+    else:
+        out_df = base_dataset.multi_label_df.copy
+
     for idx, label_name in enumerate(label_list):
+
         print("Current label predicting:", label_name)
         if idx == 0:
             metrics = img_metric_list
@@ -143,10 +157,10 @@ if __name__ == "__main__":
 
 
 
-        # label_name_list = train_val_dataset.label_name
+            # label_name_list = train_val_dataset.label_name
 
-        # label_list = ['Gleason score',"BCR", "AP", "EPE"]
-        # label_list = ["BCR", "AP", "EPE"]
+            # label_list = ['Gleason score',"BCR", "AP", "EPE"]
+            # label_list = ["BCR", "AP", "EPE"]
         result_path = args.datapath + "patient_classify_result/"
         result_csv_name = result_path + 'result.csv'
         if os.path.exists(result_csv_name):
@@ -170,9 +184,7 @@ if __name__ == "__main__":
                          output_label=label_name, output_idx=0,
                          multi_label_classify=False, metrics=metrics,
                          )
-
-
-
+        
         out_df.fillna(' ')
         out_df.to_csv(result_path + 'result.csv', index=None, header=True)
 
