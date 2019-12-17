@@ -181,7 +181,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
                 else:
                     g_score = 1
                 g_score = np.array([g_score]).astype(float)
-                other_label = np.array(self.multi_label_df[self.label_name][idx].astype(float))
+                other_label = np.array(self.multi_label_df.loc[idx, self.label_name].astype(float))
                 if included_gscore:
                     self.gt_list.append(np.concatenate([g_score, other_label], axis=-1))
                     # print(self.gt_list[-1])
