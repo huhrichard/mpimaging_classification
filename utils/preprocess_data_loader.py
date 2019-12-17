@@ -149,7 +149,8 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         :param img_suffix:
         """
 
-        self.multi_label_df = pandas.read_csv(multi_label_gt_path)
+        self.multi_label_df = pandas.read_csv(multi_label_gt_path,  keep_default_na=False)
+        # self.multi_label_df.fillna('')
         self.patient_unique_deid_list = self.multi_label_df["Deidentifier patient number"].unique()
         self.img_prefixes = self.multi_label_df["MPM image file per TMA core "]
         self.deids = self.multi_label_df["Deidentifier patient number"]
@@ -203,6 +204,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         # print(self.patient_img_list[idx])
+        # print(idx, self.patient_img_list)
         sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB),
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
