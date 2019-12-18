@@ -264,15 +264,15 @@ def f1_by_img(gt, predict):
     g = gt.astype(int)
     return metrics.f1_score(g, p)
 
-def f1_by_patient(gt, predict):
-    imgs_per_patient = 5
-    gt = np.mean(gt.reshape(imgs_per_patient, -1, gt.shape[-1], order='F'), axis=0)
-    predict = np.mean(predict.reshape(imgs_per_patient, -1, predict.shape[-1], order='F'), axis=0)
-    p = np.ones_like(predict)
-    p[predict <= 0.5] = 0
-    p = p.astype(int)
-    g = gt.astype(int)
-    return metrics.f1_score(g, p)
+# def f1_by_patient(gt, predict):
+#     imgs_per_patient = 5
+#     gt = np.mean(gt.reshape(imgs_per_patient, -1, gt.shape[-1], order='F'), axis=0)
+#     predict = np.mean(predict.reshape(imgs_per_patient, -1, predict.shape[-1], order='F'), axis=0)
+#     p = np.ones_like(predict)
+#     p[predict <= 0.5] = 0
+#     p = p.astype(int)
+#     g = gt.astype(int)
+#     return metrics.f1_score(g, p)
 
 def auc_by_img(gt, predict): return metrics.roc_auc_score(gt, predict)
 
