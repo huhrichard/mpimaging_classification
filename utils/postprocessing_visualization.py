@@ -284,7 +284,7 @@ def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_na
         # this is patient idx fo patient dataset
         df[col_pred_name] = 0
 
-        row_idx_list = torch.cat([trainer.row_idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+        row_idx_list = np.concatenate([trainer.row_idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
 
         pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
