@@ -289,7 +289,7 @@ def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_na
         pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
         # print(pred)
-        row_idx_list = row_idx_list.int().flatten()
+        row_idx_list = row_idx_list.astype(int).flatten()
         for idx_for_trainer, row_idx in enumerate(row_idx_list):
             df.loc[row_idx, col_pred_name] = pred[idx_for_trainer][out_label_idx]
             # print(idx_for_trainer, idx_for_dataset)
