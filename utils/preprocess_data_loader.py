@@ -293,7 +293,8 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
         #     print(img)
         #     temp = cv2.imread(img, cv2.IMREAD_ANYDEPTH)
         #     print(temp.shape)
-        sample = {'input': [np.stack((cv2.imread(img, cv2.IMREAD_ANYDEPTH).astype(float),)*2, axis=-1) for img in self.patient_img_list[idx]],
+        sample = {'input': np.stack([cv2.imread(img, cv2.IMREAD_ANYDEPTH).astype(float) for img in self.patient_img_list[idx]],
+                                    axis=-1),
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
                   'row_idx': torch.from_numpy(self.row_idx_list[idx])}
@@ -301,7 +302,7 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
 
         if self.transform:
             sample = self.transform(sample)
-        sample['input'] = torch.stack([input[0] for input in sample['input']], dim=-3)
+        # sample['input'] = torch.stack(input for input in sample['input']], dim=-3)
 
         return sample
 
