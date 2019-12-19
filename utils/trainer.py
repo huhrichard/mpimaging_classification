@@ -252,7 +252,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                                  optim=torch.optim.Adam,
                                  lr=1e-7,
                                  wd=1e-2,
-                                 input_res=(3, 300, 300),
+                                 input_dim=(3, 300, 300),
                                  out_list=True,
                                  loss='BCE',
                                  train_data_normal=False):
@@ -287,7 +287,7 @@ def put_parameters_to_trainer_cv(epochs=50,
 
     print(model_name)
     model_dict = {'num_classes': num_classes,
-                  'input_size': input_res,
+                  'input_size': input_dim,
                   'pretrained_model_name': p_model,
                   'pretrain_weight': p_weight,
                   'feature_extracting': feat_ext,
@@ -401,7 +401,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
 
                 loss, predict = nth_trainer.running_model(input, gt, epoch=epoch,
                                                           running_state=running_state, nth_fold=nth_fold,
-                                                          deid=deid, row_idx=row_idx)
+                                                          deid=deid, row_idx=row_idx, label_idx)
                 ran_data += 1
                 running_loss += loss.item()
 

@@ -43,7 +43,7 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_dim = parameters_grid["input_dim"]
+input_dim = parameters_grid["input_dim"][0]
 input_tensor_res = (input_dim[-2], input_dim[-1])
 
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     # Grid Search
     parameters_grid["epochs"] = [args.epochs]
-    parameters_grid["num_classes"] = [num_classes]
+    # parameters_grid["num_classes"] = [num_classes]
     parameters_grid["num_classes"] = [1]
     parameters_grid["n_fold"] = [n_fold]
     parameters_grid["device"] = [device]
