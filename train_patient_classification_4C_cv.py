@@ -26,7 +26,7 @@ parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
                     type=str, help='File of the groundtruth')
 # parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
 # parser.add_argument('--wd', '--weight-decay', default=1e-2, type=float, help='weight decay (like regularization)')
-parser.add_argument('--n_batch', default=1, type=int, help='weight decay (like regularization)')
+parser.add_argument('--n_batch', default=16, type=int, help='weight decay (like regularization)')
 parser.add_argument('--predicting_label', default=0, type=int, help='label gonna be predicted')
 
 using_gpu = torch.cuda.is_available()
