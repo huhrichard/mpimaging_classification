@@ -263,7 +263,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "feat_ext": True,
                        "lr": True,
                        "wd": True,
-                       "input_res": False,
+                       "input_dim": False,
                        "out_list": True,
                        "loss": True,
                        "train_data_normal": True

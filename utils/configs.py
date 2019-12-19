@@ -31,7 +31,7 @@ parameters_grid = {
                    "feat_ext": [False],
                    "lr": [1e-7],
                    "wd": [1e-3],
-                   # "input_res": [(3, input_tensor_size[0], input_tensor_size[1])],
+                   "input_dim": [(3, 300, 300)],
                    "out_list": [False],
                    "loss": ["BCE"],
                    "train_data_normal": [True]

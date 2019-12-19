@@ -43,7 +43,8 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_tensor_size = (300, 300)
+input_dim = parameters_grid["input_dim"]
+input_tensor_res = (input_dim[-2], input_dim[-1])
 
 
 def model_training_and_evaluate_testing(epochs,
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     gt_path = args.gt_path
 
     # create dataset
-    train_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+    train_input_transform_list = [cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
                                   cvtransforms.RandomHorizontalFlip(),
                                   cvtransforms.RandomVerticalFlip(),
                                   cvtransforms.RandomRotation(90),
@@ -71,7 +72,7 @@ if __name__ == "__main__":
                                   # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                   ]
 
-    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_size, interpolation='BILINEAR'),
+    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
                                 cvtransforms.ToTensor(),
                                 # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                 ]
