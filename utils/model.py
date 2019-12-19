@@ -37,6 +37,8 @@ class simple_transfer_classifier(nn.Module):
         # self.feature_dim = (0,0,0)
         # print("pretrained_model:{}, its output shape: {}".format(pretrained_model_name, self.feature_dim))
         # if self.pretrained_network_list.type
+        self.input_to3C = nn.Sequential(*[nn.Conv2d(input_size[0], 3, kernel_size=1)])
+
         self.net_as_list = multi_classifier
         if self.net_as_list:
             simplest_linear_act = []
@@ -66,7 +68,7 @@ class simple_transfer_classifier(nn.Module):
 
     def forward(self, input):
         input_shape = input.shape
-
+        input = self.input_to3C(input)
         # input = self.normalize(input)
         class_activation_map_list = []
         if self.net_as_list:

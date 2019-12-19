@@ -15,13 +15,13 @@ import time
 from utils.postprocessing_visualization import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
-from utils.configs_3C import *
+from utils.configs_4C import *
 from torch.utils.tensorboard import SummaryWriter
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
-parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
+parser.add_argument('--img_path', default='data/MPM4C_16bit', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
                     type=str, help='File of the groundtruth')
 # parser.add_argument('--lr', '--learning_rate', default=1e-7, type=float, help='learning rate')
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
         ]
 
-    base_dataset = mpImage_sorted_by_patient_dataset_2(img_dir=args.datapath,
+    base_dataset = mpImage_4C_sorted_by_patient_dataset(img_dir=args.datapath,
                                                      multi_label_gt_path=gt_path,
                                                      transform=train_transforms[0])
 
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                 specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
                                                               epochs=args.epochs,
                                                               nth_fold=nth_fold,
-                                                              base_dataset_dict= {"base_dataset": mpImage_sorted_by_patient_dataset_2,
+                                                              base_dataset_dict= {"base_dataset": mpImage_4C_sorted_by_patient_dataset,
                                                                             "datapath": args.datapath,
                                                                             "gt_path": gt_path},
                                                               train_transform_list=train_input_transform_list,
