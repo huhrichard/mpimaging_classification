@@ -81,7 +81,7 @@ if __name__ == "__main__":
         compose_input_output_transform(input_transform=cvtransforms.Compose(train_input_transform_list)),
         ]
 
-    base_dataset = mpImage_4C_sorted_by_patient_dataset(img_dir=args.datapath,
+    base_dataset = mpImage_4C_sorted_by_patient_dataset(img_dir=args.img_path,
                                                      multi_label_gt_path=gt_path,
                                                      transform=train_transforms[0])
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     # idx = args.predicting_label
     # label_name = label_list[idx]
 
-    result_path = args.datapath + "patient_classify_result/"
+    result_path = args.datapath + "patient_classify_result_4C/"
     result_csv_name = result_path + 'result.csv'
     if os.path.exists(result_csv_name):
         out_df = pandas.read_csv(result_csv_name)
@@ -143,7 +143,7 @@ if __name__ == "__main__":
                                                               epochs=args.epochs,
                                                               nth_fold=nth_fold,
                                                               base_dataset_dict= {"base_dataset": mpImage_4C_sorted_by_patient_dataset,
-                                                                            "datapath": args.datapath,
+                                                                            "datapath": args.img_path,
                                                                             "gt_path": gt_path},
                                                               train_transform_list=train_input_transform_list,
                                                               val_transform_list=val_input_transform_list,
@@ -162,8 +162,8 @@ if __name__ == "__main__":
 
             # label_list = ['Gleason score',"BCR", "AP", "EPE"]
             # label_list = ["BCR", "AP", "EPE"]
-        result_path = args.datapath + "patient_classify_result/"
-        result_csv_name = result_path + 'result.csv'
+        # result_path = args.datapath + "patient_classify_result/"
+        # result_csv_name = result_path + 'result.csv'
         if os.path.exists(result_csv_name):
             out_df = pandas.read_csv(result_csv_name)
         else:

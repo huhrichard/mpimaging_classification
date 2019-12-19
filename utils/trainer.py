@@ -401,7 +401,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
 
                 loss, predict = nth_trainer.running_model(input, gt, epoch=epoch,
                                                           running_state=running_state, nth_fold=nth_fold,
-                                                          deid=deid, row_idx=row_idx, label_idx)
+                                                          deid=deid, row_idx=row_idx)
                 ran_data += 1
                 running_loss += loss.item()
 

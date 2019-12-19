@@ -170,7 +170,7 @@ def get_pretrained_net(model_name, input_size, module_prefix=None, pretrain_weig
             pretrained_net = getattr(seg, model_name)(pretrained=pretrain_weight)
 
         set_parameter_requires_grad(pretrained_net, feature_extracting)
-        test_input = torch.zeros(1,input_size[0], input_size[1], input_size[2])
+        test_input = torch.zeros(1, 3, input_size[1], input_size[2])
         # TODO: get the only layers want from 'modules_employing',
         # print(model_name)
         if "res" in model_name and "fcn" not in model_name:

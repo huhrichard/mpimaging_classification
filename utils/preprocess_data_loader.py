@@ -256,9 +256,10 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
             for c in range(1,5):
                 img_list += find("{}*{}*{}*".format(img_predix_split[0], c, img_predix_split[1]),
                                  img_dir)
+            # print(img_list)
             # path_list = find("{}*".format(), img_dir)
             # prin t(path_list)
-            self.patient_img_list.append(img_list[0])
+            self.patient_img_list.append(img_list)
             self.patient_deid_list.append([self.deids[idx]])
             self.row_idx_list.append([idx])
             if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
@@ -288,7 +289,11 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
             idx = idx.tolist()
         # print(self.patient_img_list[idx])
         # print(idx, self.patient_img_list)
-        sample = {'input': [cv2.cvtColor(cv2.imread(img), cv2.IMREAD_ANYDEPTH) for img in self.patient_img_list[idx]],
+        # for img in self.patient_img_list[idx]:
+        #     print(img)
+        #     temp = cv2.imread(img, cv2.IMREAD_ANYDEPTH)
+        #     print(temp.shape)
+        sample = {'input': [np.stack((cv2.imread(img, cv2.IMREAD_ANYDEPTH),)*3, axis=-1).astype(float) for img in self.patient_img_list[idx]],
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
                   'row_idx': torch.from_numpy(self.row_idx_list[idx])}
@@ -296,7 +301,7 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
 
         if self.transform:
             sample = self.transform(sample)
-        sample['input'] = torch.stack(sample['input'], dim=-3)
+        sample['input'] = torch.stack([input[0] for input in sample['input']], dim=-3)
 
         return sample
 
