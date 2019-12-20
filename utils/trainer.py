@@ -178,7 +178,7 @@ class cv_trainer(object):
         other_optim_para_dict = self.optimizer_dict.copy()
         del other_optim_para_dict['optim']
         other_optim_para_dict['params'] = self.model.parameters()
-        self.optimizer = self.optimizer_dict['optim'](other_optim_para_dict)
+        self.optimizer = optimizer(**other_optim_para_dict)
 
     # def model_init(self):
     #     self.model = self.model_class(**self.model_dict)
