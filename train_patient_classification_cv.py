@@ -107,7 +107,7 @@ if __name__ == "__main__":
     parameters_grid["num_classes"] = [1]
     parameters_grid["n_fold"] = [n_fold]
     parameters_grid["device"] = [device]
-    parameters_grid["n_batch"] = args.n_batch
+    parameters_grid["n_batch"] = [args.n_batch]
 
     list_parameters = ParameterGrid(parameters_grid)
 
