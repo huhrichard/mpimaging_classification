@@ -151,6 +151,7 @@ if __name__ == "__main__":
                                                               label_idx=idx,
                                                               cv_splits=cv_split_list,
                                                               gpu_count=gpu_count,
+                                                              n_batch=args.n_batch
                                                               )
 
             specific_trainer.evaluation()
