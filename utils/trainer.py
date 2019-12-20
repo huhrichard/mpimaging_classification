@@ -378,10 +378,10 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                           transform=t) for t in val_transforms])
 
     train_data_loader = DataLoader(dataset=train_data, batch_size=n_batch,
-                                   num_workers=4,
+                                   num_workers=2,
                                    sampler=SubsetRandomSampler(cv_split[0]))
     val_data_loader = DataLoader(dataset=val_data, batch_size=n_batch,
-                                 num_workers=4,
+                                 num_workers=2,
                                  sampler=SubsetRandomSampler(cv_split[1]))
     print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
     nth_trainer.model_init()
