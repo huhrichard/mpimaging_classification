@@ -12,6 +12,7 @@ import time
 from torch.autograd import Variable
 from cvtorchvision import cvtransforms
 from utils.preprocess_data_transform import compose_input_output_transform
+import sls
 
 
 class cv_trainer(object):
@@ -88,8 +89,9 @@ class cv_trainer(object):
 
             # a = list(self.model.parameters())[0].clone()
             self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+            # loss.backward()
+            # self.optimizer.step()
+            self.optimizer.step(loss)
             b = list(self.model.parameters())[0].clone()
             # print('a=b?', torch.equal(a.data, b.data))
 
@@ -172,9 +174,11 @@ class cv_trainer(object):
 
 
     def opti_init(self):
-        self.optimizer = self.optimizer_dict['optim'](lr=self.optimizer_dict['lr'],
-                                                      weight_decay=self.optimizer_dict['wd'],
-                                                        params=self.model.parameters())
+        optimizer = self.optimizer_dict['optim']
+        other_optim_para_dict = self.optimizer_dict.copy()
+        del other_optim_para_dict['optim']
+        other_optim_para_dict['params'] = self.model.parameters()
+        self.optimizer = self.optimizer_dict['optim'](other_optim_para_dict)
 
     # def model_init(self):
     #     self.model = self.model_class(**self.model_dict)
@@ -255,14 +259,15 @@ def put_parameters_to_trainer_cv(epochs=50,
                                  input_dim=(3, 300, 300),
                                  out_list=True,
                                  loss='BCE',
-                                 train_data_normal=False):
+                                 train_data_normal=False,
+                                 n_batch=1):
     exclude_name_list = ["num_classes", "device", "epochs"]
 
     show_model_list = {"p_model": True,
                        "p_weight": True,
                        "feat_ext": True,
-                       "lr": True,
-                       "wd": True,
+                       # "lr": True,
+                       # "wd": True,
                        "input_dim": False,
                        "out_list": True,
                        "loss": True,
@@ -300,10 +305,15 @@ def put_parameters_to_trainer_cv(epochs=50,
     new_trainer = cv_trainer(model_class=simple_transfer_classifier,
                              model_dict=model_dict,
                              model_name=model_name,
-                             optimizer_dict={'optim': torch.optim.Adam,
-                                             # optimizer={'optim': RAdam,
-                                        'lr': lr,
-                                        'wd': wd},
+                             # optimizer_dict={
+                             #            'optim': torch.optim.Adam,
+                             #            # 'optim': RAdam,
+                             #            'lr': lr,
+                             #            'weight_decay': wd},
+                             optimizer_dict={
+                                        'optim': sls.Sls,
+                                        # 'optim': RAdam,
+                                        'n_batches_per_epoch': n_batch},
                              n_fold=n_fold,
                              performance_metrics=performance_evaluation_cv(nfold=n_fold,
                                                                            multi_label=multi_label,

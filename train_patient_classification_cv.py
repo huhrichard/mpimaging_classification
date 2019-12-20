@@ -18,6 +18,7 @@ from utils.loss_metrics_evaluation import *
 from utils.configs_3C import *
 from torch.utils.tensorboard import SummaryWriter
 
+
 parser = argparse.ArgumentParser(description='training for MPM image classification')
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     parameters_grid["num_classes"] = [1]
     parameters_grid["n_fold"] = [n_fold]
     parameters_grid["device"] = [device]
-
+    parameters_grid["n_batch"] = args.n_batch
 
     list_parameters = ParameterGrid(parameters_grid)
 
