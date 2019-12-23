@@ -14,12 +14,15 @@ def find(pattern, path):
     return result
 
 def transform(img):
+    # print(np.max(img))
     img = cv2.resize(img, (300,300), interpolation=cv2.INTER_LINEAR)
-    # img = cv2.flip(img, -1)
+    # print(np.max(img))
+    img = cv2.flip(img, -1)
     h, w, _ = img.shape
     point = (w/2, h/2)
     M = cv2.getRotationMatrix2D(point, angle=-45, scale=1)
     dst = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_LINEAR)
+    # print(np.max(dst))
     return dst
 
 base_path = 'data/'
@@ -32,7 +35,11 @@ start_time = time.time()
 count = 0
 img_list = []
 for img_file in mpm_16_file_list:
-    img_single_c = cv2.imread(img_file, cv2.IMREAD_ANYDEPTH).astype(float)
+    img_single_c = cv2.imread(img_file, cv2.IMREAD_ANYDEPTH)
+    # print('sc uint16:', np.max(img_single_c))
+    # print('sc min uint16:', np.min(img_single_c))
+    img_single_c = img_single_c.astype(float)
+    # print('sc:', np.max(img_single_c))
     count += 1
     if count < 4:
         img_list.append(img_single_c)
