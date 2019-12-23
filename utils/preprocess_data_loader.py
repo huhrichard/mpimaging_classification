@@ -189,7 +189,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
                 # print(self.gt_list[-1])
             else:
                 self.gt_list.append(np.concatenate([other_label], axis=-1))
-
+        # self.patient_img_list = np.array(self.patient_img_list)
         self.patient_deid_list = np.array(self.patient_deid_list).astype(int)
         self.row_idx_list = np.array(self.row_idx_list).astype(int)
 
@@ -201,8 +201,10 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         return len(self.patient_img_list)
 
     def __getitem__(self, idx):
+        # idx = list(idx)
         if torch.is_tensor(idx):
             idx = idx.tolist()
+        # print(idx)
         # print(self.patient_img_list[idx])
         # print(idx, self.patient_img_list)
         sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB),

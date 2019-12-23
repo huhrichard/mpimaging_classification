@@ -268,7 +268,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "feat_ext": True,
                        "lr": True,
                        "wd": True,
-                       "input_dim": False,
+                       "input_dim": True,
                        "out_list": True,
                        "loss": True,
                        "train_data_normal": True,
@@ -335,6 +335,15 @@ def merge_all_fold_trainer(list_of_trainer):
             first_trainer.idx_list[idx] = nth_folder_trainer.idx_list[idx]
     return first_trainer
 
+def power_set_training_transform(training_list):
+    power_set = []
+    middle_transform = range(1, len(training_list)-2)
+    l = len(middle_transform)
+    for i in range(1 << l):
+        pow_t = [training_list[j] for j in range(l) if (i & (1 << j))]
+        power_set.append([training_list[0]] + pow_t + [training_list[-2:]])
+    return power_set
+
 def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
                                cv_splits, gpu_count, n_batch, label_idx):
@@ -356,13 +365,22 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                                                              train_transform_list=train_transform_list_temp,
                                                                              n_batch=n_batch)
         train_normal = cvtransforms.Normalize(train_mean, train_std)
-    print(train_normal)
+    # print(train_normal)
     train_transform_list_temp.append(train_normal)
     val_transform_list_temp.append(train_normal)
-
+    # pow_set_training_list = power_set_training_transform(train_transform_list_temp)
+    # train_transforms = [
+    #     compose_input_output_transform(input_transform=cvtransforms.Compose(train_t)) for train_t in pow_set_training_list
+    # ]
     train_transforms = [
         compose_input_output_transform(input_transform=cvtransforms.Compose(train_transform_list_temp)),
         ]
+
+
+
+    # len_of_dataset = len(cv_split[0])+len(cv_split[1])
+    # cv_train_idx = np.concatenate([cv_split[0]+n*len_of_dataset for n in range(len(train_transforms))], axis=0)
+    # print(cv_split[0].dtype)
     train_data = torch.utils.data.ConcatDataset([
         base_dataset_dict["base_dataset"](img_dir=base_dataset_dict["datapath"],
                                           multi_label_gt_path=base_dataset_dict["gt_path"],
@@ -377,10 +395,11 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                           transform=t) for t in val_transforms])
 
     train_data_loader = DataLoader(dataset=train_data, batch_size=n_batch,
-                                   num_workers=2,
-                                   sampler=SubsetRandomSampler(cv_split[0]))
+                                   num_workers=0,
+                                   sampler=SubsetRandomSampler(cv_split[0])
+                                   )
     val_data_loader = DataLoader(dataset=val_data, batch_size=n_batch,
-                                 num_workers=2,
+                                 num_workers=0,
                                  sampler=SubsetRandomSampler(cv_split[1]))
     print("{} {}th fold: {}".format("-" * 10, nth_fold, "-" * 10))
     nth_trainer.model_init()
