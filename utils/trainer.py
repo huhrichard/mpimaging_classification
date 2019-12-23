@@ -89,10 +89,10 @@ class cv_trainer(object):
 
             # a = list(self.model.parameters())[0].clone()
             self.optimizer.zero_grad()
-            # loss.backward()
+            loss.backward()
             # self.optimizer.step()
-            self.optimizer.step(loss)
-            b = list(self.model.parameters())[0].clone()
+            self.optimizer.step()
+            # b = list(self.model.parameters())[0].clone()
             # print('a=b?', torch.equal(a.data, b.data))
 
 
@@ -305,15 +305,11 @@ def put_parameters_to_trainer_cv(epochs=50,
     new_trainer = cv_trainer(model_class=simple_transfer_classifier,
                              model_dict=model_dict,
                              model_name=model_name,
-                             # optimizer_dict={
-                             #            'optim': torch.optim.Adam,
-                             #            # 'optim': RAdam,
-                             #            'lr': lr,
-                             #            'weight_decay': wd},
                              optimizer_dict={
-                                        'optim': sls.Sls,
+                                        'optim': torch.optim.Adam,
                                         # 'optim': RAdam,
-                                        'n_batches_per_epoch': n_batch},
+                                        'lr': lr,
+                                        'weight_decay': wd},
                              n_fold=n_fold,
                              performance_metrics=performance_evaluation_cv(nfold=n_fold,
                                                                            multi_label=multi_label,
