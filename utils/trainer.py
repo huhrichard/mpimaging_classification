@@ -272,6 +272,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "out_list": True,
                        "loss": True,
                        "train_data_normal": True
+                       "n_batch": True
                        }
 
     model_name = "TL"
@@ -285,8 +286,10 @@ def put_parameters_to_trainer_cv(epochs=50,
             else:
                 if type(value) == str:
                     model_name += "_" + value
-                elif type(value) == int or type(value) == float:
+                elif type(value) == float:
                     model_name += "_{}={:.0e}".format(key, Decimal(value))
+                elif type(value) == int:
+                    model_name += "_{}={}".format(key, value)
                 elif key == "input_res":
                     model_name += "_{}={}".format(key, value[1])
 
