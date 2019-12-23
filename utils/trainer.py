@@ -271,7 +271,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                        "input_dim": False,
                        "out_list": True,
                        "loss": True,
-                       "train_data_normal": True
+                       "train_data_normal": True,
                        "n_batch": True
                        }
 
