@@ -15,7 +15,7 @@ def find(pattern, path):
 
 def transform(img):
     img = cv2.resize(img, (300,300), interpolation=cv2.INTER_LINEAR)
-    img = cv2.flip(img, -1)
+    # img = cv2.flip(img, -1)
     h, w, _ = img.shape
     point = (w/2, h/2)
     M = cv2.getRotationMatrix2D(point, angle=-45, scale=1)
