@@ -136,21 +136,21 @@ def compare_model(trainers, save_path, output_label='', output_idx=0, multi_labe
         fig_all_trainers_val_only.clf()
 
 
-def compare_model_cv(trainers, save_path, out_csv='',
+def compare_model_cv(specific_trainer, save_path, out_csv='',
                      output_label='', output_idx=0,
                      multi_label_classify=False, metrics=None,
                      plot_states_list=None,
                      ):
 
-    n = len(trainers)
+    # n = len(trainers)
 
     maxepochs = 0
     plt.clf()
     # print(trainers[0])
     if metrics is None:
-        metrics = list(trainers[0].performance_stat["train"][0].keys())
+        metrics = list(specific_trainer.performance_stat["train"][0].keys())
     print(metrics)
-    epochs = trainers[0].total_epochs
+    epochs = specific_trainer.total_epochs
     # states = ["train", "val"]
     states = ["val"]
     if plot_states_list is None:
@@ -175,59 +175,59 @@ def compare_model_cv(trainers, save_path, out_csv='',
     """
 
     for metric in metrics:
-        fig_all_trainer_list = [plt.figure() for plot in plot_states_list]
-        ax_all_trainer_list = [fig.add_subplot(1,1,1) for fig in fig_all_trainer_list]
-        for trainer_idx, specific_trainer in enumerate(trainers):
+        # fig_all_trainer_list = [plt.figure() for plot in plot_states_list]
+        # ax_all_trainer_list = [fig.add_subplot(1,1,1) for fig in fig_all_trainer_list]
+        # for trainer_idx, specific_trainer in enumerate(trainers):
             # plot each fold result 1st
-            fig_all_fold_list = [plt.figure() for plot in plot_states_list]
-            ax_all_fold_list = [fig.add_subplot(1, 1, 1) for fig in fig_all_fold_list]
-            for plot_idx, plot in enumerate(plot_states_list):
-                for state in states:
-                    if state in plot or plot == "":
-
-                        plot_paras = {
-                                        # "x": range(epochs),
-                                      # "y": np.mean(metric_dicts[state], axis=0),
-                                      # "yerr": np.std(metric_dicts[state], axis=0),
-                                      "label": "{}({})".format(state, specific_trainer.model_name),
-                                      "c": colors[trainer_idx * len(states) + c_style[state]],
-                                      "linestyle": linestyle_dict[state],
-                                      "alpha": 0.4,
-                                      "marker": mark_style_dict[state]}
-
-                        if state == "train":
-                            # print(specific_trainer.performance_stat[metric][state])
-                            if multi_label_classify:
-
-                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
-                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
-                            else:
-                                plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
-                                plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
-                            plot_paras["x"] = range(epochs)
-                            ax_all_fold_list[plot_idx].errorbar(**plot_paras)
-                            ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
-                        else:
-                            # print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
-                            if multi_label_classify:
-                                y = specific_trainer.performance_stat[metric][state][:, output_idx]
-                            else:
-                                y = specific_trainer.performance_stat[metric][state]
-                                # print(y)
-                            x = range(epochs)
-                            ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
-                            ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
-                base_name = "{}_{}_{}".format(output_label, metric, specific_trainer.model_name)
-                ax_all_fold_list[plot_idx].legend()
-                ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
-                fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
-                fig_all_fold_list[plot_idx].clf()
+        fig_all_fold_list = [plt.figure() for plot in plot_states_list]
+        ax_all_fold_list = [fig.add_subplot(1, 1, 1) for fig in fig_all_fold_list]
         for plot_idx, plot in enumerate(plot_states_list):
-            base_name = "{}_{}".format(output_label, metric)
-            ax_all_trainer_list[plot_idx].legend()
-            ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
-            fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
-            fig_all_trainer_list[plot_idx].clf()
+            for state in states:
+                if state in plot or plot == "":
+
+                    plot_paras = {
+                                    # "x": range(epochs),
+                                  # "y": np.mean(metric_dicts[state], axis=0),
+                                  # "yerr": np.std(metric_dicts[state], axis=0),
+                                  "label": "{}({})".format(state, specific_trainer.model_name),
+                                  "c": colors[len(states) + c_style[state]],
+                                  "linestyle": linestyle_dict[state],
+                                  "alpha": 0.4,
+                                  "marker": mark_style_dict[state]}
+
+                    if state == "train":
+                        # print(specific_trainer.performance_stat[metric][state])
+                        if multi_label_classify:
+
+                            plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
+                            plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state][:, :, output_idx], axis=0)
+                        else:
+                            plot_paras["y"] = np.mean(specific_trainer.performance_stat[metric][state], axis=0)
+                            plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
+                        plot_paras["x"] = range(epochs)
+                        ax_all_fold_list[plot_idx].errorbar(**plot_paras)
+                        ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
+                    else:
+                        # print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
+                        if multi_label_classify:
+                            y = specific_trainer.performance_stat[metric][state][:, output_idx]
+                        else:
+                            y = specific_trainer.performance_stat[metric][state]
+                            # print(y)
+                        x = range(epochs)
+                        ax_all_fold_list[plot_idx].plot(x, y, **plot_paras)
+                        # ax_all_trainer_list[plot_idx].plot(x, y, **plot_paras)
+            base_name = "{}_{}_{}".format(output_label, metric, specific_trainer.model_name)
+            ax_all_fold_list[plot_idx].legend()
+            ax_all_fold_list[plot_idx].set_title("{} of {}".format(metric, output_label))
+            fig_all_fold_list[plot_idx].savefig(save_path + base_name + plot + ".png")
+            fig_all_fold_list[plot_idx].clf()
+        # for plot_idx, plot in enumerate(plot_states_list):
+        #     base_name = "{}_{}".format(output_label, metric)
+            # ax_all_trainer_list[plot_idx].legend()
+            # ax_all_trainer_list[plot_idx].set_title("{} of {}".format(metric, output_label))
+            # fig_all_trainer_list[plot_idx].savefig(save_path + base_name + plot + ".png")
+            # fig_all_trainer_list[plot_idx].clf()
 
 
 def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_name, out_label_idx,
@@ -276,50 +276,35 @@ def write_scores_on_df_DL(trainers, df, metrics, state, out_label='', out_idx=No
     return df
 
 
-def write_prediction_on_df_DL(trainers, df, state, patient_dataset, out_label_name, out_label_idx,
+def write_prediction_on_df_DL(trainer, df, state, patient_dataset, out_label_name, out_label_idx,
                               epoch_as_final = -1,
                               ):
-    for trainer in trainers:
-        col_pred_name = "{}_{}_{}_prediction".format(out_label_name, state, trainer.model_name)
-        # this is patient idx fo patient dataset
-        df[col_pred_name] = 0
+    # for trainer in trainers:
+    col_pred_name = "{}_{}_{}_prediction".format(out_label_name, state, trainer.model_name)
+    # this is patient idx fo patient dataset
+    df[col_pred_name] = 0
 
-        row_idx_list = np.concatenate([trainer.row_idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+    row_idx_list = np.concatenate([trainer.row_idx_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
 
-        pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
-        gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
-        # print(pred)
-        row_idx_list = row_idx_list.astype(int).flatten()
-        for idx_for_trainer, row_idx in enumerate(row_idx_list):
-            df.loc[row_idx, col_pred_name] = pred[idx_for_trainer][out_label_idx]
-            # print(idx_for_trainer, idx_for_dataset)
-
-            # img_path_list = patient_dataset.patient_img_list[idx_for_dataset]
-            # for img_idx, img_path in enumerate(img_path_list):
-            #     img_trimmed_path = img_path.split('/')[-1].split('.')[0]
-            #     # print(img_trimmed_path)
-            #     p_idx = img_idx+idx_for_trainer*len(img_path_list)
-            #     # print(p_idx)
-            #     p = pred[p_idx][out_label_idx]
-            #     # g = gt[p_idx][out_label_idx]
-            #     # print(img_trimmed_path,':')
-            #     # print('{} predict: {}, gt: {}'.format(out_label_name, p, g))
-            #     # print(df.loc[df['MPM image file per TMA core ']==img_trimmed_path])
-            #     # print(p)
-            #     df.loc[df['MPM image file per TMA core ']==img_trimmed_path, col_pred_name] = p
-        df.loc[df[col_pred_name]==0, col_pred_name] = ' '
+    pred = np.concatenate([trainer.prediction_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+    gt = np.concatenate([trainer.gt_list[nth_fold][state][epoch_as_final] for nth_fold in range(trainer.n_fold)], axis=0)
+    # print(pred)
+    row_idx_list = row_idx_list.astype(int).flatten()
+    for idx_for_trainer, row_idx in enumerate(row_idx_list):
+        df.loc[row_idx, col_pred_name] = pred[idx_for_trainer][out_label_idx]
+    df.loc[df[col_pred_name]==0, col_pred_name] = ' '
     return df
         # df[col_pred_name] = trainer.prediction_list[][state][epoch_as_final]
 
-def write_scores_on_df_DL(trainers, df, metrics, state, out_label='', out_idx=None, epoch_as_final = -1, ):
+def write_scores_on_df_DL(trainer, df, metrics, state, out_label='', out_idx=None, epoch_as_final = -1, ):
 
-    for trainer in trainers:
-        for metric in metrics:
-            col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
-            if out_idx is None:
-                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
-            else:
-                df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
+    # for trainer in trainers:
+    for metric in metrics:
+        col_metric_name = "{}_{}_{}_{}".format(out_label, metric, state, trainer.model_name)
+        if out_idx is None:
+            df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final]
+        else:
+            df.loc[0, col_metric_name] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
 
     return df
 

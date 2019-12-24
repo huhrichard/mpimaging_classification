@@ -153,41 +153,32 @@ if __name__ == "__main__":
                                                               n_batch=args.n_batch)
 
             specific_trainer.evaluation()
-            parametric_model_list.append(specific_trainer)
+            # parametric_model_list.append(specific_trainer)
 
+            if os.path.exists(result_csv_name):
+                out_df = pandas.read_csv(result_csv_name)
+            else:
+                out_df = base_dataset.multi_label_df.copy()
 
-
-
-            # label_name_list = train_val_dataset.label_name
-
-            # label_list = ['Gleason score',"BCR", "AP", "EPE"]
-            # label_list = ["BCR", "AP", "EPE"]
-        # result_path = args.datapath + "patient_classify_result/"
-        # result_csv_name = result_path + 'result.csv'
-        if os.path.exists(result_csv_name):
-            out_df = pandas.read_csv(result_csv_name)
-        else:
-            out_df = base_dataset.multi_label_df.copy()
-
-        out_df = write_prediction_on_df_DL(trainers=parametric_model_list,
+            out_df = write_prediction_on_df_DL(trainer=specific_trainer,
+                                               df=out_df,
+                                               state='val',
+                                               patient_dataset=base_dataset,
+                                               out_label_name=label_name,
+                                               out_label_idx=0
+                                               )
+            out_df = write_scores_on_df_DL(trainer=specific_trainer,
                                            df=out_df,
+                                           metrics=metrics,
                                            state='val',
-                                           patient_dataset=base_dataset,
-                                           out_label_name=label_name,
-                                           out_label_idx=0
-                                           )
-        out_df = write_scores_on_df_DL(trainers=parametric_model_list,
-                                       df=out_df,
-                                       metrics=metrics,
-                                       state='val',
-                                       out_label=label_name)
-        compare_model_cv(parametric_model_list, result_path,
-                         output_label=label_name, output_idx=0,
-                         multi_label_classify=False, metrics=metrics,
-                         )
+                                           out_label=label_name)
+            compare_model_cv(parametric_model_list, result_path,
+                             output_label=label_name, output_idx=0,
+                             multi_label_classify=False, metrics=metrics,
+                             )
 
-        out_df.fillna(' ')
-        out_df.to_csv(result_path + 'result.csv', index=None, header=True)
+            out_df.fillna(' ')
+            out_df.to_csv(result_path + 'result.csv', index=None, header=True)
 
             # some metric can't be evaluated when only one class is in the training set
             # compare_model_cv(parametric_model_list, result_path,
