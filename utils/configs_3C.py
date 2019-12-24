@@ -25,7 +25,7 @@ parameters_grid = {
                    # "performance_metrics_list": [metric_list],
                    # "device": [device],
                    # "p_model": ["resnext101_32x8d"],
-                   "p_model": ["resnet50"],
+                   "p_model": ["resnet18"],
                    # "p_model": ["wide_resnet101_2"],
                    "p_weight": [True],
                    "feat_ext": [False],

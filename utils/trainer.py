@@ -290,7 +290,7 @@ def put_parameters_to_trainer_cv(epochs=50,
                     model_name += "_{}={:.0e}".format(key, Decimal(value))
                 elif type(value) == int:
                     model_name += "_{}={}".format(key, value)
-                elif key == "input_res":
+                elif key == "input_dim":
                     model_name += "_{}={}".format(key, value[1])
 
     print(model_name)
