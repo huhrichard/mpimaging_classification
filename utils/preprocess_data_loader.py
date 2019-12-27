@@ -207,7 +207,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         # print(idx)
         # print(self.patient_img_list[idx])
         # print(idx, self.patient_img_list)
-        sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB),
+        sample = {'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx]), cv2.COLOR_BGR2RGB).astype(float),
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
                   'row_idx': torch.from_numpy(self.row_idx_list[idx])}
@@ -298,7 +298,7 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
         sample = {
                   'input': np.stack([cv2.imread(img, cv2.IMREAD_ANYDEPTH).astype(float) for img in self.patient_img_list[idx]],
                                     axis=-1),
-                  # 'input': np.stack([cv2.imread(self.patient_img_list[idx][0], cv2.IMREAD_ANYDEPTH).astype(float) for i in range(3)], axis=-1),
+                  # 'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx][0], cv2.IMREAD_ANYDEPTH).astype(float), cv2.COLOR_GRAY2BGR),
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
                   'row_idx': torch.from_numpy(self.row_idx_list[idx])
