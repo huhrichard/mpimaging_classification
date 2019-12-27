@@ -296,8 +296,8 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
         #     temp = cv2.imread(img, cv2.IMREAD_ANYDEPTH)
         #     print(temp.shape)
         sample = {
-                  'input': (np.stack([cv2.imread(img, cv2.IMREAD_ANYDEPTH) for img in self.patient_img_list[idx]],
-                                    axis=-1)/256).astype('uint8'),
+                  'input': np.stack([(cv2.imread(img, cv2.IMREAD_ANYDEPTH)/256).astype('uint8') for img in self.patient_img_list[idx]],
+                                    axis=-1),
                   # 'input': cv2.cvtColor(cv2.imread(self.patient_img_list[idx][0], cv2.IMREAD_ANYDEPTH).astype(float), cv2.COLOR_GRAY2BGR),
                   'gt': torch.from_numpy(self.gt_list[idx]),
                   'deid': torch.from_numpy(self.patient_deid_list[idx]),
