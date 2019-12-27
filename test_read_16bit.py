@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 import os, fnmatch
 import time
+import torch
 
 def find(pattern, path):
     result = []
@@ -22,8 +23,10 @@ def transform(img):
     point = (w/2, h/2)
     M = cv2.getRotationMatrix2D(point, angle=-45, scale=1)
     dst = cv2.warpAffine(img, M, (w, h), flags=cv2.INTER_LINEAR)
+    torch_tensor = torch.from_numpy(dst.transpose((2, 0, 1)))
     # print(np.max(dst))
-    return dst
+
+    return torch_tensor.float().div(255)
 
 base_path = 'data/'
 
@@ -31,29 +34,29 @@ mpm16bit_path = base_path+'MPM4C_16bit'
 sixteen_bit_max = 65535
 
 mpm_16_file_list = find('*.tif', path=base_path+'MPM4C_16bit')
+stacked_4_imgs = []
+temp = []
+c = 0
+for mpm in mpm_16_file_list:
+    c += 1
+    temp.append(mpm)
+    if c > 4:
+        c = 0
+        stacked_4_imgs.append(temp)
+        temp = []
+
+
+print(len(mpm_16_file_list))
 start_time = time.time()
-count = 0
-img_list = []
-for img_file in mpm_16_file_list:
-    img_single_c = cv2.imread(img_file, cv2.IMREAD_ANYDEPTH)
-    # print('sc uint16:', np.max(img_single_c))
-    # print('sc min uint16:', np.min(img_single_c))
-    img_single_c = img_single_c.astype(float)
-    # print('sc:', np.max(img_single_c))
-    count += 1
-    if count < 4:
-        img_list.append(img_single_c)
-    else:
-        count = 0
-        temp = transform(np.stack(img_list, axis=-1))
-        img_list = []
-
-
-
+for img_file in stacked_4_imgs:
+    img_single_c = transform(np.stack([cv2.imread(img,
+                                                  cv2.IMREAD_ANYDEPTH).astype(float) for img in img_file],
+                                      axis=-1))
 
 print('16bit total io time:', time.time()-start_time)
 
 mpm_rgn_file_list = find('*.tif', path=base_path+'MPM')
+print(len(mpm_rgn_file_list))
 start_time = time.time()
 for img_file in mpm_16_file_list:
     img_single_c = transform(cv2.cvtColor(cv2.imread(img_file), cv2.COLOR_BGR2RGB))
