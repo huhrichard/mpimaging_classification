@@ -65,7 +65,8 @@ if __name__ == "__main__":
     gt_path = args.gt_path
 
     # create dataset
-    train_input_transform_list = [cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
+    train_input_transform_list = [
+                                  # cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
                                   cvtransforms.RandomHorizontalFlip(),
                                   cvtransforms.RandomVerticalFlip(),
                                   cvtransforms.RandomRotation(90),
@@ -73,7 +74,8 @@ if __name__ == "__main__":
                                   # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                   ]
 
-    val_input_transform_list = [cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
+    val_input_transform_list = [
+                                # cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'),
                                 cvtransforms.ToTensor(),
                                 # cvtransforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                                 ]
@@ -183,7 +185,7 @@ if __name__ == "__main__":
                                            metrics=metrics,
                                            state='val',
                                            out_label=label_name)
-            compare_model_cv(parametric_model_list, result_path,
+            compare_model_cv(specific_trainer, result_path,
                              output_label=label_name, output_idx=0,
                              multi_label_classify=False, metrics=metrics,
                              )

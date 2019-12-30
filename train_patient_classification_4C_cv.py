@@ -172,7 +172,7 @@ if __name__ == "__main__":
                                            metrics=metrics,
                                            state='val',
                                            out_label=label_name)
-            compare_model_cv(parametric_model_list, result_path,
+            compare_model_cv(specific_trainer, result_path,
                              output_label=label_name, output_idx=0,
                              multi_label_classify=False, metrics=metrics,
                              )

@@ -253,10 +253,10 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
         for idx, img_prefix in enumerate(self.img_prefixes):
             if self.notes[idx] != "" and skip_with_notes:
                 continue
-            img_predix_split = img_prefix.split(' ')
+            img_prefix_split = img_prefix.split(' ')
             img_list = []
             for c in range(1,5):
-                img_list += find("{}*{}*{}*".format(img_predix_split[0], c, img_predix_split[1]),
+                img_list += find("{}*{}*{}*".format(img_prefix_split[0], c, img_prefix_split[1]),
                                  img_dir)
             # print(img_list)
             # path_list = find("{}*".format(), img_dir)
