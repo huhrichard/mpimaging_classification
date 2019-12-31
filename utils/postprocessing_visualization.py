@@ -157,7 +157,7 @@ def compare_model_cv(specific_trainer, save_path, out_csv='',
         plot_states_list = ["_val"]
         # plot_states_list = ["_train", "_val", ""]
 
-    colors = plt.cm.jet(np.linspace(0, 1, n * len(states)))
+    colors = plt.cm.jet(np.linspace(0, 1, len(states)))
 
     linestyle_dict = {"train": "--",
                       "val": "--",
@@ -206,7 +206,7 @@ def compare_model_cv(specific_trainer, save_path, out_csv='',
                             plot_paras["yerr"] = np.std(specific_trainer.performance_stat[metric][state], axis=0)
                         plot_paras["x"] = range(epochs)
                         ax_all_fold_list[plot_idx].errorbar(**plot_paras)
-                        ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
+                        # ax_all_trainer_list[plot_idx].errorbar(**plot_paras)
                     else:
                         # print(state, metric, ': ', specific_trainer.performance_stat[metric][state])
                         if multi_label_classify:
