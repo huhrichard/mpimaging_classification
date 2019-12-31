@@ -190,7 +190,7 @@ def compare_model_cv(specific_trainer, save_path, out_csv='',
                                   # "y": np.mean(metric_dicts[state], axis=0),
                                   # "yerr": np.std(metric_dicts[state], axis=0),
                                   "label": "{}({})".format(state, specific_trainer.model_name),
-                                  "c": colors[len(states) + c_style[state]],
+                                  # "c": colors[len(states) + c_style[state]],
                                   "linestyle": linestyle_dict[state],
                                   "alpha": 0.4,
                                   "marker": mark_style_dict[state]}
