@@ -35,5 +35,5 @@ parameters_grid = {
                    "out_list": [False],
                    "loss": ["BCE"],
                    "train_data_normal": [True],
-                   "n_batch": [16],
+                   "n_batch": [32],
                    }
