@@ -34,5 +34,6 @@ parameters_grid = {
                    "input_dim": [(4, 224, 224)],
                    "out_list": [False],
                    "loss": ["BCE"],
-                   "train_data_normal": [True]
+                   "train_data_normal": [True],
+                   "n_batch": [5],
                    }
