@@ -332,7 +332,8 @@ def merge_all_fold_trainer(list_of_trainer):
             first_trainer.loss_stat[idx] = nth_folder_trainer.loss_stat[idx]
             first_trainer.prediction_list[idx] = nth_folder_trainer.prediction_list[idx]
             first_trainer.gt_list[idx] = nth_folder_trainer.gt_list[idx]
-            first_trainer.idx_list[idx] = nth_folder_trainer.idx_list[idx]
+            first_trainer.row_idx_list[idx] = nth_folder_trainer.row_idx_list[idx]
+            first_trainer.deid_list[idx] = nth_folder_trainer.deid_list[idx]
     return first_trainer
 
 def power_set_training_transform(training_list):
