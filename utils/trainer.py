@@ -357,7 +357,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
 
     if torch.cuda.is_available():
         device = torch.device("cuda:{}".format(nth_fold % gpu_count))
-        print(device)
+        print('{}th fold using: {}'.format(nth_fold, device))
     else:
         device = torch.device('cpu')
     if not nth_trainer.train_data_normal:
@@ -413,7 +413,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
     running_states = ['train', 'val']
     for epoch in range(epochs):
         print("=" * 30)
-        print("{} {}th epoch running: {}".format("=" * 10, epoch, "=" * 10))
+        print("{}th fold {} {}th epoch running: {}".format(nth_fold, "=" * 10, epoch, "=" * 10))
         epoch_start_time = time.time()
 
         for running_state in running_states:
@@ -442,10 +442,12 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                 running_loss += loss.item()
 
             state_time_elapsed = time.time() - state_start_time
-            print("{}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(epoch, running_state,
+            print("{}th fold {}th epoch ({}) running time cost: {:.0f}m {:.0f}s".format(nth_fold,
+                                                                                epoch, running_state,
                                                                               state_time_elapsed // 60,
                                                                               state_time_elapsed % 60))
-            print('{}th epoch ({}) average loss: {}'.format(epoch, running_state, running_loss / ran_data))
+            print('{}th fold {}th epoch ({}) average loss: {}'.format(nth_fold,
+                epoch, running_state, running_loss / ran_data))
             running_loss = 0
             ran_data = 0
         # print(loss)
