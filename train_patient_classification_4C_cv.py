@@ -118,13 +118,9 @@ if __name__ == "__main__":
     metrics = img_metric_list
     # idx = args.predicting_label
     # label_name = label_list[idx]
-
     result_path = args.datapath + "patient_classify_result_4C/"
     result_csv_name = result_path + 'result.csv'
-    if os.path.exists(result_csv_name):
-        out_df = pandas.read_csv(result_csv_name)
-    else:
-        out_df = base_dataset.multi_label_df.copy
+
 
     for idx, label_name in enumerate(label_list):
 
@@ -140,6 +136,7 @@ if __name__ == "__main__":
             parameters['performance_metrics_list'] = metrics
             specific_trainer = put_parameters_to_trainer_cv(**parameters)
             for nth_fold in range(n_fold):
+                
                 specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
                                                               epochs=args.epochs,
                                                               nth_fold=nth_fold,
@@ -177,6 +174,12 @@ if __name__ == "__main__":
                              output_label=label_name, output_idx=0,
                              multi_label_classify=False, metrics=metrics,
                              )
+
+
+            if os.path.exists(result_csv_name):
+                out_df = pandas.read_csv(result_csv_name)
+            else:
+                out_df = base_dataset.multi_label_df.copy
 
             out_df.fillna(' ')
             out_df.to_csv(result_path + 'result.csv', index=None, header=True)
