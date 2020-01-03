@@ -18,6 +18,7 @@ from utils.loss_metrics_evaluation import *
 
 from torch.utils.tensorboard import SummaryWriter
 from joblib import Parallel, delayed
+import os
 
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
@@ -32,7 +33,7 @@ parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
 parser.add_argument('--parallel', default=False, type=bool, help='Run with joblib parallelization?')
 parser.add_argument('--input_C', default=3, type=int, help='RGB (3) or Raw (4)?')
 
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
 
@@ -44,7 +45,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
 if using_gpu:
-    n_jobs = gpu_count if using_gpu else 1
+    n_jobs = int(gpu_count/2) if using_gpu else 1
 else:
     n_jobs = 4
 print("Parallel run with {} jobs tgt.".format(n_jobs))
