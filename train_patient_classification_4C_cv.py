@@ -136,7 +136,7 @@ if __name__ == "__main__":
             parameters['performance_metrics_list'] = metrics
             specific_trainer = put_parameters_to_trainer_cv(**parameters)
             for nth_fold in range(n_fold):
-                
+
                 specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
                                                               epochs=args.epochs,
                                                               nth_fold=nth_fold,

@@ -44,8 +44,8 @@ args = parser.parse_args()
 print(args)
 
 # print("# Batch: ",)
-input_dim = parameters_grid["input_dim"][0]
-input_tensor_res = (input_dim[-2], input_dim[-1])
+# input_dim = parameters_grid["input_dim"][0]
+# input_tensor_res = (input_dim[-2], input_dim[-1])
 
 
 def model_training_and_evaluate_testing(epochs,
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     parameters_grid["num_classes"] = [1]
     parameters_grid["n_fold"] = [n_fold]
     parameters_grid["device"] = [device]
-    parameters_grid["n_batch"] = [args.n_batch]
+    # parameters_grid["n_batch"] = [args.n_batch]
 
     list_parameters = ParameterGrid(parameters_grid)
 
