@@ -43,7 +43,10 @@ print("Avaliable GPU:", gpu_count)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
-n_jobs = gpu_count if using_gpu else 1
+if using_gpu:
+    n_jobs = gpu_count if using_gpu else 1
+else:
+    n_jobs = 2
 print("Parallel run with {} jobs tgt.".format(n_jobs))
 
 args = parser.parse_args()
@@ -141,11 +144,6 @@ if __name__ == "__main__":
     # label_name = label_list[idx]
 
     result_path = args.datapath + "patient_classify_result/"
-    result_csv_name = result_path + 'result.csv'
-    if os.path.exists(result_csv_name):
-        out_df = pandas.read_csv(result_csv_name)
-    else:
-        out_df = base_dataset.multi_label_df.copy
 
     for idx, label_name in enumerate(label_list):
 
@@ -173,7 +171,7 @@ if __name__ == "__main__":
                                                       label_idx=idx,
                                                       cv_splits=cv_split_list,
                                                       gpu_count=gpu_count,
-                                                      n_batch=args.n_batch
+                                                      n_batch=parameters['n_batch']
                                                               ) for nth_fold in range(n_fold))
 
                 specific_trainer = merge_all_fold_trainer(trainer_list)
