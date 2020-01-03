@@ -414,7 +414,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
     running_states = ['train', 'val']
     for epoch in range(epochs):
         print("=" * 30)
-        print("{}th fold {} {}th epoch running: {}".format("=" * 10, nth_fold, epoch, "=" * 10))
+        print("{} {}th fold {}th epoch running: {}".format("=" * 10, nth_fold, epoch, "=" * 10))
         epoch_start_time = time.time()
 
         for running_state in running_states:
