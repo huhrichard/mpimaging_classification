@@ -22,8 +22,7 @@ usage: dict
 """
 result = subprocess.check_output(
     [
-        'nvidia-smi', '--query-gpu=memory.used',
-        '--format=csv,nounits,noheader'
+        'nvidia-smi'
     ], encoding='utf-8')
 # Convert lines into a dictionary
 # gpu_memory = [int(x) for x in result.strip().split('\n')]
