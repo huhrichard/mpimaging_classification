@@ -144,7 +144,6 @@ if __name__ == "__main__":
     # idx = args.predicting_label
     # label_name = label_list[idx]
 
-    result_path = args.datapath + "patient_classify_result/"
 
     for idx, label_name in enumerate(label_list):
 
