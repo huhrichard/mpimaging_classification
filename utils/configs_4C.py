@@ -29,11 +29,11 @@ parameters_grid = {
                    # "p_model": ["wide_resnet101_2"],
                    "p_weight": [True],
                    "feat_ext": [False],
-                   "lr": [1e-6],
+                   "lr": [1e-7],
                    "wd": [1e-3],
                    "input_dim": [(4, 224, 224)],
                    "out_list": [False],
                    "loss": ["BCE"],
                    "train_data_normal": [True],
-                   "n_batch": [32],
+                   "n_batch": [5],
                    }
