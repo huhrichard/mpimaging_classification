@@ -33,7 +33,6 @@ parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
 parser.add_argument('--parallel', default=False, type=bool, help='Run with joblib parallelization?')
 parser.add_argument('--input_C', default=3, type=int, help='RGB (3) or Raw (4)?')
 
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
 
