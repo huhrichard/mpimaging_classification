@@ -357,7 +357,10 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
     val_transform_list_temp.insert(0, cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'))
 
     if torch.cuda.is_available():
-        device = torch.device("cuda:{}".format(nth_fold % gpu_count))
+        if gpu_count == 1:
+            device = torch.device('cuda')
+        else:
+            device = torch.device("cuda:{}".format(nth_fold % gpu_count))
         print('{}th fold using: {}'.format(nth_fold, device))
     else:
         device = torch.device('cpu')
