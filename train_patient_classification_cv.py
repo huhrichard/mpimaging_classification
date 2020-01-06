@@ -39,10 +39,11 @@ print("Using GPU: ", using_gpu)
 gpu_count = torch.cuda.device_count()
 print("Avaliable GPU:", gpu_count)
 
+
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device_idx = torch.cuda.current_device()
-print("Using device: ", device, device_idx)
+# device_idx = torch.cuda.current_device()
+print("Using device: ", device)
 
 if using_gpu:
     n_jobs = int(gpu_count/2) if using_gpu else 1
@@ -159,7 +160,7 @@ if __name__ == "__main__":
             parameters['performance_metrics_list'] = metrics
             specific_trainer = put_parameters_to_trainer_cv(**parameters)
             if parallel_running:
-                trainers_list = Parallel(n_jobs=n_jobs)(
+                trainers_list = Parallel(n_jobs=n_jobs, prefer="threads")(
                     delayed(training_pipeline_per_fold)(nth_trainer=specific_trainer,
                                                       epochs=args.epochs,
                                                       nth_fold=nth_fold,

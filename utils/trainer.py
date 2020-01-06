@@ -13,7 +13,7 @@ from torch.autograd import Variable
 from cvtorchvision import cvtransforms
 from utils.preprocess_data_transform import compose_input_output_transform
 import sls
-
+import os
 
 class cv_trainer(object):
     def __init__(self,
@@ -348,6 +348,8 @@ def power_set_training_transform(training_list):
 def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
                                cv_splits, gpu_count, n_batch, label_idx):
+
+    gpu_list = os.environ['CUDA_VISIBLE_DEVICES']
     cv_split = cv_splits[nth_fold]
     train_transform_list_temp = train_transform_list.copy()
     val_transform_list_temp = val_transform_list.copy()
@@ -360,7 +362,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
         if gpu_count == 1:
             device = torch.device('cuda')
         else:
-            device = torch.device("cuda:{}".format(nth_fold % gpu_count))
+            device = torch.device("cuda:{}".format(gpu_list[nth_fold % gpu_count]))
         print('{}th fold using: {}, memomry:'.format(nth_fold, device, torch.cuda.get_device_properties(device).total_memory))
     else:
         device = torch.device('cpu')
