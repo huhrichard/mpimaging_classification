@@ -1,6 +1,6 @@
 import torch
 import subprocess
-
+import os
 using_gpu = torch.cuda.is_available()
 print("Using GPU: ", using_gpu)
 
@@ -10,6 +10,7 @@ print("Avaliable GPU:", gpu_count)
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 gpu_mem = torch.cuda.get_device_properties(device).total_memory
+print('Avaliable 'os.environ['CUDA_VISIBLE_DEVICE'] )
 print("Using device:{}, memory:{}".format(device, gpu_mem))
 
 """Get the current gpu usage.
