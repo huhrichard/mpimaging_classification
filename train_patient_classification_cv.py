@@ -41,7 +41,8 @@ print("Avaliable GPU:", gpu_count)
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print("Using device: ", device)
+device_idx = torch.cuda.current_device()
+print("Using device: ", device, device_idx)
 
 if using_gpu:
     n_jobs = int(gpu_count/2) if using_gpu else 1
