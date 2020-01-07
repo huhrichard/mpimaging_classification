@@ -165,10 +165,12 @@ class cv_trainer(object):
         return self.model(input)
 
     # def model_change_device(self, device):
-    def model_init(self):
+    def model_init(self, device=None):
+
         self.model = self.model_class(**self.model_dict)
-        if torch.cuda.device_count() > 1:
-            self.model = nn.DataParallel(self.model)
+        # if torch.cuda.device_count() > 1:
+        #     self.model = nn.DataParallel(self.model)
+
         if self.use_pretrain_weight is not True:
             self.weight_init(self.model)
         self.opti_init()

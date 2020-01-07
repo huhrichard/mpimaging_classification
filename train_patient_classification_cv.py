@@ -20,6 +20,8 @@ from torch.utils.tensorboard import SummaryWriter
 from joblib import Parallel, delayed
 import os
 
+torch.manual_seed(0)
+np.random.seed(0)
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
 parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
@@ -48,7 +50,7 @@ print("Using device: ", device)
 if using_gpu:
     n_jobs = int(gpu_count/2) if using_gpu else 1
 else:
-    n_jobs = 4
+    n_jobs = 2
 print("Parallel run with {} jobs tgt.".format(n_jobs))
 
 args = parser.parse_args()
