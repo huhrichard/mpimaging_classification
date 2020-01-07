@@ -50,7 +50,7 @@ print("Using device: ", device)
 if using_gpu:
     n_jobs = int(gpu_count/2) if using_gpu else 1
 else:
-    n_jobs = 2
+    n_jobs = 4
 print("Parallel run with {} jobs tgt.".format(n_jobs))
 
 args = parser.parse_args()
