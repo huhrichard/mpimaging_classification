@@ -160,7 +160,7 @@ if __name__ == "__main__":
             parameters['performance_metrics_list'] = metrics
             specific_trainer = put_parameters_to_trainer_cv(**parameters)
             if parallel_running:
-                trainers_list = Parallel(n_jobs=n_jobs, prefer="threads")(
+                trainers_list = Parallel(n_jobs=n_jobs)(
                     delayed(training_pipeline_per_fold)(nth_trainer=specific_trainer,
                                                       epochs=args.epochs,
                                                       nth_fold=nth_fold,

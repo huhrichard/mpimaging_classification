@@ -349,7 +349,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
                                cv_splits, gpu_count, n_batch, label_idx):
 
-    gpu_list = os.environ['CUDA_VISIBLE_DEVICES']
+    gpu_list = os.environ['CUDA_VISIBLE_DEVICES'].split(',')
     cv_split = cv_splits[nth_fold]
     train_transform_list_temp = train_transform_list.copy()
     val_transform_list_temp = val_transform_list.copy()
