@@ -167,7 +167,8 @@ class cv_trainer(object):
     # def model_change_device(self, device):
     def model_init(self):
         self.model = self.model_class(**self.model_dict)
-
+        if torch.cuda.device_count() > 1:
+            self.model = nn.DataParallel(self.model)
         if self.use_pretrain_weight is not True:
             self.weight_init(self.model)
         self.opti_init()
@@ -349,7 +350,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
                                train_transform_list, val_transform_list,
                                cv_splits, gpu_count, n_batch, label_idx):
 
-    gpu_list = os.environ['CUDA_VISIBLE_DEVICES'].split(',')
+
     cv_split = cv_splits[nth_fold]
     train_transform_list_temp = train_transform_list.copy()
     val_transform_list_temp = val_transform_list.copy()
@@ -359,6 +360,7 @@ def training_pipeline_per_fold(nth_trainer, epochs, nth_fold, base_dataset_dict,
     val_transform_list_temp.insert(0, cvtransforms.Resize(size=input_tensor_res, interpolation='BILINEAR'))
 
     if torch.cuda.is_available():
+        gpu_list = os.environ['CUDA_VISIBLE_DEVICES'].split(',')
         if gpu_count == 1:
             device = torch.device('cuda')
         else:
