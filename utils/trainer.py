@@ -14,6 +14,7 @@ from cvtorchvision import cvtransforms
 from utils.preprocess_data_transform import compose_input_output_transform
 import sls
 import os
+import subprocess
 
 class cv_trainer(object):
     def __init__(self,
@@ -105,6 +106,11 @@ class cv_trainer(object):
             if epoch % 10 == 0:
                 print("predict:", predict_detached)
                 print("gt:", gt_detached)
+                result = subprocess.check_output(
+                    [
+                        'nvidia-smi'
+                    ], encoding='utf-8')
+                print(result)
 
         deid = deid.detach().cpu()
 
