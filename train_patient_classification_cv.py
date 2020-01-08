@@ -59,9 +59,6 @@ result = subprocess.check_output(
     [
         'nvidia-smi'
     ], encoding='utf-8')
-# Convert lines into a dictionary
-# gpu_memory = [int(x) for x in result.strip().split('\n')]
-# gpu_memory_map = dict(zip(range(len(gpu_memory)), gpu_memory))
 print(result)
 
 # Device configuration
