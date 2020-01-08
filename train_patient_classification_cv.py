@@ -48,7 +48,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
 if using_gpu:
-    n_jobs = gpu_count 
+    n_jobs = gpu_count
 else:
     n_jobs = 2
 print("Parallel run with {} jobs tgt.".format(n_jobs))
