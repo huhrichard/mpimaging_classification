@@ -48,9 +48,9 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("Using device: ", device)
 
 if using_gpu:
-    n_jobs = int(gpu_count/2) if using_gpu else 1
+    n_jobs = gpu_count 
 else:
-    n_jobs = 4
+    n_jobs = 2
 print("Parallel run with {} jobs tgt.".format(n_jobs))
 
 args = parser.parse_args()
@@ -157,6 +157,7 @@ if __name__ == "__main__":
             metrics = img_metric_list + patient_metric_list
         print(metrics)
         parametric_model_list = []
+
         for parameters in list_parameters:
             # trainer_list = []
             parameters['performance_metrics_list'] = metrics
