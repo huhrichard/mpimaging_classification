@@ -50,7 +50,7 @@ print("Using device: ", device)
 if using_gpu:
     n_jobs = int(gpu_count/2) if using_gpu else 1
 else:
-    n_jobs = 4
+    n_jobs = 2
 print("Parallel run with {} jobs tgt.".format(n_jobs))
 
 args = parser.parse_args()
@@ -158,11 +158,11 @@ if __name__ == "__main__":
         print(metrics)
         parametric_model_list = []
         for parameters in list_parameters:
-            trainer_list = []
+            # trainer_list = []
             parameters['performance_metrics_list'] = metrics
             specific_trainer = put_parameters_to_trainer_cv(**parameters)
             if parallel_running:
-                trainers_list = Parallel(n_jobs=n_jobs)(
+                trainers_list = Parallel(n_jobs=n_jobs, verbose=10)(
                     delayed(training_pipeline_per_fold)(nth_trainer=specific_trainer,
                                                       epochs=args.epochs,
                                                       nth_fold=nth_fold,
@@ -176,8 +176,8 @@ if __name__ == "__main__":
                                                       gpu_count=gpu_count,
                                                       n_batch=parameters['n_batch']
                                                               ) for nth_fold in range(n_fold))
-
-                specific_trainer = merge_all_fold_trainer(trainer_list)
+                print(trainers_list)
+                specific_trainer = merge_all_fold_trainer(trainers_list)
             else:
                 for nth_fold in range(n_fold):
                     specific_trainer = training_pipeline_per_fold(nth_trainer=specific_trainer,
