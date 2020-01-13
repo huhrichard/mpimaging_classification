@@ -190,7 +190,7 @@ if __name__ == "__main__":
                 params_fname = config_path + specific_trainer.model_name + '.params'
                 pickle.dump(parameters, open(params_fname, 'wb'))
 
-                lsf_f_name = 'temp_submit_gpu_job.lsf'
+                lsf_f_name = 'temp_submit_gpu_job_innerCV_{}.lsf'.format(nth_outer_fold)
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
                 # params_fname = 'config/' + specific_trainer.model_name + '.params'
                 # pickle.dump(parameters, open(params_fname, 'wb'))
 
-                lsf_f_name = 'temp_submit_gpu_job.lsf'
+                lsf_f_name = 'temp_submit_gpu_job_outerCV.lsf'
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
