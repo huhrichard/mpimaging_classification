@@ -206,6 +206,7 @@ if __name__ == "__main__":
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
                 fn.writelines(temp_job_str)
+                fn.close()
                 system('bsub < ' + lsf_f_name)
                 system('rm ' + lsf_f_name)
 
@@ -249,6 +250,7 @@ if __name__ == "__main__":
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
                 fn.writelines(temp_job_str)
+                fn.close()
                 system('bsub < ' + lsf_f_name)
                 system('rm ' + lsf_f_name)
 
