@@ -160,7 +160,7 @@ if __name__ == "__main__":
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',
                     '#BSUB -o pat_%J.stdout # output log (%J : JobID)',
-                    '#BSUB -eo pat_4C_%J.stderr # error log',
+                    '#BSUB -eo pat_%J.stderr # error log',
                     '#BSUB -L /bin/bash # Initialize the execution environment',
                     'module purge',
                     'module load anaconda3',
@@ -205,7 +205,8 @@ if __name__ == "__main__":
                 base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
-                fn.writelines(temp_job_str)
+                for line in temp_job_str:
+                    fn.write(line+'\n')
                 fn.close()
                 system('bsub < ' + lsf_f_name)
                 # system('rm ' + lsf_f_name)
@@ -249,7 +250,8 @@ if __name__ == "__main__":
                 base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
-                fn.writelines(temp_job_str)
+                for line in temp_job_str:
+                    fn.write(line + '\n')
                 fn.close()
                 system('bsub < ' + lsf_f_name)
                 # system('rm ' + lsf_f_name)
