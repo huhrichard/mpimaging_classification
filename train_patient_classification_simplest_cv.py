@@ -107,7 +107,7 @@ def parameters_dict_to_model_name(parameters_dict):
 if __name__ == "__main__":
     img_path = args.img_path
     gt_path = args.gt_path
-    parallel_running = args.parallel
+    # parallel_running = args.parallel
     number_of_channels = args.input_C
 
     if number_of_channels == 3:
