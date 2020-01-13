@@ -140,7 +140,7 @@ if __name__ == "__main__":
     running_states = ["train", "val"]
     n_fold = len(cv_split_list)
 
-    utils_module = __import__(config_path + args.params_grid_config)
+    utils_module = __import__('config.' + args.params_grid_config)
     parameters_grid = getattr(utils_module, args.params_grid_config).parameters_grid
     list_parameters = ParameterGrid(parameters_grid)
     num_params = len(list_parameters)
