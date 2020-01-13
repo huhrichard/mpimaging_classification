@@ -194,15 +194,15 @@ if __name__ == "__main__":
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
-                base_py_cmd.append(' --input_C='+str(number_of_channels))
-                base_py_cmd.append(' --params_path='+str(params_fname))
+                base_py_cmd += ' --input_C='+str(number_of_channels)
+                base_py_cmd += ' --params_path='+str(params_fname)
 
-                base_py_cmd.append(' --nth_fold='+str(nth_outer_fold))
-                base_py_cmd.append(' --train_idx_path='+train_idx_npy)
-                base_py_cmd.append(' --label_predicting='+label_name)
-                base_py_cmd.append(' --label_idx=' + str(label_idx))
-                base_py_cmd.append(' --params_npy='+params_path_npy_path)
-                base_py_cmd.append(' --params_picked_idx_npy='+params_idx_path)
+                base_py_cmd += ' --nth_fold='+str(nth_outer_fold)
+                base_py_cmd += ' --train_idx_path='+train_idx_npy
+                base_py_cmd += ' --label_predicting='+label_name
+                base_py_cmd += ' --label_idx=' + str(label_idx)
+                base_py_cmd += ' --params_npy='+params_path_npy_path
+                base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
                 fn.writelines(temp_job_str)
@@ -237,15 +237,15 @@ if __name__ == "__main__":
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
-                base_py_cmd.append(' --input_C=' + str(number_of_channels))
-                base_py_cmd.append(' --params_path=outerCV')
+                base_py_cmd += ' --input_C=' + str(number_of_channels)
+                base_py_cmd += ' --params_path=outerCV'
 
-                base_py_cmd.append(' --nth_fold=' + str(n_fold))
-                base_py_cmd.append(' --train_idx_path=' + train_idx_npy)
-                base_py_cmd.append(' --label_predicting=' + label_name)
-                base_py_cmd.append(' --label_idx=' + str(label_idx))
-                base_py_cmd.append(' --params_npy=' + params_path_npy_path)
-                base_py_cmd.append(' --params_picked_idx_npy=' + params_idx_path)
+                base_py_cmd += ' --nth_fold=' + str(n_fold)
+                base_py_cmd += ' --train_idx_path=' + train_idx_npy
+                base_py_cmd += ' --label_predicting=' + label_name
+                base_py_cmd += ' --label_idx=' + str(label_idx)
+                base_py_cmd += ' --params_npy=' + params_path_npy_path
+                base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
                 temp_job_str = base_job_str.copy()
                 temp_job_str.append(base_py_cmd)
                 fn.writelines(temp_job_str)
