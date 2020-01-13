@@ -308,6 +308,21 @@ def write_scores_on_df_DL(trainer, df, metrics, state, out_label='', out_idx=Non
 
     return df
 
+def write_scores_on_df_DL_score_df(trainer, df, metrics, state, params_path, params_idx,
+                                   out_label='', out_idx=None, epoch_as_final = -1,
+                                   ):
+
+    # for trainer in trainers:
+    df.loc[params_path, 'params_idx'] = params_idx
+    df.loc[params_path, 'nth_fold'] = nth_fold
+    for metric in metrics:
+        if out_idx is None:
+            df.loc[params_path, metric] = trainer.performance_stat[metric][state][epoch_as_final]
+        else:
+            df.loc[params_path, metric] = trainer.performance_stat[metric][state][epoch_as_final, out_idx]
+
+    return df
+
 def write_prediction_on_df(df, model_name, label_name, label_idx, predict_list, idx_list):
     # for predict in predict_list:
     col_pred_name = "{}_{}_prediction".format(label_name, model_name)

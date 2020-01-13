@@ -331,11 +331,11 @@ def leave_one_out_cross_validation(len_data):
 
     return cv_split_list
 
-def leave_one_patient_out_cross_validation(len_data, patient_deid):
-    print(len_data, patient_deid.shape)
+def leave_one_patient_out_cross_validation(data_idx, patient_deid):
+    print(data_idx.shape, patient_deid.shape)
     logo = LeaveOneGroupOut()
-    cv_rand_idx = np.random.permutation(len_data)
-    cv_split_list = list(logo.split(cv_rand_idx, cv_rand_idx, groups=patient_deid.squeeze()))
+    # cv_rand_idx = np.random.permutation(len_data)
+    cv_split_list = list(logo.split(X=data_idx, groups=patient_deid.squeeze()))
 
     return cv_split_list
 
@@ -344,3 +344,4 @@ def nfold_cross_validation(len_data, n_fold=5):
     cv_rand_idx = np.random.permutation(len_data)
     cv_split_list = list(kf.split(cv_rand_idx))
     return cv_split_list
+
