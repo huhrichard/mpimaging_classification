@@ -178,7 +178,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
             self.patient_img_list.append(path_list[0])
             self.patient_deid_list.append([self.deids[idx]])
             self.row_idx_list.append([idx])
-            if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
+            if self.multi_label_df['Gleason_Score'][idx] == "Normal":
                 g_score = 0
             else:
                 g_score = 1
@@ -194,7 +194,7 @@ class mpImage_sorted_by_patient_dataset_2(Dataset):
         self.row_idx_list = np.array(self.row_idx_list).astype(int)
 
         if included_gscore:
-            self.label_name = ['Gleason score for TMA core'] + self.label_name
+            self.label_name = ['Gleason_Score'] + self.label_name
         self.transform = transform
 
     def __len__(self):
@@ -264,7 +264,7 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
             self.patient_img_list.append(img_list)
             self.patient_deid_list.append([self.deids[idx]])
             self.row_idx_list.append([idx])
-            if self.multi_label_df['Gleason score for TMA core'][idx] == "Normal":
+            if self.multi_label_df['Gleason_Score'][idx] == "Normal":
                 g_score = 0
             else:
                 g_score = 1
@@ -280,7 +280,7 @@ class mpImage_4C_sorted_by_patient_dataset(Dataset):
         self.row_idx_list = np.array(self.row_idx_list).astype(int)
 
         if included_gscore:
-            self.label_name = ['Gleason score for TMA core'] + self.label_name
+            self.label_name = ['Gleason_Score'] + self.label_name
         self.transform = transform
 
     def __len__(self):
