@@ -190,7 +190,7 @@ if __name__ == "__main__":
             params_file = params_npy[params_picked[0]]
         else:
             params_file = params_npy[params_picked[nth_fold]]
-        parameters = pickle.load(open(params_file), 'rb')
+        parameters = pickle.load(open(params_file, 'rb'))
         parameters["epochs"] = args.epochs
         input_dim = parameters["input_dim"]
         parameters["input_dim"] = (args.input_C, input_dim[0], input_dim[1])
