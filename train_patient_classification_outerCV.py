@@ -208,7 +208,7 @@ if __name__ == "__main__":
                 fn.writelines(temp_job_str)
                 fn.close()
                 system('bsub < ' + lsf_f_name)
-                system('rm ' + lsf_f_name)
+                # system('rm ' + lsf_f_name)
 
     all_inner_finish = np.zeros((len(label_list), n_fold)).astype(bool)
     params_picked = np.zeros((len(label_list), n_fold))
@@ -252,7 +252,7 @@ if __name__ == "__main__":
                 fn.writelines(temp_job_str)
                 fn.close()
                 system('bsub < ' + lsf_f_name)
-                system('rm ' + lsf_f_name)
+                # system('rm ' + lsf_f_name)
 
     print('Nested CV ended.')
 
