@@ -84,7 +84,7 @@ def check_shd_run_outer(label_idx, label_name, num_params, all_inner_finish, par
 if __name__ == "__main__":
     img_path = args.img_path
     gt_path = args.gt_path
-    parallel_running = args.parallel
+    # parallel_running = args.parallel
     number_of_channels = args.input_C
     config_path = 'config/'
 
