@@ -14,6 +14,7 @@ import time
 from utils.postprocessing_visualization import *
 from decimal import Decimal
 from utils.loss_metrics_evaluation import *
+from config import con
 from joblib import Parallel, delayed
 import concurrent.futures
 from torch.utils.tensorboard import SummaryWriter
@@ -103,7 +104,7 @@ def run_inner_cv(parameters,
                     gt = Variable(gt.view(-1, *(gt.shape[2:]))).float().to(iterate_idx)
                     loss, predict = trainer_inner_cv.running_model(input, gt, epoch=epoch,
                                                                    running_state=running_state, nth_fold=outer_nth_fold,
-                                                                   idx=iterate_idx)
+                                                                   deid=iterate_idx)
                     ran_data += 1
                     running_loss += loss.item()
                 state_time_elapsed = time.time() - state_start_time
