@@ -28,7 +28,7 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
-parser.add_argument('--epochs', default=50, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=2, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
@@ -194,6 +194,7 @@ if __name__ == "__main__":
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
+                base_py_cmd += ' --epochs='+str(args.epochs)
                 base_py_cmd += ' --input_C='+str(number_of_channels)
                 base_py_cmd += ' --params_path='+str(params_fname)
 
@@ -241,8 +242,10 @@ if __name__ == "__main__":
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
+                base_py_cmd += ' --epochs=' + str(args.epochs)
                 base_py_cmd += ' --input_C=' + str(number_of_channels)
                 base_py_cmd += ' --params_path=outerCV'
+
 
                 base_py_cmd += ' --nth_fold=' + str(n_fold)
                 base_py_cmd += ' --train_idx_path=' + train_idx_npy
