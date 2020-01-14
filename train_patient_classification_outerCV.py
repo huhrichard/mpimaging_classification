@@ -79,7 +79,7 @@ def check_shd_run_outer(label_idx, label_name, num_params, all_inner_finish, par
         params_picked[label_idx, nth_outer_fold] = optimal_params_idx
         all_inner_finish[label_idx, nth_outer_fold] = finished_inner
 
-    return all_inner_finish, params_picked
+    return all_inner_finish, params_picked.astype(int)
 
 if __name__ == "__main__":
     img_path = args.img_path
