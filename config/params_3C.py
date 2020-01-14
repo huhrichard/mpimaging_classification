@@ -14,7 +14,7 @@ parameters_grid = {
                    "wd": [1e-3],
                    "input_dim": [(224, 224)],
                    "out_list": [False],
-                   "loss": ["BCE"],
+                   "loss": ["BCE", "FL"],
                    "train_data_normal": [True],
                    "n_batch": [1],
                    }
