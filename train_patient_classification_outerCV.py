@@ -48,6 +48,7 @@ print(args)
 
 def pick_optimal_params(score_df_path, num_params, picking_acc):
     try:
+        print(score_df_path)
         score_df = pandas.read_csv(score_df_path)
     except FileNotFoundError:
         return False, 0
