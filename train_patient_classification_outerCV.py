@@ -220,12 +220,13 @@ if __name__ == "__main__":
 
     while False in all_inner_finish:
         for label_idx, label_name in enumerate(label_list):
-            all_inner_finish, params_picked = check_shd_run_outer(label_idx=label_idx,
-                                                   label_name=label_name,
-                                                   num_params=num_params,
-                                                   all_inner_finish=all_inner_finish,
-                                                   params_picked=params_picked
-                                                   )
+            if (False in all_inner_finish[label_idx]):
+                all_inner_finish, params_picked = check_shd_run_outer(label_idx=label_idx,
+                                                       label_name=label_name,
+                                                       num_params=num_params,
+                                                       all_inner_finish=all_inner_finish,
+                                                       params_picked=params_picked
+                                                       )
 
             if (False not in all_inner_finish[label_idx]) and (not started_outerCV[label_idx]):
                 # TODO
@@ -263,9 +264,9 @@ if __name__ == "__main__":
                 started_outerCV[label_idx] = True
                 # system('rm ' + lsf_f_name)
             else:
-                print("Outer CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
+                print("\rOuter CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
                                                                                                  sum(all_inner_finish[label_idx])),
-                      end="\r")
+                      )
 
     print('Nested CV ended.')
 
