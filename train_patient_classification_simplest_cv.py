@@ -268,7 +268,8 @@ if __name__ == "__main__":
                                               state='val',
                                               out_label=label_name,
                                               params_idx=params_picked[0],
-                                              nth_fold=args.nth_fold)
+                                              # nth_fold=args.nth_fold
+                                              )
 
     score_df.to_csv(score_csv_name, index=None, header=True)
 
