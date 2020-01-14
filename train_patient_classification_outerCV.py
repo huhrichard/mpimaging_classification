@@ -209,13 +209,13 @@ if __name__ == "__main__":
                     fn.write(line+'\n')
                 fn.close()
                 system('bsub < ' + lsf_f_name)
-                # system('rm ' + lsf_f_name)
+                system('rm ' + lsf_f_name)
 
     all_inner_finish = np.zeros((len(label_list), n_fold)).astype(bool)
     params_picked = np.zeros((len(label_list), n_fold))
 
     # while False in all_inner_finish:
-
+    started_outerCV = np.zeros((len(label_list))).astype(bool)
 
     while False in all_inner_finish:
         for label_idx, label_name in enumerate(label_list):
@@ -225,8 +225,10 @@ if __name__ == "__main__":
                                                    all_inner_finish=all_inner_finish,
                                                    params_picked=params_picked
                                                    )
-            if False not in all_inner_finish:
+
+            if (False not in all_inner_finish[label_idx]) and (not started_outerCV[label_idx]):
                 # TODO
+                print("Started OuterCV on {}", label_name)
                 train_idx_npy = 'outerCV_train_idx.npy'
                 np.save(train_idx_npy, outer_cv_train_idx)
                 params_idx_path = 'config/params_outerCV.npy'
@@ -254,7 +256,13 @@ if __name__ == "__main__":
                     fn.write(line + '\n')
                 fn.close()
                 system('bsub < ' + lsf_f_name)
+
+                started_outerCV[label_idx] = True
                 # system('rm ' + lsf_f_name)
+            else:
+                print("Outer CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
+                                                                                                 sum(all_inner_finish[label_idx])),
+                      end="\r")
 
     print('Nested CV ended.')
 
