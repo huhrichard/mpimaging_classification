@@ -50,7 +50,7 @@ def pick_optimal_params(score_df_path, num_params, picking_acc):
     try:
         print(score_df_path)
         score_df = pandas.read_csv(score_df_path)
-    except FileNotFoundError:
+    except:
         return False, 0
     row = score_df.shape[0]
     if row == num_params:
@@ -219,7 +219,12 @@ if __name__ == "__main__":
     # while False in all_inner_finish:
     started_outerCV = np.zeros((len(label_list))).astype(bool)
 
+    counter = 0
+
     while False in all_inner_finish:
+        counter += 1
+        if counter > 500:
+            counter = 0
         for label_idx, label_name in enumerate(label_list):
             if (False in all_inner_finish[label_idx]):
                 all_inner_finish, params_picked = check_shd_run_outer(label_idx=label_idx,
@@ -264,7 +269,7 @@ if __name__ == "__main__":
 
                 started_outerCV[label_idx] = True
                 # system('rm ' + lsf_f_name)
-            elif not started_outerCV[label_idx]:
+            elif not started_outerCV[label_idx] and counter%500 == 0:
                 print("\rOuter CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
                                                                                                  sum(all_inner_finish[label_idx])),
                       )
