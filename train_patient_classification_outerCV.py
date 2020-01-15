@@ -154,14 +154,14 @@ if __name__ == "__main__":
     # idx = args.predicting_label
     # label_name = label_list[idx]
     base_job_str = ['#!/bin/bash',
-                    '#BSUB -J patient_classify # Job name',
+                    '#BSUB -J patient_classify_1cv # Job name',
                     '#BSUB -P acc_pandeg01a # allocation account',
                     '#BSUB -q gpu # queue'
                     '#BSUB -n 1 # number of compute cores',
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',
-                    '#BSUB -o pat_%J.stdout # output log (%J : JobID)',
-                    '#BSUB -eo pat_%J.stderr # error log',
+                    '#BSUB -o pat_1CV_%J.stdout # output log (%J : JobID)',
+                    '#BSUB -eo pat_1CV_%J.stderr # error log',
                     '#BSUB -L /bin/bash # Initialize the execution environment',
                     'module purge',
                     'module load anaconda3',
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
                 started_outerCV[label_idx] = True
                 # system('rm ' + lsf_f_name)
-            else:
+            elif not started_outerCV[label_idx]:
                 print("\rOuter CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
                                                                                                  sum(all_inner_finish[label_idx])),
                       )
