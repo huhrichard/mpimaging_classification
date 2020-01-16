@@ -223,10 +223,10 @@ if __name__ == "__main__":
     started_outerCV = np.zeros((len(label_list))).astype(bool)
 
     counter = 0
-
+    counter_print = 50000
     while False in all_inner_finish:
         counter += 1
-        if counter > 500:
+        if counter > counter_print:
             counter = 0
         for label_idx, label_name in enumerate(label_list):
             if (False in all_inner_finish[label_idx]):
@@ -272,7 +272,7 @@ if __name__ == "__main__":
 
                 started_outerCV[label_idx] = True
                 # system('rm ' + lsf_f_name)
-            elif not started_outerCV[label_idx] and counter%500 == 0:
+            elif not started_outerCV[label_idx] and counter%counter_print == 0:
                 print("\rOuter CV of label {} is still waiting, only {} innerCV comppleted".format(label_name,
                                                                                                  sum(all_inner_finish[label_idx])),
                       )
