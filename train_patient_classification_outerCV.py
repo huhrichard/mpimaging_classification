@@ -182,6 +182,7 @@ if __name__ == "__main__":
     np.save(params_path_npy_path, np.array(params_path_npy))
 
     if not built_innerCV:
+        system('rm {}*'.format(result_path))
         for label_idx, label_name in enumerate(label_list):
             for nth_outer_fold, (train_idx, val_idx) in enumerate(cv_split_list):
                 train_idx_npy = '{}{}th_fold_train_idx.npy'.format(config_path, nth_outer_fold)
