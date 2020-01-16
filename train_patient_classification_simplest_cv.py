@@ -185,11 +185,12 @@ if __name__ == "__main__":
     trained_list = []
     params_picked = np.load(args.params_picked_idx_npy)
     params_npy = np.load(args.params_npy)
+    idx = args.label_idx
     for nth_fold in range(n_fold):
         if params_picked.shape[0] < n_fold:
             params_file = params_npy[params_picked[0]]
         else:
-            params_file = params_npy[params_picked[nth_fold]]
+            params_file = params_npy[idx, params_picked[nth_fold]]
         print(params_file)
         parameters = pickle.load(open(str(params_file), 'rb'))
         parameters["epochs"] = args.epochs
@@ -208,7 +209,7 @@ if __name__ == "__main__":
         # idx = args.predicting_label
         # label_name = label_list[idx]
 
-        idx = args.label_idx
+
         label_name = args.label_predicting
         # for idx, label_name in enumerate(label_list):
 
