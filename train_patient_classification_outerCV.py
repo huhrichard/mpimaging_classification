@@ -40,7 +40,7 @@ parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
 parser.add_argument('--input_C', default=3, type=int, help='RGB (3) or Raw (4)?')
 parser.add_argument('--params_grid_config', default='params_3C', type=str, help='Path of params grid gonna be import')
 parser.add_argument('--hpc', default=True, type=bool, help='Using hpc?')
-parser.add_argument('--built_innerCV?', default=False, type=bool, help='Finished innerCV?')
+parser.add_argument('--built_innerCV', default=False, type=bool, help='Finished innerCV?')
 
 
 args = parser.parse_args()
@@ -88,6 +88,7 @@ if __name__ == "__main__":
     # parallel_running = args.parallel
     number_of_channels = args.input_C
     config_path = 'config/'
+    built_innerCV = args.built_innerCV
 
     if number_of_channels == 3:
         # from utils.configs_3C import *
@@ -180,38 +181,39 @@ if __name__ == "__main__":
     params_path_npy_path = 'config/params_path.npy'
     np.save(params_path_npy_path, np.array(params_path_npy))
 
-    for label_idx, label_name in enumerate(label_list):
-        for nth_outer_fold, (train_idx, val_idx) in enumerate(cv_split_list):
-            train_idx_npy = '{}{}th_fold_train_idx.npy'.format(config_path, nth_outer_fold)
-            np.save(train_idx_npy,train_idx)
-            for params_idx, parameters in enumerate(list_parameters):
-                params_idx_path = '{}params_{}.npy'.format(config_path, params_idx)
-                np.save(params_idx_path, np.array([params_idx]))
-                specific_trainer = put_parameters_to_trainer_cv(**parameters)
-                params_fname = config_path + specific_trainer.model_name + '.params'
-                pickle.dump(parameters, open(params_fname, 'wb'))
+    if not built_innerCV:
+        for label_idx, label_name in enumerate(label_list):
+            for nth_outer_fold, (train_idx, val_idx) in enumerate(cv_split_list):
+                train_idx_npy = '{}{}th_fold_train_idx.npy'.format(config_path, nth_outer_fold)
+                np.save(train_idx_npy,train_idx)
+                for params_idx, parameters in enumerate(list_parameters):
+                    params_idx_path = '{}params_{}.npy'.format(config_path, params_idx)
+                    np.save(params_idx_path, np.array([params_idx]))
+                    specific_trainer = put_parameters_to_trainer_cv(**parameters)
+                    params_fname = config_path + specific_trainer.model_name + '.params'
+                    pickle.dump(parameters, open(params_fname, 'wb'))
 
-                lsf_f_name = 'temp_submit_gpu_job_innerCV_{}.lsf'.format(nth_outer_fold)
-                fn = open(lsf_f_name, 'w')
-                base_py_cmd = 'python train_patient_classification_simplest_cv.py'
+                    lsf_f_name = 'temp_submit_gpu_job_innerCV_{}.lsf'.format(nth_outer_fold)
+                    fn = open(lsf_f_name, 'w')
+                    base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
-                base_py_cmd += ' --epochs='+str(args.epochs)
-                base_py_cmd += ' --input_C='+str(number_of_channels)
-                base_py_cmd += ' --params_path='+str(params_fname)
+                    base_py_cmd += ' --epochs='+str(args.epochs)
+                    base_py_cmd += ' --input_C='+str(number_of_channels)
+                    base_py_cmd += ' --params_path='+str(params_fname)
 
-                base_py_cmd += ' --nth_fold='+str(nth_outer_fold)
-                base_py_cmd += ' --train_idx_path='+train_idx_npy
-                base_py_cmd += ' --label_predicting='+label_name
-                base_py_cmd += ' --label_idx=' + str(label_idx)
-                base_py_cmd += ' --params_npy='+params_path_npy_path
-                base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
-                temp_job_str = base_job_str.copy()
-                temp_job_str.append(base_py_cmd)
-                for line in temp_job_str:
-                    fn.write(line+'\n')
-                fn.close()
-                system('bsub < ' + lsf_f_name)
-                system('rm ' + lsf_f_name)
+                    base_py_cmd += ' --nth_fold='+str(nth_outer_fold)
+                    base_py_cmd += ' --train_idx_path='+train_idx_npy
+                    base_py_cmd += ' --label_predicting='+label_name
+                    base_py_cmd += ' --label_idx=' + str(label_idx)
+                    base_py_cmd += ' --params_npy='+params_path_npy_path
+                    base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
+                    temp_job_str = base_job_str.copy()
+                    temp_job_str.append(base_py_cmd)
+                    for line in temp_job_str:
+                        fn.write(line+'\n')
+                    fn.close()
+                    system('bsub < ' + lsf_f_name)
+                    system('rm ' + lsf_f_name)
 
     all_inner_finish = np.zeros((len(label_list), n_fold)).astype(bool)
     params_picked = np.zeros((len(label_list), n_fold))
