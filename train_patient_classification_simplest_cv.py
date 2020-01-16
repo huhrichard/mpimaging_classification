@@ -187,7 +187,7 @@ if __name__ == "__main__":
     params_npy = np.load(args.params_npy)
     idx = args.label_idx
     for nth_fold in range(n_fold):
-        if params_picked.shape[0] < n_fold:
+        if params_picked.shape[1] < n_fold:
             params_file = params_npy[params_picked[0]]
         else:
             params_file = params_npy[idx, params_picked[nth_fold]]
