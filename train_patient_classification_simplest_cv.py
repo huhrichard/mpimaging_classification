@@ -265,13 +265,17 @@ if __name__ == "__main__":
     else:
         score_df = pd.DataFrame()
 
+    if len(params_picked.shape) < 2:
+        params_idx = params_picked[0]
+    else:
+        params_idx = None
     score_df = write_scores_on_df_DL_score_df(trainer=merged_trainer,
                                               params_path=args.params_path,
                                               df=score_df,
                                               metrics=metrics,
                                               state='val',
                                               out_label=label_name,
-                                              params_idx=params_picked[0],
+                                              params_idx=params_idx,
                                               # nth_fold=args.nth_fold
                                               )
 
