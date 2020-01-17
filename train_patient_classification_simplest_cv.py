@@ -260,6 +260,7 @@ if __name__ == "__main__":
     score_csv_name = "{}{}_{}scores.csv".format(result_path,
                                              label_name,
                                              result_str)
+    print(score_csv_name)
     if os.path.exists(score_csv_name):
         score_df = pandas.read_csv(score_csv_name)
     else:
