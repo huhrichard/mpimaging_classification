@@ -56,6 +56,7 @@ def pick_optimal_params(score_df_path, num_params, picking_acc):
     if row == num_params:
         max_idx_of_each_acc = score_df.idxmax(axis=0)
         max_idx_picking_acc = max_idx_of_each_acc[picking_acc]
+        print(max_idx_picking_acc)
         return True, max_idx_picking_acc
     else:
         return False, 0
@@ -161,8 +162,8 @@ if __name__ == "__main__":
                     '#BSUB -n 1 # number of compute cores',
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',
-                    '#BSUB -o pat_1CV_{}_%J.stdout # output log (%J : JobID)',
-                    '#BSUB -eo pat_1CV_{}_%J.stderr # error log',
+                    '#BSUB -o pat_1CV_{}_%J.stdout',
+                    '#BSUB -eo pat_1CV_{}_%J.stderr',
                     '#BSUB -L /bin/bash # Initialize the execution environment',
                     'module purge',
                     'module load anaconda3',
@@ -242,6 +243,7 @@ if __name__ == "__main__":
 
             if (False not in all_inner_finish[label_idx]) and (not started_outerCV[label_idx]):
                 # TODO
+                print(params_picked)
                 print("Started OuterCV on {}", label_name)
                 train_idx_npy = 'outerCV_train_idx.npy'
                 np.save(train_idx_npy, outer_cv_train_idx)
