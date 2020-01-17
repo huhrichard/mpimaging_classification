@@ -48,7 +48,7 @@ print(args)
 
 def pick_optimal_params(score_df_path, num_params, picking_acc):
     try:
-        print(score_df_path)
+        # print(score_df_path)
         score_df = pandas.read_csv(score_df_path)
     except:
         return False, 0
@@ -155,14 +155,14 @@ if __name__ == "__main__":
     # idx = args.predicting_label
     # label_name = label_list[idx]
     base_job_str = ['#!/bin/bash',
-                    '#BSUB -J patient_classify_1cv # Job name',
+                    '#BSUB -J patient_classify_1cv_{} # Job name',
                     '#BSUB -P acc_pandeg01a # allocation account',
                     '#BSUB -q gpu # queue'
                     '#BSUB -n 1 # number of compute cores',
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',
-                    '#BSUB -o pat_1CV_%J.stdout # output log (%J : JobID)',
-                    '#BSUB -eo pat_1CV_%J.stderr # error log',
+                    '#BSUB -o pat_1CV_{}_%J.stdout # output log (%J : JobID)',
+                    '#BSUB -eo pat_1CV_{}_%J.stderr # error log',
                     '#BSUB -L /bin/bash # Initialize the execution environment',
                     'module purge',
                     'module load anaconda3',
@@ -209,6 +209,9 @@ if __name__ == "__main__":
                     base_py_cmd += ' --params_npy='+params_path_npy_path
                     base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
                     temp_job_str = base_job_str.copy()
+                    temp_job_str[1] = temp_job_str[1].format(label_name)
+                    temp_job_str[7] = temp_job_str[7].format(label_name)
+                    temp_job_str[8] = temp_job_str[8].format(label_name)
                     temp_job_str.append(base_py_cmd)
                     for line in temp_job_str:
                         fn.write(line+'\n')
@@ -264,6 +267,9 @@ if __name__ == "__main__":
                 base_py_cmd += ' --params_npy=' + params_path_npy_path
                 base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
                 temp_job_str = base_job_str.copy()
+                temp_job_str[1] = temp_job_str[1].format(label_name)
+                temp_job_str[7] = temp_job_str[7].format(label_name)
+                temp_job_str[8] = temp_job_str[8].format(label_name)
                 temp_job_str.append(base_py_cmd)
                 for line in temp_job_str:
                     fn.write(line + '\n')
