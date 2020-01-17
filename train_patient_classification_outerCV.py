@@ -210,8 +210,8 @@ if __name__ == "__main__":
                     base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
                     temp_job_str = base_job_str.copy()
                     temp_job_str[1] = temp_job_str[1].format(label_name)
-                    temp_job_str[7] = temp_job_str[7].format(label_name)
                     temp_job_str[8] = temp_job_str[8].format(label_name)
+                    temp_job_str[9] = temp_job_str[9].format(label_name)
                     temp_job_str.append(base_py_cmd)
                     for line in temp_job_str:
                         fn.write(line+'\n')
@@ -268,8 +268,8 @@ if __name__ == "__main__":
                 base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
                 temp_job_str = base_job_str.copy()
                 temp_job_str[1] = temp_job_str[1].format(label_name)
-                temp_job_str[7] = temp_job_str[7].format(label_name)
                 temp_job_str[8] = temp_job_str[8].format(label_name)
+                temp_job_str[9] = temp_job_str[9].format(label_name)
                 temp_job_str.append(base_py_cmd)
                 for line in temp_job_str:
                     fn.write(line + '\n')
