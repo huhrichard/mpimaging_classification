@@ -251,7 +251,7 @@ if __name__ == "__main__":
 
         # label_list = ['Gleason score',"BCR", "AP", "EPE"]
         # label_list = ["BCR", "AP", "EPE"]
-
+    print(args.innerCV)
     if args.innerCV is True:
         print('innerCV')
         result_str = '{}th_fold_outerCV_'.format(args.nth_fold)
