@@ -56,7 +56,7 @@ def pick_optimal_params(score_df_path, num_params, picking_acc):
     if row == num_params:
         max_idx_of_each_acc = score_df.idxmax(axis=0)
         max_idx_picking_acc = max_idx_of_each_acc[picking_acc]
-        print(max_idx_picking_acc)
+        # print(max_idx_picking_acc)
         return True, max_idx_picking_acc
     else:
         return False, 0
@@ -158,7 +158,7 @@ if __name__ == "__main__":
     base_job_str = ['#!/bin/bash',
                     '#BSUB -J patient_classify_1cv_{} # Job name',
                     '#BSUB -P acc_pandeg01a # allocation account',
-                    '#BSUB -q gpu # queue'
+                    '#BSUB -q gpu # queue',
                     '#BSUB -n 1 # number of compute cores',
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',

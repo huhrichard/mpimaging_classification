@@ -192,7 +192,7 @@ if __name__ == "__main__":
         if len(params_picked.shape) < 2:
             params_file = params_npy[params_picked[0]]
         else:
-            params_file = params_npy[params_picked[nth_fold]]
+            params_file = params_npy[params_picked[idx, nth_fold]]
         print(params_file)
         parameters = pickle.load(open(str(params_file), 'rb'))
         parameters["epochs"] = args.epochs
