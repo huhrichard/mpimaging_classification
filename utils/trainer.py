@@ -106,11 +106,11 @@ class cv_trainer(object):
             if epoch % 10 == 0:
                 print("predict:", predict_detached)
                 print("gt:", gt_detached)
-                result = subprocess.check_output(
-                    [
-                        'nvidia-smi'
-                    ], encoding='utf-8')
-                print(result)
+                # result = subprocess.check_output(
+                #     [
+                #         'nvidia-smi'
+                #     ], encoding='utf-8')
+                # print(result)
 
         deid = deid.detach().cpu()
 

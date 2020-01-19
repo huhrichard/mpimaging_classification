@@ -162,8 +162,8 @@ if __name__ == "__main__":
                     '#BSUB -n 1 # number of compute cores',
                     '#BSUB -W 24:00 # walltime in HH:MM',
                     '#BSUB -R rusage[mem=8000] # 8 GB of memory requested',
-                    '#BSUB -o pat_1CV_{}_%J.stdout',
-                    '#BSUB -eo pat_1CV_{}_%J.stderr',
+                    '#BSUB -o pat_1CV_{}{}_%J.stdout',
+                    '#BSUB -eo pat_1CV_{}{}_%J.stderr',
                     '#BSUB -L /bin/bash # Initialize the execution environment',
                     'module purge',
                     'module load anaconda3',
@@ -210,9 +210,9 @@ if __name__ == "__main__":
                     base_py_cmd += ' --params_npy='+params_path_npy_path
                     base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
                     temp_job_str = base_job_str.copy()
-                    temp_job_str[1] = temp_job_str[1].format(label_name)
-                    temp_job_str[7] = temp_job_str[7].format(label_name)
-                    temp_job_str[8] = temp_job_str[8].format(label_name)
+                    temp_job_str[1] = temp_job_str[1].format(label_name, '')
+                    temp_job_str[7] = temp_job_str[7].format(label_name, '')
+                    temp_job_str[8] = temp_job_str[8].format(label_name, '')
                     temp_job_str.append(base_py_cmd)
                     for line in temp_job_str:
                         fn.write(line+'\n')
@@ -253,7 +253,7 @@ if __name__ == "__main__":
                 # params_fname = 'config/' + specific_trainer.model_name + '.params'
                 # pickle.dump(parameters, open(params_fname, 'wb'))
 
-                lsf_f_name = 'temp_submit_gpu_job_outerCV.lsf'
+                lsf_f_name = 'temp_submit_gpu_job_outerCV_{}.lsf'.format(label_name)
                 fn = open(lsf_f_name, 'w')
                 base_py_cmd = 'python train_patient_classification_simplest_cv.py'
 
@@ -270,9 +270,9 @@ if __name__ == "__main__":
                 base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
                 base_py_cmd += ' --innerCV=0'
                 temp_job_str = base_job_str.copy()
-                temp_job_str[1] = temp_job_str[1].format(label_name)
-                temp_job_str[7] = temp_job_str[7].format(label_name)
-                temp_job_str[8] = temp_job_str[8].format(label_name)
+                temp_job_str[1] = temp_job_str[1].format(label_name, '_out')
+                temp_job_str[7] = temp_job_str[7].format(label_name, '_outerCV')
+                temp_job_str[8] = temp_job_str[8].format(label_name, '_outerCV')
                 temp_job_str.append(base_py_cmd)
                 print(base_py_cmd)
                 for line in temp_job_str:
