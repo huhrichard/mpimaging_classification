@@ -42,7 +42,7 @@ parser.add_argument('--nth_fold', default=0, type=int, help='n-th fold of CV?')
 parser.add_argument('--train_idx_path', default='', type=str, help='Path of training index')
 parser.add_argument('--label_predicting', default='', type=str, help='Which label is gonna be predict?')
 parser.add_argument('--label_idx', default=0, type=int, help='Index of the label predicting')
-parser.add_argument('--innerCV', default=True, type=bool, help='Performing inner CV?')
+parser.add_argument('--innerCV', default=False, type=bool, help='Performing inner CV?')
 parser.add_argument('--params_picked_idx_npy', default='', type=str, help='params_list_outer_train')
 parser.add_argument('--params_npy', default='', type=str, help='params_list_outer_train')
 

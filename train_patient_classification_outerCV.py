@@ -209,6 +209,7 @@ if __name__ == "__main__":
                     base_py_cmd += ' --label_idx=' + str(label_idx)
                     base_py_cmd += ' --params_npy='+params_path_npy_path
                     base_py_cmd += ' --params_picked_idx_npy='+params_idx_path
+                    base_py_cmd += ' --innerCV=True'
                     temp_job_str = base_job_str.copy()
                     temp_job_str[1] = temp_job_str[1].format(label_name, '')
                     temp_job_str[7] = temp_job_str[7].format(label_name, '')
@@ -268,7 +269,7 @@ if __name__ == "__main__":
                 base_py_cmd += ' --label_idx=' + str(label_idx)
                 base_py_cmd += ' --params_npy=' + params_path_npy_path
                 base_py_cmd += ' --params_picked_idx_npy=' + params_idx_path
-                base_py_cmd += ' --innerCV=0'
+
                 temp_job_str = base_job_str.copy()
                 temp_job_str[1] = temp_job_str[1].format(label_name, '_out')
                 temp_job_str[7] = temp_job_str[7].format(label_name, '_outerCV')
