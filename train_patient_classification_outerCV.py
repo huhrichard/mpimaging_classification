@@ -247,8 +247,8 @@ if __name__ == "__main__":
                 print(params_picked)
                 print("Started OuterCV on {}", label_name)
                 optimal_params_list = []
-                for nth_outer_fold in range(cv_split_list):
-                    params_name =
+                # for nth_outer_fold in range(cv_split_list):
+                #     params_name =
                 train_idx_npy = 'outerCV_train_idx.npy'
                 np.save(train_idx_npy, outer_cv_train_idx)
                 params_idx_path = 'config/params_outerCV.npy'
