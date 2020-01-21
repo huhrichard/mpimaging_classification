@@ -180,7 +180,8 @@ if __name__ == "__main__":
         pickle.dump(parameters, open(params_fname, 'wb'))
         params_path_npy.append(params_fname)
     params_path_npy_path = 'config/params_path.npy'
-    np.save(params_path_npy_path, np.array(params_path_npy))
+    params_path_npy = np.array(params_path_npy)
+    np.save(params_path_npy_path, params_path_npy)
 
     if not built_innerCV:
         system('rm {}*'.format(result_path))
@@ -247,8 +248,13 @@ if __name__ == "__main__":
                 print(params_picked)
                 print("Started OuterCV on {}", label_name)
                 optimal_params_list = []
-                # for nth_outer_fold in range(cv_split_list):
-                #     params_name =
+                for nth_outer_fold in range(cv_split_list):
+                    params_name = params_path_npy[params_picked[label_idx, nth_outer_fold]]
+                    print("{} {}th fold optimal params: {}".format((label_name, nth_outer_fold, params_name)))
+                    optimal_params_list.append(params_name)
+                optimal_params_df = pd.DataFrame({'params_name': optimal_params_list})
+                optimal_params_df.to_csv(result_path + '{}_innerCV_params.csv'.format(label_name))
+
                 train_idx_npy = 'outerCV_train_idx.npy'
                 np.save(train_idx_npy, outer_cv_train_idx)
                 params_idx_path = 'config/params_outerCV.npy'
