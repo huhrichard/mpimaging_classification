@@ -248,7 +248,7 @@ if __name__ == "__main__":
                 print(params_picked)
                 print("Started OuterCV on {}", label_name)
                 optimal_params_list = []
-                for nth_outer_fold in range(cv_split_list):
+                for nth_outer_fold in range(len(cv_split_list)):
                     params_name = params_path_npy[params_picked[label_idx, nth_outer_fold]]
                     print("{} {}th fold optimal params: {}".format(label_name, nth_outer_fold, params_name))
                     optimal_params_list.append(params_name)
