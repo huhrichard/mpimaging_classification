@@ -260,11 +260,11 @@ if __name__ == "__main__":
         result_str = ''
 
     # avoid write only once making there is missing value written.
+    score_csv_name = "{}{}_{}scores.csv".format(result_path,
+                                                label_name,
+                                                result_str)
+    print(score_csv_name)
     for i in range(10):
-        score_csv_name = "{}{}_{}scores.csv".format(result_path,
-                                                 label_name,
-                                                 result_str)
-        print(score_csv_name)
         if os.path.exists(score_csv_name):
             score_df = pandas.read_csv(score_csv_name)
         else:
@@ -284,7 +284,9 @@ if __name__ == "__main__":
                                                   params_idx=params_idx,
                                                   # nth_fold=args.nth_fold
                                                   )
+        score_df.drop_duplicates('params_idx', inplace=True)
         score_df.to_csv(score_csv_name, index=None, header=True)
+
 
     if not args.innerCV:
         score_pred_csv_name = "{}result.csv".format(result_path)
