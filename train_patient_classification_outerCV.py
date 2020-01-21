@@ -57,7 +57,7 @@ def pick_optimal_params(score_df_path, num_params, picking_acc):
         max_idx_of_each_acc = score_df.idxmax(axis=0)
         max_idx_picking_acc = max_idx_of_each_acc[picking_acc]
         # print(max_idx_picking_acc)
-        return True, int(max_idx_picking_acc['params_idx'])
+        return True, int(score_df.loc[max_idx_picking_acc, 'params_idx'])
     else:
         return False, 0
 
@@ -250,7 +250,7 @@ if __name__ == "__main__":
                 optimal_params_list = []
                 for nth_outer_fold in range(cv_split_list):
                     params_name = params_path_npy[params_picked[label_idx, nth_outer_fold]]
-                    print("{} {}th fold optimal params: {}".format((label_name, nth_outer_fold, params_name)))
+                    print("{} {}th fold optimal params: {}".format(label_name, nth_outer_fold, params_name))
                     optimal_params_list.append(params_name)
                 optimal_params_df = pd.DataFrame({'params_name': optimal_params_list})
                 optimal_params_df.to_csv(result_path + '{}_innerCV_params.csv'.format(label_name))
