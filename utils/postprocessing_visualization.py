@@ -315,7 +315,7 @@ def write_scores_on_df_DL_score_df(trainer, df, metrics, state, params_path, par
 
     # for trainer in trainers:
     if params_idx is not None:
-        df.loc[params_path, 'params_idx'] = params_idx
+        df.loc[params_path, 'params_idx'] = int(params_idx)
     # df.loc[params_path, 'nth_fold'] = nth_fold
     for metric in metrics:
         if out_idx is None:

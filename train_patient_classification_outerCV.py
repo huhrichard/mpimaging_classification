@@ -28,7 +28,7 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 parser = argparse.ArgumentParser(description='training for MPM image classification')
-parser.add_argument('--epochs', default=20, type=int, help='number of total epochs to run')
+parser.add_argument('--epochs', default=2, type=int, help='number of total epochs to run')
 parser.add_argument('--datapath', default='data/', type=str, help='Path of data')
 parser.add_argument('--img_path', default='data/MPM/', type=str, help='Path of data')
 parser.add_argument('--gt_path', default='data/TMA_MPM.csv',
@@ -57,7 +57,7 @@ def pick_optimal_params(score_df_path, num_params, picking_acc):
         max_idx_of_each_acc = score_df.idxmax(axis=0)
         max_idx_picking_acc = max_idx_of_each_acc[picking_acc]
         # print(max_idx_picking_acc)
-        return True, max_idx_picking_acc
+        return True, int(max_idx_picking_acc['params_idx'])
     else:
         return False, 0
 
@@ -246,6 +246,9 @@ if __name__ == "__main__":
                 # TODO
                 print(params_picked)
                 print("Started OuterCV on {}", label_name)
+                optimal_params_list = []
+                for nth_outer_fold in range(cv_split_list):
+                    params_name =
                 train_idx_npy = 'outerCV_train_idx.npy'
                 np.save(train_idx_npy, outer_cv_train_idx)
                 params_idx_path = 'config/params_outerCV.npy'
@@ -289,6 +292,7 @@ if __name__ == "__main__":
                       )
 
     print('Nested CV ended.')
+
 
 
 
