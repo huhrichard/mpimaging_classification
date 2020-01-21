@@ -6,7 +6,7 @@ parameters_grid = {
                    # "performance_metrics_list": [metric_list],
                    # "device": [device],
                    # "p_model": ["resnext101_32x8d"],
-                   "p_model": ["resnet18", "resnet50"],
+                   "p_model": ["resnet18"],
                    # "p_model": ["wide_resnet101_2"],
                    "p_weight": [True],
                    "feat_ext": [False],
@@ -14,7 +14,7 @@ parameters_grid = {
                    "wd": [1e-3],
                    "input_dim": [(224, 224)],
                    "out_list": [False],
-                   "loss": ["BCE", "FL"],
+                   "loss": ["BCE"],
                    "train_data_normal": [True],
                    "n_batch": [8, 32],
                    }

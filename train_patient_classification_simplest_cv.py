@@ -259,30 +259,32 @@ if __name__ == "__main__":
         print('outerCV')
         result_str = ''
 
-    score_csv_name = "{}{}_{}scores.csv".format(result_path,
-                                             label_name,
-                                             result_str)
-    print(score_csv_name)
-    if os.path.exists(score_csv_name):
-        score_df = pandas.read_csv(score_csv_name)
-    else:
-        score_df = pd.DataFrame()
+    # avoid write only once making there is missing value written.
+    for i in range(10):
+        score_csv_name = "{}{}_{}scores.csv".format(result_path,
+                                                 label_name,
+                                                 result_str)
+        print(score_csv_name)
+        if os.path.exists(score_csv_name):
+            score_df = pandas.read_csv(score_csv_name)
+        else:
+            score_df = pd.DataFrame()
 
-    if len(params_picked.shape) < 2:
-        params_idx = params_picked[0]
-    else:
-        params_idx = None
-    score_df = write_scores_on_df_DL_score_df(trainer=merged_trainer,
-                                              params_path=args.params_path,
-                                              df=score_df,
-                                              metrics=metrics,
-                                              state='val',
-                                              out_label=label_name,
-                                              params_idx=params_idx,
-                                              # nth_fold=args.nth_fold
-                                              )
+        if len(params_picked.shape) < 2:
+            params_idx = params_picked[0]
+        else:
+            params_idx = None
 
-    score_df.to_csv(score_csv_name, index=None, header=True)
+        score_df = write_scores_on_df_DL_score_df(trainer=merged_trainer,
+                                                  params_path=args.params_path,
+                                                  df=score_df,
+                                                  metrics=metrics,
+                                                  state='val',
+                                                  out_label=label_name,
+                                                  params_idx=params_idx,
+                                                  # nth_fold=args.nth_fold
+                                                  )
+        score_df.to_csv(score_csv_name, index=None, header=True)
 
     if not args.innerCV:
         score_pred_csv_name = "{}result.csv".format(result_path)

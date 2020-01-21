@@ -156,7 +156,7 @@ if __name__ == "__main__":
     # idx = args.predicting_label
     # label_name = label_list[idx]
     base_job_str = ['#!/bin/bash',
-                    '#BSUB -J patient_classify_1cv_{} # Job name',
+                    '#BSUB -J patient_classify_1cv_{}{} # Job name',
                     '#BSUB -P acc_pandeg01a # allocation account',
                     '#BSUB -q gpu # queue',
                     '#BSUB -n 1 # number of compute cores',
