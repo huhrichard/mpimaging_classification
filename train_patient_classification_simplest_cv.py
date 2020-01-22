@@ -285,7 +285,8 @@ if __name__ == "__main__":
                                                   params_idx=params_idx,
                                                   # nth_fold=args.nth_fold
                                                   )
-        score_df.drop_duplicates('params_idx', inplace=True)
+        if 'params_idx' in score_df.columns:
+            score_df.drop_duplicates('params_idx', inplace=True)
         score_df.to_csv(score_csv_name, index=None, header=True)
         time.sleep(5)
 
