@@ -287,15 +287,18 @@ if __name__ == "__main__":
                                                   )
         if 'params_idx' in score_df.columns:
             score_df.drop_duplicates('params_idx', inplace=True)
+
         score_df.to_csv(score_csv_name, index=None, header=True)
+        if not 'params_idx' in score_df.columns:
+            break
         time.sleep(5)
 
 
     if not args.innerCV:
         score_pred_csv_name = "{}result.csv".format(result_path)
 
-        if os.path.exists(score_csv_name):
-            score_pred_df = pandas.read_csv(score_csv_name)
+        if os.path.exists(score_pred_csv_name):
+            score_pred_df = pandas.read_csv(score_pred_csv_name)
         else:
             score_pred_df = base_dataset.multi_label_df.copy()
 
