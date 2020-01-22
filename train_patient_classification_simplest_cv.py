@@ -265,6 +265,7 @@ if __name__ == "__main__":
                                                 result_str)
     print(score_csv_name)
     for i in range(10):
+
         if os.path.exists(score_csv_name):
             score_df = pandas.read_csv(score_csv_name)
         else:
@@ -286,6 +287,7 @@ if __name__ == "__main__":
                                                   )
         score_df.drop_duplicates('params_idx', inplace=True)
         score_df.to_csv(score_csv_name, index=None, header=True)
+        time.sleep(5)
 
 
     if not args.innerCV:
