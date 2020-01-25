@@ -10,7 +10,7 @@ parameters_grid = {
                    "feat_ext": [False],
                    "lr": [1e-7, 1e-6],
                    "wd": [1e-3, 1e-5],
-                   "input_dim": [(224, 224), (448, 448)],
+                   "input_dim": [(224, 224)],
                    "out_list": [False],
                    "loss": ["BCE", "FL"],
                    "train_data_normal": [True],
